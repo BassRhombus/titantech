@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mod Manager - DinoMod Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mod-manager.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="DinoMod Hub Logo" class="logo">
+            <h1>DinoMod Hub</h1>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="mod-manager.html" class="active">Mod Manager</a></li>
+                <li><a href="community.html">Community</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="login.html" class="login-btn"><i class="fab fa-discord"></i> Login with Discord</a></li>
+            </ul>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="mod-manager-intro">
+            <h2>Path of Titans Mod Manager</h2>
+            <p>Create server profiles, manage your mod collection, and share with your community</p>
+            
+            <div class="mod-login-prompt" id="loginPrompt">
+                <i class="fas fa-lock"></i>
+                <h3>Server Owner Access</h3>
+                <p>Login with Discord to create and manage your server profiles</p>
+                <a href="login.html" class="login-btn"><i class="fab fa-discord"></i> Login with Discord</a>
+            </div>
+        </section>
+
+        <section class="public-servers">
+            <h2>Public Server Profiles</h2>
+            <div class="search-filter">
+                <input type="text" placeholder="Search servers..." id="serverSearch">
+                <div class="filter-options">
+                    <select id="serverFilter">
+                        <option value="all">All Servers</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="recent">Recently Updated</option>
+                        <option value="realism">Realism</option>
+                        <option value="modded">Heavily Modded</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="server-grid">
+                <!-- Server cards would be dynamically generated -->
+                <div class="server-profile-card">
+                    <div class="server-banner">
+                        <img src="images/server1-banner.jpg" alt="Isla Nublar Server Banner">
+                        <div class="server-status online">Online</div>
+                    </div>
+                    <div class="server-info">
+                        <h3>Isla Nublar</h3>
+                        <p class="server-description">Semi-realism server with custom dinosaur skins and maps</p>
+                        <div class="server-stats">
+                            <span><i class="fas fa-users"></i> 85/100</span>
+                            <span><i class="fas fa-puzzle-piece"></i> 24 mods</span>
+                        </div>
+                        <div class="server-tags">
+                            <span>Semi-Realism</span>
+                            <span>Custom Skins</span>
+                            <span>Custom Maps</span>
+                        </div>
+                        <a href="server-detail.html?id=1" class="view-server-btn">View Server</a>
+                    </div>
+                </div>
+
+                <div class="server-profile-card">
+                    <div class="server-banner">
+                        <img src="images/server2-banner.jpg" alt="Prehistoric Paradise Server Banner">
+                        <div class="server-status online">Online</div>
+                    </div>
+                    <div class="server-info">
+                        <h3>Prehistoric Paradise</h3>
+                        <p class="server-description">Modded gameplay with custom maps and dinosaurs</p>
+                        <div class="server-stats">
+                            <span><i class="fas fa-users"></i> 67/100</span>
+                            <span><i class="fas fa-puzzle-piece"></i> 35 mods</span>
+                        </div>
+                        <div class="server-tags">
+                            <span>Custom Dinos</span>
+                            <span>Events</span>
+                            <span>PVP</span>
+                        </div>
+                        <a href="server-detail.html?id=2" class="view-server-btn">View Server</a>
+                    </div>
+                </div>
+
+                <div class="server-profile-card">
+                    <div class="server-banner">
+                        <img src="images/server3-banner.jpg" alt="Apex Predators Server Banner">
+                        <div class="server-status online">Online</div>
+                    </div>
+                    <div class="server-info">
+                        <h3>Apex Predators</h3>
+                        <p class="server-description">Hardcore survival with balanced gameplay mods</p>
+                        <div class="server-stats">
+                            <span><i class="fas fa-users"></i> 92/100</span>
+                            <span><i class="fas fa-puzzle-piece"></i> 18 mods</span>
+                        </div>
+                        <div class="server-tags">
+                            <span>Hardcore</span>
+                            <span>Survival</span>
+                            <span>Balanced</span>
+                        </div>
+                        <a href="server-detail.html?id=3" class="view-server-btn">View Server</a>
+                    </div>
+                </div>
+
+                <div class="server-profile-card">
+                    <div class="server-banner">
+                        <img src="images/server4-banner.jpg" alt="Mesozoic Meadows Server Banner">
+                        <div class="server-status offline">Offline</div>
+                    </div>
+                    <div class="server-info">
+                        <h3>Mesozoic Meadows</h3>
+                        <p class="server-description">Family-friendly server with growth boost and community events</p>
+                        <div class="server-stats">
+                            <span><i class="fas fa-users"></i> 0/100</span>
+                            <span><i class="fas fa-puzzle-piece"></i> 12 mods</span>
+                        </div>
+                        <div class="server-tags">
+                            <span>Growth Boost</span>
+                            <span>Family-Friendly</span>
+                            <span>Events</span>
+                        </div>
+                        <a href="server-detail.html?id=4" class="view-server-btn">View Server</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagination">
+                <a href="#" class="active">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <a href="#">4</a>
+                <a href="#">5</a>
+                <a href="#">Next &raquo;</a>
+            </div>
+        </section>
+
+        <section class="mod-features">
+            <h2>Mod Manager Features</h2>
+            <div class="features-container">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Server Profiles</h3>
+                        <p>Create custom profiles for each of your Path of Titans servers. Organize mods, settings, and server information all in one place.</p>
+                    </div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Mod Storage</h3>
+                        <p>Upload and store your mod files securely in the cloud. Access them from anywhere and easily distribute them to players.</p>
+                    </div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Community Sharing</h3>
+                        <p>Share your server profile with your community. Let players easily see what mods they need to join your server.</p>
+                    </div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Stats and Analytics</h3>
+                        <p>Track user engagement with your server profile and monitor mod downloads to understand your community better.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/footer-logo.png" alt="DinoMod Hub">
+                <p>DinoMod Hub - Path of Titans Server Management</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="mod-manager.html">Mod Manager</a></li>
+                    <li><a href="community.html">Community</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Connect With Us</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-reddit"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 DinoMod Hub. Not affiliated with Path of Titans.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/mod-manager.js"></script>
+</body>
+</html>

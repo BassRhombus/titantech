@@ -1,0 +1,12 @@
+/* Mod Manager Styles */
+.mod-manager-intro {
+    padding: 2rem 5%;
+    text-align: center;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/mod-manager-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 3rem 5%;
+}
+
+.mod-manager-intro h2 {
+    font-
