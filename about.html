@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - DinoMod Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* About page specific styles */
+        .about-intro {
+            padding: 3rem 5%;
+            text-align: center;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('images/about-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 2rem;
+        }
+        
+        .about-intro h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .about-intro p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .about-section {
+            padding: 2rem 5%;
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+        }
+        
+        .mission-container {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .mission-content {
+            flex: 3;
+            min-width: 300px;
+        }
+        
+        .mission-image {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .mission-image img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .about-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+        
+        .about-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .about-section p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 2rem auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: var(--primary-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 10px;
+        }
+        
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            right: -12px;
+            background-color: var(--dark-color);
+            border: 4px solid var(--primary-color);
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .left {
+            left: 0;
+        }
+        
+        .right {
+            left: 50%;
+        }
+        
+        .right::after {
+            left: -12px;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .timeline-content h3 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-date {
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 2rem;
+        }
+        
+        .team-member {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+        
+        .team-member img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .team-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .team-info h3 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-role {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .team-social {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+        
+        .team-social a {
+            color: var(--light-color);
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+        
+        .team-social a:hover {
+            color: var(--primary-color);
+        }
+        
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .faq-question:hover {
+            background-color: rgba(47, 158, 65, 0.1);
+        }
+        
+        .faq-question.active {
+            background-color: rgba(47, 158, 65, 0.2);
+            color: var(--primary-color);
+        }
+        
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        
+        .faq-answer.show {
+            padding: 1rem 1.5rem;
+            max-height: 500px;
+        }
+        
+        .contact-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .contact-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .contact-info p {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-info i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        
+        .contact-form {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 4px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--light-color);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .submit-btn {
+            padding: 0.8rem 2rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item::after {
+                left: 15px;
+                top: 15px;
+            }
+            
+            .left, .right {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="DinoMod Hub Logo" class="logo">
+            <h1>TitanTech Hub</h1>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="mod-manager.html">Mod Manager</a></li>
+                <li><a href="community.html">Community</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="login.html" class="login-btn"><i class="fab fa-discord"></i> Login with Discord</a></li>
+            </ul>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="about-intro">
+            <h2>About DinoMod Hub</h2>
+            <p>Learn about our mission, our team, and how we're helping the Path of Titans community manage and share mods</p>
+        </section>
+
+        <section class="about-section">
+            <div class="mission-container">
+                <div class="mission-content">
+                    <h2>Our Mission</h2>
+                    <p>DinoMod Hub was created with a simple mission: to make Path of Titans server management easier for administrators and more accessible for players.</p>
+                    <p>As passionate gamers and Path of Titans enthusiasts, we recognized the challenges server owners face when managing multiple mods across their servers. We built this platform to streamline the process of organizing, sharing, and discovering mods.</p>
+                    <p>Our goal is to foster a thriving community where creativity is celebrated and server administrators have the tools they need to create unique gaming experiences.</p>
+                </div>
+                <div class="mission-image">
+                    <img src="images/about-mission.jpg" alt="DinoMod Hub Mission">
+                </div>
+            </div>
+            
+            <h2>Our Journey</h2>
+            <div class="timeline">
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <div class="timeline-date">January 2023</div>
+                        <h3>Concept Development</h3>
+                        <p>The idea for DinoMod Hub was born from discussions in the Path of Titans community about the need for better mod management tools.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <div class="timeline-date">March 2023</div>
+                        <h3>Early Development</h3>
+                        <p>Development began on the core features of the platform, with a focus on server profiles and mod organization.</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <div class="timeline-date">July 2023</div>
+                        <h3>Beta Testing</h3>
+                        <p>The beta version of DinoMod Hub was released to a select group of Path of Titans server administrators for testing and feedback.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <div class="timeline-date">October 2023</div>
+                        <h3>Public Launch</h3>
+                        <p>DinoMod Hub officially launched to the public, allowing all Path of Titans server owners to create and share their server profiles.</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <div class="timeline-date">Present</div>
+                        <h3>Ongoing Development</h3>
+                        <p>We continue to improve the platform based on user feedback, adding new features and enhancing existing ones to better serve the community.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>Meet Our Team</h2>
+            <p>DinoMod Hub is developed and maintained by a small but dedicated team of Path of Titans enthusiasts who are passionate about creating tools for the community.</p>
+            
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="images/team-member1.jpg" alt="Team Member 1">
+                    <div class="team-info">
+                        <h3>Bass Rhombus</h3>
+                        <div class="team-role">Founder & Lead Developer</div>
+                        <p>Path of Titans server admin whos also a coding genius</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-discord"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div class="team-member">
+                    <img src="images/team-member4.jpg" alt="Team Member 4">
+                    <div class="team-info">
+                        <h3>Elena Rodriguez</h3>
+                        <div class="team-role">Backend Developer</div>
+                        <p>Systems engineer specializing in secure and scalable server architecture</p>
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-discord"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What is DinoMod Hub?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>DinoMod Hub is a platform designed to help Path of Titans server administrators manage and share their server mods. It allows for the creation of server profiles, mod organization, and easy sharing with the community.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is DinoMod Hub officially affiliated with Path of Titans?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>No, DinoMod Hub is a fan-made project and is not officially affiliated with Path of Titans or its developers. We are a community tool created by enthusiasts to help other players.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I create a server profile?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>To create a server profile, you'll need to log in with your Discord account. Once logged in, navigate to the Mod Manager and click on "Create New Profile". Follow the prompts to set up your server information and add mods.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is DinoMod Hub free to use?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, DinoMod Hub is completely free to use for both server administrators and community members. We may introduce premium features in the future, but the core functionality will always remain free.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How can I contribute to DinoMod Hub?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We welcome contributions from the community! You can help by providing feedback, reporting bugs, suggesting features, or even contributing code if you're a developer. Join our Discord server to learn more about how you can get involved.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>Contact Us</h2>
+            <p>Have questions, suggestions, or just want to say hello? We'd love to hear from you!</p>
+            
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h3>Get in Touch</h3>
+                    <p><i class="fab fa-discord"></i> Join our Discord: <a href="https://discord.gg/dinomodhub" target="_blank">discord.gg/dinomodhub</a></p>
+                    <p><i class="far fa-envelope"></i> Email: contact@dinomodhub.com</p>
+                    <p><i class="fab fa-twitter"></i> Twitter: @DinoModHub</p>
+                    
+                    <h3>Support Hours</h3>
+                    <p>We typically respond to inquiries within 24-48 hours, 7 days a week.</p>
+                </div>
+                
+                <div class="contact-form">
+                    <h3>Send Us a Message</h3>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/footer-logo.png" alt="DinoMod Hub">
+                <p>DinoMod Hub - Path of Titans Server Management</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="mod-manager.html">Mod Manager</a></li>
+                    <li><a href="community.html">Community</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Connect With Us</h4>
+                <div class="social-icons">
+                    <a href="https://discord.gg/bgvCWqdW" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-reddit"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025. Not affiliated with Path of Titans.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // FAQ Toggle functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                // Toggle active class
+                question.classList.toggle('active');
+                
+                // Toggle answer visibility
+                const answer = question.nextElementSibling;
+                if (answer.classList.contains('show')) {
+                    answer.classList.remove('show');
+                } else {
+                    answer.classList.add('show');
+                }
+            });
+        });
+        
+        // Contact form handling
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Here you would normally send the form data to your server
+            alert('Thank you for your message! We will get back to you soon.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
