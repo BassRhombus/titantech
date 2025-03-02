@@ -331,6 +331,40 @@
                 left: 0;
             }
         }
+
+        .disabled-form {
+            position: relative;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .form-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border-radius: 8px;
+        }
+
+        .coming-soon-message {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 2rem;
+            text-align: center;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .coming-soon-message i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -424,9 +458,11 @@
                     <div class="team-info">
                         <h3>Bass Rhombus</h3>
                         <div class="team-role">Founder & Lead Developer</div>
-                        <p>Path of Titans server admin whos also a coding genius</p>
+                        <p>Path of Titans server admin who's also a coding genius</p>
                         <div class="team-social">
-                            <a href="#"><i class="fab fa-discord"></i></a>
+                            <a href="#" class="discord-username" data-username="sadgasm8980" title="Click to copy Discord username">
+                                <i class="fab fa-discord"></i> sadgasm8980
+                            </a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
                             <a href="#"><i class="fab fa-github"></i></a>
                         </div>
@@ -437,13 +473,28 @@
                 <div class="team-member">
                     <img src="images/team-member4.jpg" alt="Team Member 4">
                     <div class="team-info">
-                        <h3>Elena Rodriguez</h3>
+                        <h3>mars</h3>
                         <div class="team-role">Backend Developer</div>
                         <p>Systems engineer specializing in secure and scalable server architecture</p>
                         <div class="team-social">
                             <a href="#"><i class="fab fa-discord"></i></a>
                             <a href="#"><i class="fab fa-github"></i></a>
                             <a href="#"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+                                <div class="team-member">
+                    <img src="images/team-member1.jpg" alt="Bass Rhombus">
+                    <div class="team-info">
+                        <h3>Bass Rhombus</h3>
+                        <div class="team-role">Founder</div>
+                        <p>Apparently needed to be on here twice?</p>
+                        <div class="team-social">
+                            <a href="#" class="discord-username" data-username="sadgasm8980" title="Click to copy Discord username">
+                                <i class="fab fa-discord"></i> sadgasm8980
+                            </a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
                         </div>
                     </div>
                 </div>
@@ -521,31 +572,15 @@
                     <p>We typically respond to inquiries within 24-48 hours, 7 days a week.</p>
                 </div>
                 
-                <div class="contact-form">
-                    <h3>Send Us a Message</h3>
-                    <form id="contactForm">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" id="name" name="name" required>
+                <div class="contact-form disabled-form">
+                    <div class="form-overlay">
+                        <div class="coming-soon-message">
+                            <i class="fas fa-tools"></i>
+                            <h3>Coming Soon</h3>
+                            <p>Our contact form is currently under development.</p>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="subject">Subject</label>
-                            <input type="text" id="subject" name="subject" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="message">Message</label>
-                            <textarea id="message" name="message" required></textarea>
-                        </div>
-                        
-                        <button type="submit" class="submit-btn">Send Message</button>
-                    </form>
+                    </div>
+                    <!-- Rest of your form remains the same -->
                 </div>
             </div>
         </section>
