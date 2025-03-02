@@ -1,0 +1,806 @@
+[
+  {
+    "sku": "UGC_M_NV57RV2EJD_SK",
+    "name": "Absentia's Acrocanthosaurus",
+    "description": "The Absentia Additions team brings to you the Acrocanthosaurus, a PvP based apex that relies on outlasting it's opponents in mitigation, debuffing, and bleed based attacks. \r\n﻿\r\nRise above your enemies in rhythmic based combat to block attacks with your Parry, paired with ravenous abilities to overpower your opponents to take claim of true Apex Predator. Being top of the food chain is no easy task, are you up to the challenge?\r\n \r\nFeaturing accurate and stylized subspecies, we have something for everyone.",
+    "icon": "https://web-cdn.alderongames.com/files/1080/conversions/Absentiaicon4-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYV7XQ60GX_SK",
+    "name": "Ancient Gods: Camarasaurus",
+    "description": "This mod introduces a stylized Camarasaurus with over 25 gameplay abilities and items with an emphasis on skillful building and counter building. It has two crit zones, the base of the tail for damage and the belly for bleed / venom.\r\n\r\nChallengers beware, for this ancient god is no gentle giant.\r\n\r\n--\r\n\r\nAncient Gods is a mod collection inspired but not constrained by science. All creatures for the Ancient Gods collection are gameplay oriented first, with everything else designed around that fact.",
+    "icon": "https://web-cdn.alderongames.com/files/945/conversions/AGCCamara_Cover2-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Y257G65EVZ_SK",
+    "name": "Ancient Monster: Cerataspida",
+    "description": "Cerataspida are a large solitary herbivore that travels with herds of other herbivores, protecting them from predators or other threats on the Angrboda Peninsula.\r\n\r\nthis mod was brought to you by the Ancient Monster mod team",
+    "icon": "https://web-cdn.alderongames.com/files/1270/conversions/Cerata_modpage-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_634752J78W_SK",
+    "name": "Ancient Monster: Dankanaptera",
+    "description": "Dankanaptera is a small flying herbivore from the island of Angrboda Craddle. They are often seen flying around licking wounds of larger animals. Some even say they have healing properties",
+    "icon": "https://web-cdn.alderongames.com/files/1311/conversions/DankTLC_modPage-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_W61E8X47MD_SK",
+    "name": "Ancient Monster: Gigamandra",
+    "description": "Gigamandra are medium semi-aquatic herbivore that swim thru the waters of Angrboda Peninsula river ways. They like to make several noises that either animals find relaxing or annoying",
+    "icon": "https://web-cdn.alderongames.com/files/1083/conversions/Gigamandra_Modpage-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_VJK7M6KER3_SK",
+    "name": "Ancient Monster: Golugore",
+    "description": "Golugore is a medium sized carnivorous monstrum from the Angrboda Peninsula that preys on smaller animals but don't let its size fool you this carnivore can easily fend off larger animals if it wanted to.",
+    "icon": "https://web-cdn.alderongames.com/files/822/conversions/Golugore_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_QM57NKD7D3_SK",
+    "name": "Ancient Monster: Madrehorn",
+    "description": "Madrehorn is a massive herbivore with large tusks and a thick hide that allows it to travel alone and without fear of carnivores bothering it. Usually it take groups of apexes to kill one madrehorn",
+    "icon": "https://web-cdn.alderongames.com/files/1296/conversions/Modpage_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NZKEJJRE12_SK",
+    "name": "Ancient Monster: Moraquile",
+    "description": "Moraquile is a large Avian Monstrum that is dubbed the King of the skies, with massive wings and sharp scales this terrifying bird brings a whole new meaning to terror from above\r\n\r\nFeedback and bug reports",
+    "icon": "https://web-cdn.alderongames.com/files/892/conversions/Moraquile_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_VJK0M13ER3_SK",
+    "name": "Ancient Monster: Thalasrex",
+    "description": "Thalasrex, the mighty king of the sea, is a large aquatic predator that will fight anything and everything within its territory. Although this carnivore isnt that fast in the water it still makes up for it with its powerful ambushing attacks",
+    "icon": "https://web-cdn.alderongames.com/files/1104/conversions/thalasrex_modpage-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Y250G15EVZ_SK",
+    "name": "Arazoa Aquatica",
+    "description": "2x2 Aquatic focused map.",
+    "icon": "https://web-cdn.alderongames.com/files/1291/conversions/AquaticaIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43G06W60NR_SK",
+    "name": "Arazoa Creator",
+    "description": "Arazoa Creator mod to help add immersion to realism servers. Features numerous styles of nests, enterable dens, and many decorations.",
+    "icon": "https://web-cdn.alderongames.com/files/1090/conversions/Arazoa-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YNRE311081_SK",
+    "name": "Arazoa Livyatan",
+    "description": "Arazoa proudly presents the extinct genus of macroraptorial sperm whale, the Livyatan.",
+    "icon": "https://web-cdn.alderongames.com/files/1288/conversions/LivyModIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_4RMEKQWEZY_SK",
+    "name": "Arazoa Tropeognathus",
+    "description": "The Arazoa Adapted Realism take on Tropeognathus",
+    "icon": "https://web-cdn.alderongames.com/files/1286/conversions/TropeModIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJ72ZYE58_SK",
+    "name": "Arazoa Xiphactinus",
+    "description": "The Arazoa team proudly presents the: Arazoa Xiphactinus. This aquatic menace will be a terror of the water world with mob like mentality with a built in 25% friendly fire damage reduction and unique flash ability.",
+    "icon": "https://web-cdn.alderongames.com/files/1287/conversions/XiphModIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Y25EGKQ0VZ_SK",
+    "name": "Archaic Eons | Cenozoic Timelines: Andrewsarchus",
+    "description": "Adds the mysterious enigmatic ungulate from Mongolia to Path of Titans.\r\n\r\nCredits to:\r\nJiggy for allowing me to mod the game.\r\n\r\nMordekaiser for helping with sounds.\r\n\r\nPnoodle\r\nDocJay24\r\nNautilus\r\nRospaw\r\nfor helping me with learning the kit.",
+    "icon": "https://web-cdn.alderongames.com/files/901/conversions/Andrewsarchus-Mod-Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_634751808W_SK",
+    "name": "Archaic Eons | Mesozoic Monsters: Lisowicia",
+    "description": "Adds the titanic Polish dicynodont Lisowicia to your game. A heavyset brawling juggernaut that excels at soaking up damage.\n\nDisclaimer while AE does try to aim for a fair amount of accuracy speculative liberties will be taken. Alongside models may not be updated immediately if they become dated with science or overall quality.\n\nCredits\nFeilong(Coding assistance)\nTheDoctorTHE11th(Coding assistance)\nLaelaMcPitty(Attribute Anim Mechanics)",
+    "icon": "https://web-cdn.alderongames.com/files/1362/conversions/Liso-Mod-Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZK74RK79W_SK",
+    "name": "Archaic Eons: Cenozoic Timelines: Ankylorhiza",
+    "description": "Adds the playful yet devious prehistoric toothed whale from the Oligocene to your game.",
+    "icon": "https://web-cdn.alderongames.com/files/1131/conversions/Ankylo-Mod-Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_4RMEK5W7ZY_SK",
+    "name": "Archetypes: Dunkleosteus",
+    "description": "Adds the Devonian Arthrodire Dunkleosteus\n\nCredit-\nModel by nihidumb on discord",
+    "icon": "https://web-cdn.alderongames.com/files/940/conversions/dunkleicon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5GEZ9YEPN_SK",
+    "name": "Archetypes: Gigantoraptor",
+    "description": "Adds the Massive Oviraptorid Gigantoraptor\r\n\r\nCredit-\r\nModel by nihidumb on discord",
+    "icon": "https://web-cdn.alderongames.com/files/1238/conversions/gigantoraptoricon_alderon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJ7243058_SK",
+    "name": "Archetypes: Hibbertopterus",
+    "description": "Adds the Weighty Eurypterid Hibbertopterus",
+    "icon": "https://web-cdn.alderongames.com/files/162/hibbericon2.png"
+  },
+  {
+    "sku": "UGC_M_4RM0K8QEZY_SK",
+    "name": "Archetypes: Ocepechelon",
+    "description": "Adds the Cretaceous Sea Turtle Ocepechelon\r\n\r\nCredit-\r\nModel by nihidumb on discord",
+    "icon": "https://web-cdn.alderongames.com/files/953/conversions/ocepechelonicon2-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJ72NJE58_SK",
+    "name": "Archetypes: Squalicorax",
+    "description": "Adds the Cretaceous Shark Squalicorax\r\n\r\nCredit-\r\nModel by nihidumb on discord",
+    "icon": "https://web-cdn.alderongames.com/files/928/conversions/SqualicoraxAlderonIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZK04ZKE9W_SK",
+    "name": "Asylum Feline",
+    "description": "Add a playable feline species to your game!\r\n\r\nMod assembled by Kai ♂#1412 / KaitouCat from the Asylum community.\r\nBe sure to join the discord community to report any issues and provide feedback.",
+    "icon": "https://web-cdn.alderongames.com/files/856/conversions/2023_April_KaiModIcons_ModIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYV7XD5EGX_SK",
+    "name": "Asylum Lounge [IoA]",
+    "description": "The Asylum Lounge is meant as a small map for chilling or killing or just to have fun and goof around on. Custom Quests, TELEPORTERS, and high rewards!",
+    "icon": "https://web-cdn.alderongames.com/files/1255/conversions/AsylumLoungeTN1-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5G0ZN10PN_SK",
+    "name": "Avernus",
+    "description": "A Deathmatch Survival Map.\r\nAvernus is truly a hellish place of fire and violence. Here be dragons...\r\n\r\nIf you want to know more about background lore, or want to support the development of \r\nthe Ex Argilla maps by reporting bugs or with suggestions and ideas, consider joining our discord.\r\n\r\n\r\nMy special thanks to Oida for a lot of invaluable counsel!",
+    "icon": "https://web-cdn.alderongames.com/files/1282/conversions/AvernusIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YNR03ZY081_SK",
+    "name": "Beringia",
+    "description": "A pleistocene subarctic landscape. Explore Beringia during the last Ice Age, 15 000 years ago.\r\n\r\nIf you want to know more about background lore, or want to support the development of the Ex Argilla maps by reporting bugs or with suggestions and ideas, consider joining our discord.\r\n\r\nMy special thanks to Oida for a lot of invaluable counsel!",
+    "icon": "https://web-cdn.alderongames.com/files/1184/conversions/BeringiaIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_RD17PN2EXG_SK",
+    "name": "Beringia Mammuthus Columbi",
+    "description": "Columbian mammoth from the Beringia project of Ex Argilla",
+    "icon": "https://web-cdn.alderongames.com/files/868/conversions/mammothC_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_VJKEM8KER3_SK",
+    "name": "Bloop",
+    "description": "This mod adds the giant mythical ocean dweller Bloop to your game.\r\nHuge thanks to the original creator of the bloop concept who gave us permission: JefChangComix",
+    "icon": "https://web-cdn.alderongames.com/files/998/conversions/BloopCover1-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_VJKEMQ30R3_SK",
+    "name": "C-Rex",
+    "description": "Cursed.",
+    "icon": "https://web-cdn.alderongames.com/files/1310/conversions/6AC94768-5041-46BF-85B4-3BC6586F9267-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJE2GYE58_SK",
+    "name": "Candeleros Expansion: Ekrixinatosaurus",
+    "description": "Adds Ekrixinatosaurus, a large brawler type Abelisaur from Argentina. \n\nModel, animations some skins and sounds by me-MrFozz\n\nspecial thanks to:\nNautilus- help with some ability setup\nAerisopteryx- Some skins, help with testing and ability icons\nVividsky- Skin help\nJoet57-Testing and moral support",
+    "icon": "https://web-cdn.alderongames.com/files/1254/conversions/Ekrixi_ModPage_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N2R01Z8E3D_SK",
+    "name": "Capture the Egg",
+    "description": "Two teams compete to steal the opposing team's Egg. Return the egg to your own nest to score points! Killing other players does not reward points, but you can earn marks to unlock different skins. All players on your team can benefit from group buffs, and abilities do not require marks to unlock. Test out different combat strategies and hone your skills!\r\nCompatible with other mod creatures and maps.",
+    "icon": "https://web-cdn.alderongames.com/files/997/conversions/c4e26568fc8391298cb0e97f9ff1b9ab-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_63475MJ78W_SK",
+    "name": "CMIPlus",
+    "description": "Additional Creator mode items like a pill for boss fights. Feel free to suggest item additions.",
+    "icon": "https://web-cdn.alderongames.com/files/634/conversions/CMIPlus-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5G0ZGQEPN_SK",
+    "name": "Crazy Items",
+    "description": "A bunch of items that admins can keep as in creator mode :) have fun",
+    "icon": "https://web-cdn.alderongames.com/files/380/conversions/CrazyItems-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43GE6Z1ENR_SK",
+    "name": "Cubensis",
+    "description": "The herbivorous Cubensis is a unique, cube-shaped organism with a fleshy body that moves efficiently across various terrains, even able to hover over steep cliffs. In terms of strategy, they are highly tactical, using \"hit and run\" and \"wait-and-see\" methods to outsmart stronger opponents. They can delay an attacker, creating a temporary wall of flesh to slow down the threat. Despite their love for moisture, they fear drowning and will remain energized as long as they struggle to swim, though if they calm, they will eventually sink.\n\nCredits: \nDnBGClaytonBaby - Creator \nPnoodle5 - Materials\nTiskis - Ability Icons\nCocktailBourbon/JadeReap - Ability Icons\nFowlmarlee - Skins \nCynderlie - Skins \nBoatman - Skins \nDinoDude - Rigging/Misc/Trophy \nTheDoctorTHE11th - Misc",
+    "icon": "https://web-cdn.alderongames.com/files/1366/conversions/T_Icon_CCubensis_ModPage-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N597DMN7WQ_SK",
+    "name": "David Rosa's Kaprosuchus",
+    "description": "Wrath of The Goliaths Modding team brings you the Kaprosuchus, a small to medium-sized, swarm-based all-around predator from Cretaceous period. This is our first collaboration with our friend David Rosa\r\n\r\nCredits:\r\nOriginal Assets: David Rosa\r\nModel Edition: Feilong\r\nAnimations: Alderon Games, Toa Metru\r\nSound Designer: Tox\r\nTrophy Creator: GorillaWorkshop \r\nSkins by: lortram, Vividsky, Pi, GVFL, Cyan, GigaPark\r\nUI/Icons: Beeza\r\nLogo: Maxsentia\r\nSpecial Thanks: Other Modders, WoTG Mod Team QA crew",
+    "icon": "https://web-cdn.alderongames.com/files/1081/conversions/DavidRosaKrpo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43G7646ENR_SK",
+    "name": "David Rosa's Pachyrhinosaurus",
+    "description": "Adds Pachyrhinosaurus lakustai, a brawling-based ceratopsian that deals high damage but has recoil in exhange. \r\n\r\nCredits:\r\nOriginal Model: David Rosa\r\nModel Edition: Feilong\r\nOriginal Animations: Alderon Games\r\nNew Animations: Toa Metru, SynchroLight\r\nSound Designer: S4UR0, Mr. Parasaur\r\nSkins by: lortram, Fledged, Pi, GVFL, Elys, Vividsky, Dana\r\nLogo: Maxsentia\r\nIcons: AstralArchivist\r\nSpecial Thanks: Jiggy, JFD Team, Laela, WoTG's QA Team",
+    "icon": "https://web-cdn.alderongames.com/files/1252/conversions/Proyecto-nuevo-(24)-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_12G0WXP7WK_SK",
+    "name": "Death's Crazy Skins",
+    "description": "A nice Mixture of Cool Skins and most Have 100+ Variation\r\nAlso \r\nPiebald, Camo For Some!",
+    "icon": "https://web-cdn.alderongames.com/files/1373/conversions/Titelloses_366-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Y25EGJQEVZ_SK",
+    "name": "Dinosaur Team Deathmatch",
+    "description": "Up to 6 teams compete in this Team Deathmatch game mode!\r\nTeams must reach the points goal to win the round. Larger dinosaurs score more points when defeated, and you can earn marks in order to unlock different skins. All players on your team can benefit from group buffs, and abilities do not require marks to unlock. Test out different combat strategies and hone your skills! \r\nCompatible with other mod creatures and maps.",
+    "icon": "https://web-cdn.alderongames.com/files/968/conversions/e81a93241f67377a09907bb8449b9317-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Z85EQ5372V_SK",
+    "name": "Divine Beasts: Acrocanthosaurus",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nAcrocanthosaurus was a bipedal predator. As the name suggests, it is best known for the high neural spines on many of its vertebrae, which most likely supported a ridge of muscle over the animal's neck, back, and hips. \r\n\r\nMade by: \r\ntheDoctorTHE11th/Leviathan/Oska/Gisli\r\nSpecial thanks:\r\nFeilong/Fledged",
+    "icon": "https://web-cdn.alderongames.com/files/1169/conversions/AcroReduxThumbnailDone-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5GEZ410PN_SK",
+    "name": "Divine Beasts: Ampelosaurus",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nAmpelosaurus is currently one of the best known sauropods from Europe and is in fact another example of a Late Cretaceous era titanosaur.‭\r\n\r\nMade by: theDoctorTHE11th/SadEch/Matheusfers/Gisli\r\nSpecial thanks:\r\n/EmilyArt/MiahAG/Scorching_Kami/Fledged_Feathers",
+    "icon": "https://web-cdn.alderongames.com/files/849/conversions/Ampelo-Photo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_5XN0V387PZ_SK",
+    "name": "Divine Beasts: Carcharodontosaurus",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nCarcharodontosaurus is a theropod dinosaur of North Africa, belonging to the family Carcharodontosauridae. There are two species classified under this group of dinosaurs; Carcharodontosaurus saharicus and Carcharodontosaurus iguidensis.\r\nMade by: theDoctorTHE11th/SadEch/Matheusfers/Gisli\r\nSpecial thanks:\r\nScorching_Kami/Rook/EmilyArt/MiahAG/Leviathan/",
+    "icon": "https://web-cdn.alderongames.com/files/724/conversions/Carchar_Thumbnail-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYV0X257GX_SK",
+    "name": "Divine Beasts: Compsognathus",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nCompsognathus longipes could grow to around the size of a turkey. They lived about 150 million years ago, during the Tithonian age of the late Jurassic period, in what is now Europe.\r\n\r\nMade by: theDoctorTHE11th/Scorching_Kami\r\n/Matheusfers/Gisli/SadEch\r\n\r\nSpecial thanks:\r\nEmilyArt/MiahAG/Fledged Feathers/Merkel",
+    "icon": "https://web-cdn.alderongames.com/files/798/conversions/Compy_Thumbnail-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6GW0YZY73Z_SK",
+    "name": "Divine Beasts: Deinosuchus",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nDeinosuchus was a prehistoric crocodile which lived approximately 80 to 70 million years ago during the Late Cretaceous Period.\r\n\r\nMade by: theDoctorTHE11th/Scorching_Kami/Matheusfers/Gisli\r\nSpecial thanks:\r\nSadEch/EmilyArt/MiahAG",
+    "icon": "https://web-cdn.alderongames.com/files/847/conversions/Deino-Photo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Z850QPPE2V_SK",
+    "name": "Divine Beasts: Edmontosaurus Annectens",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nEdmontosaurus is a duck billed dinosaur which lived approximately 66 to 74 million years ago during the Cretaceous Period. It was first discovered in 1871 in Alberta, Canada\r\n\r\nMade by: theDoctorTHE11th/Matheusfers/Gisli\r\nSpecial thanks:\r\nSadEch/Scorching_Kami/EmilyArt\r\n/MiahAG/Fledged Feathers",
+    "icon": "https://web-cdn.alderongames.com/files/826/conversions/Annectens-photo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N2R719403D_SK",
+    "name": "Divine Beasts: Edmontosaurus Regalis",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nEdmontosaurus is a duck billed dinosaur which lived approximately 66 to 74 million years ago during the Cretaceous Period. It was first discovered in 1871 in Alberta, Canada\r\n\r\nMade by: theDoctorTHE11th/Matheusfers/Gisli\r\nSpecial thanks:\r\nSadEch/Scorching_Kami/EmilyArt\r\n/MiahAG/Fledged Feathers",
+    "icon": "https://web-cdn.alderongames.com/files/829/conversions/Regalis-Photo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N59ED1N7WQ_SK",
+    "name": "Divine Beasts: Giganotosaurus",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nGiganotosaurus was one of the largest meat-eating dinosaurs. It roamed modern-day Argentina during the late Cretaceous Period, about 99.6 to 97 million years ago.\r\n\r\nMade by: theDoctorTHE11th/Leviathan/Docjay24/Gisli\r\nSpecial thanks:\r\nSadech/Matheusfers",
+    "icon": "https://web-cdn.alderongames.com/files/1076/conversions/giganotosaurus_photo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_12G0W137WK_SK",
+    "name": "Divine Beasts: Orcinus Orca",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nOrcas, or killer whales, are the largest of the dolphins and one of the world's most powerful predators. They're immediately recognizable by their distinctive black-and-white coloring. Smart and social, orcas make a wide variety of communicative sounds.\r\n\r\nMade By:theDoctorTHE11th/Sadech/Gisli/FowlMarlee",
+    "icon": "https://web-cdn.alderongames.com/files/1229/conversions/Divine_Ports_Orca_Thumbnail-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6GW0YYP03Z_SK",
+    "name": "Divine Beasts: Zhuchengtyrannus",
+    "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nZhuchengtyrannus was a carnivore. It lived in the Cretaceous period and inhabited Asia. Its fossils have been found in places such as Shandong (China).\r\n\r\nMade by: \r\ntheDoctorTHE11th/Matheusfers/Gisli\r\nSpecial thanks:\r\nEmilyArt/Rook/Scorching_Kami/SadEch/MiahAG/Leviathan",
+    "icon": "https://web-cdn.alderongames.com/files/723/conversions/Zhucheng_Thumbnail-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43GE6D67NR_SK",
+    "name": "Divine Ports: Dryosaurus",
+    "description": "Original model by Scorching_Kami\r\n\r\nDryosaurus was a genus of dryosaurid ornithopod dinosaur from the late Jurassic of western North America. It has been discovered in Colorado, Wyoming, and Utah within the Morrison formation\r\n\r\nMaintained by the Divine Beasts team.",
+    "icon": "https://web-cdn.alderongames.com/files/965/conversions/Dryo_Thumbnail-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N59EDPZEWQ_SK",
+    "name": "Divine Ports: Helicoprion",
+    "description": "Original model by Scorching_Kami\r\n\r\nHelicoprion is an extinct genus of shark-like eugeneodont fish. Almost all fossil specimens are of spirally arranged clusters of the individuals' teeth, called \"tooth whorls\", which in life were embedded in the lower jaw. As with most extinct cartilaginous fish, the skeleton is mostly unknown.\r\n\r\nMaintained by the Divine Beasts team.",
+    "icon": "https://web-cdn.alderongames.com/files/1228/conversions/Divine_Ports_Helicoprion_Thumbnail3-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYVEXK57GX_SK",
+    "name": "Divine Ports: Inostrancevia",
+    "description": "Original model by Scorching_Kami\r\n\r\nInostrancevia is an extinct genus of carnivorous therapsids, containing the largest members of the family Gorgonopsidae, predators characterized by long, saber-tooth-like canines. The various species inhabited northern Russia and South Africa during the Upper Tatarian.\r\n\r\nMaintained by the Divine Beasts team.",
+    "icon": "https://web-cdn.alderongames.com/files/934/conversions/Inostra_new_thumbnail-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43GE6NQENR_SK",
+    "name": "Divine Ports: Kryptops",
+    "description": "Original model by Scorching_Kami\r\n\r\nKryptops is a genus of theropod dinosaur from the Early Cretaceous of Niger. It is known from a partial skeleton found at the Gadoufaoua locality in the western Ténéré Desert, in rocks of the Aptian-Albian age Elrhaz Formation. The genus name means \"covered face\", in reference to evidence that the face bore a tightly-adhering covering.\r\n\r\nMaintained by the Divine Beasts team.",
+    "icon": "https://web-cdn.alderongames.com/files/852/conversions/Kryptops-photo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NZK0JNR712_SK",
+    "name": "Divine Ports: Mosasaurus",
+    "description": "Original model by Scorching_Kami\r\n\r\nMosasaurus is an extinct aquatic reptile that lived at the very end of the Cretaceous Period, from around 82.7 to 66 million years ago. Mosasaurus was not a dinosaur; like other mosasaurs, it was descended from lizards that originally lived on land. Because of this, Mosasaurus belongs to the reptilian order Squamata, which contains all lizards and snakes.\r\n\r\nMaintained by the Divine Beasts team.",
+    "icon": "https://web-cdn.alderongames.com/files/993/conversions/Mosasaurus_Thumbnail-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYV7XN60GX_SK",
+    "name": "DocJayCreation: Ceratosaurus",
+    "description": "This is my version of ceratosaurus, and with out version we added a few abilities that we thought would make the mod a bit more interesting",
+    "icon": "https://web-cdn.alderongames.com/files/1283/conversions/Cerato_modpage-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YNR7341E81_SK",
+    "name": "DocJayCreation: Dryptosaurus",
+    "description": "Dryptosaurus was an eotyrannosaurus from the Appalachia. This dinosaur was one of the first Theropod discovered \r\n\r\nthis mod was made by the Ancient monster team",
+    "icon": "https://web-cdn.alderongames.com/files/963/conversions/modpageicon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N597DNPEWQ_SK",
+    "name": "Etis",
+    "description": "Deathmatch arenas, boss fights, clubs, music, testing: This mod has it all. A multi purpose mod but mainly for deathmatch, events and chill.",
+    "icon": "https://web-cdn.alderongames.com/files/372/conversions/EtisNeu-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NV50R62EJD_SK",
+    "name": "Ex Argilla Allosaurus",
+    "description": "Ex Argilla's interpretation of the most famous Jurassic theropod, Allosaurus. \r\n\r\nEx Argilla takes artistic liberties, and does not claim accuracy.\r\n\r\nCredits - \r\nErebusTheDragon - Modeling, Texturing, Coding, Animating, Skin Design\r\nJaney - Skin Design, Subspecies Morphs, Animating\r\nElys - Skin Design, Icons\r\nFledgedFeathers - Skin Design\r\nRospaw - Skin Design\r\nRogueterra - Moral Support",
+    "icon": "https://web-cdn.alderongames.com/files/1145/conversions/AlloIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5G7Z2Y0PN_SK",
+    "name": "Ex Argilla Bistahieversor",
+    "description": "Ex Argilla's Bistahieversor, a tactiful brawler proficient at debuffing it's foes.\r\n\r\nEx Argilla takes artistic liberties, and does not claim accuracy.\r\n\r\nCredits:\r\nErebusTheDragon - Modeling, Texturing, Rigging, Animating, Coding, Skin design\r\nCerealKiller - Sound Design\r\nJaney - Skin Design\r\nFledgedFeathers - Skin Design, Icons\r\nElys - Skin Design",
+    "icon": "https://web-cdn.alderongames.com/files/1147/conversions/BistiIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43GE6R60NR_SK",
+    "name": "Ex Argilla Dominus",
+    "description": "Ex Argilla Introduces to you a new Draconic Apex predator! Dominus Caeli, a mighty predator that terrorized the lands from above and ground! An apex predator that even Dracovipers and Griffins would be wary of and a challenger to rival apexes like Tyrannosaurus Rex!\n\nSpecial thanks to Fledged feathers and Novacaine for help with skins and Mr.Parasaur for sounds",
+    "icon": "https://web-cdn.alderongames.com/files/1278/conversions/DominusIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_W610844EMD_SK",
+    "name": "Ex Argilla Dracoviper",
+    "description": "Soar through Sky and Sea, Ex Argilla presents the Dracoviper!  These slithery reptiles roam the skies and waters alike! While formidable alone they also prefer to work in numbers to bring down prey larger than themselves with their venomous maw!\r\n\r\n\r\nSpecial thanks to\r\n\r\nFledged feathers, Elys, Novacaine and Janey for help with skin work\r\n\r\nFledged feathers and Elys for ability icons\r\n\r\nInklyon for adult friendly call",
+    "icon": "https://web-cdn.alderongames.com/files/1178/conversions/Draco_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZK048G79W_SK",
+    "name": "Ex Argilla Glowplume",
+    "description": "Ex Argilla's Glowplume, a bioluminescent, nocturnal, and highly intelligent predator bearing a potent neurotoxic venom.\n\nCredits:\nErebusTheDragon - Modeling, Rigging, Sculpting, Animating, Skin Design\nFledgedFeathers - Concept Art, Skin Design\nElys - Skin Design\nFeilong - Texture Baking\nCerealkiller - Sound Design\nMrParasaur - Sound Design",
+    "icon": "https://web-cdn.alderongames.com/files/1192/conversions/GlowplumeIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_12GEW9PEWK_SK",
+    "name": "Ex Argilla Griffin",
+    "description": "EX Argilla presents to you our Griffin!\r\nAn elegant aerial and terrestrial predator from Greek mythos with the features of both a lion and an eagle with the strength of the two combined. Put your wings and claws to use, Rule the skies, the land or both at the same time!\r\n\r\n\r\nSounds by Cerealkiller\r\nSkinwork Fledged feathers, Elys, Janey, Kaitoucat, Rospaw\r\nIcons by Meadow and Fledged feathers",
+    "icon": "https://web-cdn.alderongames.com/files/1133/conversions/griffin_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YNR0331081_SK",
+    "name": "Ex Argilla Magna Ant",
+    "description": "Magna Ant crawls into Path of Titans! using strong jaws and a formidable sting players will need to watch their backs lest they be picked up and carried off to a waiting nest.\n\nHuge thank you to my entire team for their support and help in bringing Magna to life as well as NotPixieStyx71 on discord for allowing me to work on such a fun project.\n\nId also like to give a shoutout to the POT modding community for helping me whith my issues and problems as well as explaining things i didnt understand.",
+    "icon": "https://web-cdn.alderongames.com/files/1240/conversions/ant-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6GWEYR373Z_SK",
+    "name": "Ex Argilla Nasutoceratops",
+    "description": "EX-Argilla brings you the Naustoceratops!\r\n the uniquely adorned ceratopsian from cretaceous Utah, use your defensive abilities to be the stone wall protector of the herd. but remember if you choose to face this bovine horned beast, you mess with bull you get the horns!\r\n\r\nWe do not claim accuracy and artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/1098/conversions/nasutoModIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_JG1E9D97QN_SK",
+    "name": "Ex Argilla Smilodon",
+    "description": "The new completely redone version of Beringia Smilodon. Increased size and new abilities! \r\n\r\nSpecial thanks to Janey and Elys for skin work, Cerealkiller for sounds and Gumzilla for ability icons",
+    "icon": "https://web-cdn.alderongames.com/files/1001/conversions/Smilodon_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NZK7J8Q712_SK",
+    "name": "Eyrie",
+    "description": "Deathmap map for the Eyrie Community.",
+    "icon": "https://web-cdn.alderongames.com/files/1180/conversions/ThumbEyrie-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NV5ER12EJD_SK",
+    "name": "Feilong's Armored Eotriceratops",
+    "description": "Armoured Eotriceratops is a variant of Eotriceratops specialized in a team-based brawling.\r\n\r\nCredits:\r\nOriginal Assets: Alderon Games\r\nModel Edition: Feilong\r\nOriginal Animations: Alderon Games\r\nNew Animations: Toa Metru, SynchroLight\r\nSound Designer: S4UR0\r\nSkins by: lortram, Fledged, Pi, GVFL, Elys, Jeff\r\nSpecial Thanks: Jiggy, JFD Team, Laela, WoTG's QA Team",
+    "icon": "https://web-cdn.alderongames.com/files/1171/conversions/EoThumbnail1-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_W6178YG7MD_SK",
+    "name": "Goliath's Dimetrodon",
+    "description": "Wrath of The Goliaths Modding team brings you the Dimetrodon, a medium-sized, ambush predator from Permian period specialized in bleed, hit & run style.\r\n\r\nCredits:\r\nOriginal Assets: Manuelsaurus, WoTG Devs \r\nModel Edition: Feilong\r\nOriginal Animations: Alderon Games\r\nNew Animations: Toa Metru\r\nSound Designer: Mordekaiser\r\nSkins by: lortram, Fledged, Pi, GVFL, ElTioHammond, Nitr0z\r\nUI/Icons: BadPlague, aerisopteryx & SN\r\nSpecial Thanks: mainly Jiggy, rospaw, Nautilus, Laela, ROTUND, WoTG's QA Team",
+    "icon": "https://web-cdn.alderongames.com/files/977/conversions/Logo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_634E5J8E8W_SK",
+    "name": "Great Archelon",
+    "description": "The Great Archelon, a realism mod. Coast to coast, the Archelon can be found basking in the hot sun or riding the ocean currents!\r\n\r\nCredits:\r\nCreated by: FBTH (Fortress, HematoSalpinx)\r\nUnique Animations:  Gnu\r\nSound:  M-Z\r\nSkins by: Gnu, FBTH (Fortress/HematoSalpinx)\r\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod), Extinction RP, Laela, ROTUND, WoTG's QA Team, Alderon Games \r\n\r\nCommissioned by: Djellal",
+    "icon": "https://web-cdn.alderongames.com/files/1172/conversions/UI_Logo_Archelon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N590DRNEWQ_SK",
+    "name": "Great Tenontosaurus",
+    "description": "The Great Tenontosaurus, a realism mod.\r\n\r\nCredits:\r\nCreated by: FBTH (HematoSalpinx), Feilong\r\nOriginal Animations: Alderon Games\r\nUnique Animations: Toa Metru, Gnu, FBTH (HematoSalpinx), Feilong\r\nSound:  Janey, Gigapark (Alert)\r\nSkins by: Pi, FBTH (HematoSalpinx)\r\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod), Extinction RP, Laela, ROTUND, WoTG's QA Team, Alderon Games \r\n\r\nCommissioned by: Djellal",
+    "icon": "https://web-cdn.alderongames.com/files/978/conversions/image-54-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZK74JGE9W_SK",
+    "name": "Great Triceratops",
+    "description": "The Great Triceratops, a realism mod.\r\n\r\nCredits:\r\nCreated by: FBTH (Fortress) & Feilong\r\nOriginal Animations: Alderon Games\r\nSkins by: Gigapark, Pi, FBTH (HematoSalpinx), Lortram\r\nNew animations: Bradz, Toa, FBTH, Gorilla Workshop\r\nNew audio: M-Z\r\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod) Laela, ROTUND, WoTG's QA Team, Alderon Games\r\n\r\nCommissioned by: Djellal",
+    "icon": "https://web-cdn.alderongames.com/files/989/conversions/Logo_GreatTrike-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5G0ZRY7PN_SK",
+    "name": "HellsforgeCastle",
+    "description": "A Deathmatch map.",
+    "icon": "https://web-cdn.alderongames.com/files/1326/conversions/HFCThumb-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Z857Q9P72V_SK",
+    "name": "Ignis: Noviana",
+    "description": "The largest drake in Ignis, is brought to you by the Primordial Tyrants team.",
+    "icon": "https://web-cdn.alderongames.com/files/861/conversions/novania_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJ026J758_SK",
+    "name": "Ignis: Ophis",
+    "description": "Ophis, a massive sea serpent, is brought to you by the Primordial Tyrants team.",
+    "icon": "https://web-cdn.alderongames.com/files/464/conversions/Ophis_Mod_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_QM5ENVJ7D3_SK",
+    "name": "IoA Ancients Skins",
+    "description": "The skins of the Ancients! Made for any kind of server, including Realism.",
+    "icon": "https://web-cdn.alderongames.com/files/1334/conversions/IoAAncients-Icon500-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_W617864EMD_SK",
+    "name": "IoA Cursed Skins",
+    "description": "Skins for holidays, events, and deathmatch servers! DO NOT use for realism.",
+    "icon": "https://web-cdn.alderongames.com/files/1325/conversions/IoACursedLogoSmall-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_12G0WJNEWK_SK",
+    "name": "IoA Realism Skins",
+    "description": "All of the (passably realistic) IoA skins made realism friendly.",
+    "icon": "https://web-cdn.alderongames.com/files/873/conversions/Realism-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJ728Y758_SK",
+    "name": "IoA Vita et Mors",
+    "description": "Vita et Mors (life and death) is a small realism skin pack!\n\nMade by Novacaine with special thanks to Miah\n\nMore skins will be added as time goes on",
+    "icon": "https://web-cdn.alderongames.com/files/1339/conversions/Dilo-speckley-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N2R01R03DQ_SK",
+    "name": "Isle of Asylum Skins",
+    "description": "P/M/C Compat - Skins that cover the spectrum. Community built, may not be for your hard realism, but there's over 200 skins. So surely you'll find one you like.",
+    "icon": "https://web-cdn.alderongames.com/files/811/conversions/Untitled982_20230403193435-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_W61E8Z40MD_SK",
+    "name": "Isle of Myths: Astra Island",
+    "description": "A Tropical Island with dense Jungle and Tropical Beaches.\nMade for the perfect Jungle feeling!\nBiom additions coming in future!\n\nScent Controls:\nPC - I\nConsole-  Gamepad Face Button Right",
+    "icon": "https://web-cdn.alderongames.com/files/1361/conversions/New-Project-(11)-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N2R711873D_SK",
+    "name": "Isle of Myths: Spearcrest",
+    "description": "Spearcrest is a Fictional Fantasy Apex Predator created by BlueSucho!\r\n\r\nIncase you encouter any bugs pls report them on our Discord!\r\n\r\nSpecial Thanks to:\r\n- Gisli\r\n- Feilong\r\n- pnoodle5\r\n- Rexy\r\nand some other Modders who helped me to make this Predator come alive in Path of Titans!",
+    "icon": "https://web-cdn.alderongames.com/files/1251/conversions/New-Project-(3)-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_JG17949EQN_SK",
+    "name": "JFD - Aerosteon riocoloradensis",
+    "description": "This mod adds Aerosteon riocoloradensis as to Path of Titans!\n\nThank you to the following users for their immense contributions to Aerosteon:\n\nL.Walters - Commissioning the original reconstruction for JWE and funding this project!\nFeilong - Programming\nMordekaiser - SFX\ncinemariachi - Human Skull Model\nThe 99p Blender\n\nAeros was created by Jagged Fang Designs:\n\nSimilis - Modelling & Texturing\nSynchroLight - Rigging & Animation\nOkeanos - Painting\nRandomdinos - Skeletal\nPaleodude - Academic Correspondence",
+    "icon": "https://web-cdn.alderongames.com/files/1239/conversions/ArioICO-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_W6178R10MD_SK",
+    "name": "JFD - Deltadromeus agilis",
+    "description": "This mod adds Deltadromeus agilis as a playable in Path of Titans!\r\n\r\nThank you to the following users for their immense contributions to Deltadromeus:\r\n\r\nFeilong - Programming\r\nMordekaiser - SFX\r\nPaleop - Generic Emote Icon\r\nThe Blender from the 99p Store\r\n\r\nDelta was created by Jagged Fang Designs:\r\n\r\nSimilis - Modelling & Texturing\r\nSynchroLight - Rigging & Animation\r\nOkeanos - Painting\r\nRandomdinos - Skeletal & Referencing\r\nPaleodude - Academic Correspondence",
+    "icon": "https://web-cdn.alderongames.com/files/1130/conversions/JFD_Dagilis-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YNR73VY081_SK",
+    "name": "JFD - Torvosaurus tanneri",
+    "description": "This mod adds Torvosaurus tanneri to PoT.\r\n\r\nThank you to KM who originally commissioned Torvo for JWE and allowed us to port it over to PoT!\r\n\r\nTorvo would not have been possible in PoT without the help of the following users:\r\n\r\nFeilong\r\nJiggy\r\npnoodle5\r\nDocJay24\r\n\r\nTorvo was created by Jagged Fang Designs:\r\n\r\nSimilis - Modelling, Texturing & Painting\r\nSynchroLight - Rigging, Animation & Implementation\r\nOkeanos - Painting\r\nRandomdinos - Skeletal & Referencing\r\nPaleodude - Academic Correspondence",
+    "icon": "https://web-cdn.alderongames.com/files/898/conversions/JFD_Ttanneri-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_W61E8KG0MD_SK",
+    "name": "K-23 Celenai",
+    "description": "Adds a semi-aquatic marsupial alien otter that is stronger than its size might suggest!",
+    "icon": "https://web-cdn.alderongames.com/files/933/conversions/Celenai-Preview-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_5XN0VVW0PZ_SK",
+    "name": "King of the Hill",
+    "description": "Two teams compete in this King of the Hill game mode!\r\nStand inside zones to capture them and earn points! Reach the points goal to win the round. Killing other players does not reward points, but you can earn marks to unlock different skins. All players on your team can benefit from group buffs, and abilities do not require marks to unlock. Test out different combat strategies and hone your skills!\r\nCompatible with other mod creatures and maps.",
+    "icon": "https://web-cdn.alderongames.com/files/996/conversions/6fb015d109360769a951f305d46dcc07-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43G76JQ0NR_SK",
+    "name": "KTO Additions | Deinosuchus",
+    "description": "Deinosuchus is a tank and brawler type playable, possessing high raw damage, bonebreak, and high defenses. As a tank it also has bad mobility, but compensates with abilities such as its lunge, granting it bursts of speed through the water and onto land.\n\nSkins by Fluff, Vivid, Grim, and Sergi\nAnimations by Nimwit and Sergi\nSounds by Arson and Sergi\nEverything else by Sergi",
+    "icon": "https://web-cdn.alderongames.com/files/1279/conversions/ICON-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Y250GGQ0VZ_SK",
+    "name": "KTO Additions | Pachyrhinosaurus",
+    "description": "Pachyrhinosaurus' gameplay includes a wide array of abilities to choose from depending on your preferred playstyle. A formidable 4 slot herbivore that presents a threat for all carnivores.\r\n\r\nSkins by Fluff, Vivid, Grim, Janey, and Sergi\r\nAnimations by Alderon Games and Sergi\r\nEverything else by Sergi",
+    "icon": "https://web-cdn.alderongames.com/files/1159/conversions/Pachy-Mod-ICON-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_JG1E96EQN5_SK",
+    "name": "KTO Mysteries | Diplocaulus",
+    "description": "Tiny but mighty, Diplocaulus is not to be taken lightly. This small semi-aquatic has an arsenal of abilities that aid in its survivability, from sliding on its belly for a speed boost and burrowing to avoid danger, to attacks and defenses that inflict venom and toxin. Above all else though, Diplocaulus uses its voice abilities to support teams of aquatic and semi-aquatic creatures.\n\nSkins by Vivid and Sergi\nEverything else by Sergi",
+    "icon": "https://web-cdn.alderongames.com/files/1347/conversions/Diploc-Mod-ICON-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N2RE1Y403D_SK",
+    "name": "KTO Mysteries | Dryptosaurus",
+    "description": "Dryptosaurus is a 2 slot carnivore with multiple head and arms slots giving it diverse builds and allowing it to combo bleeding claw attacks with powerful bites without cooldowns.\r\n\r\nMod made by Sergi",
+    "icon": "https://web-cdn.alderongames.com/files/938/conversions/Mod-ICON-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_QM5EN9DED3_SK",
+    "name": "KTO Mysteries | Nanuqsaurus",
+    "description": "Nanuqsaurus is a medium sized tyrannosaur. Armed with a powerful bite, it possesses high damage attacks and the ability to splinter bones. It is also capable of healing itself and cleansing itself of status effects by cleaning its wounds, making it an effective combatant against whatever opposes it.\n\nSkins by Fluff and Sergi\nEverything else by Sergi",
+    "icon": "https://web-cdn.alderongames.com/files/1280/conversions/Mod-ICON2-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5G7ZX1EPN_SK",
+    "name": "KTO Mysteries | Yangchuanosaurus",
+    "description": "Yangchuanosaurus is a large predator with multiple bleed abilities that make it a powerful big game hunter. Its speed is low but it has a large stamina pool to travel long distances and chase down big prey. Yangchuanosaurus' turn radius makes it a formidable opponent, allowing it to reliably land attacks on you whilst standing its ground.\r\n\r\nSkins by Fluff and Sergi\r\nEverything else by Sergi",
+    "icon": "https://web-cdn.alderongames.com/files/801/conversions/Mod-ICON-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_JG179QX7QN_SK",
+    "name": "Maplewood",
+    "description": "Psycho Dodo Clan presents: Maplewood\nA great 10x10 expanse of forest, grasslands, marsh/wetlands/sloughs, and lakes/rivers!\nLook for information signs, learn about the park!\nHigh altitude brings great fog!\nComputer weather control =  o key\nTime and weather control on console: R3\nMobile: Volume down\nNight vision = computer - n\nConsole - L2\n\n*PHOTOSENSATIVITY WARNING: THIS MAP HAS LIGHTNING!*\n\nSpecial thanks to Fortress (FBTH) for helping me out with some aspects of the map!",
+    "icon": "https://web-cdn.alderongames.com/files/1377/conversions/Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NV5ERMM0JD_SK",
+    "name": "Najuro",
+    "description": "A map focused for a Sandbox Setting / Chill / Deathmatch environment. Najuro brings in a jungle environment as well as open areas, Homecaves, water & elements / fun you, the players can have fun climbing.\r\n\r\nBy completing a quest you get 10.000 Marks automatically, and a fair bit of growth.\r\n\r\n- The map has 3 points containing food. \r\n\r\nHave fun!",
+    "icon": "https://web-cdn.alderongames.com/files/422/conversions/Najuro-512x512-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43G06350NR_SK",
+    "name": "New Era",
+    "description": "Mobile ready Deathmatch map for the New Era community.",
+    "icon": "https://web-cdn.alderongames.com/files/690/conversions/NewEra-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Y250G4KEVZ_SK",
+    "name": "Ordinary Prehistoric Skin Mod",
+    "description": "A mod that adds a large amount of skins to the animals for the game, creator Gecko345#2345, message if you have any skin ideas/find bugs.",
+    "icon": "https://web-cdn.alderongames.com/files/1137/conversions/logocon3-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_4RM7KJW0ZY_SK",
+    "name": "P&D's Menagerie: Pentaceratops",
+    "description": "P&D's Menagerie introduces to you, Pentaceratops! \nAn imposing large ceratopsian from Late Cretaceous North America, focused around displacing and debuffing opponents!\n\n-Credits-\nModel, Textures, and Jacksons Skin by Raidesaur\nSounds, Icons, Skin Design, Skin Painting, and Species Morphs by Daubeny\nSkin Design, Skin Painting, and Coding by Pi\nRA map by Toa Metru & Feilong\nAnimations and Brackish/Vega Skins By Toa Metru\nSpecial thanks to Pnoodle",
+    "icon": "https://web-cdn.alderongames.com/files/1165/conversions/Penta_Icon_New-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZKE4MK09W_SK",
+    "name": "Paragon",
+    "description": "2x2 map",
+    "icon": "https://web-cdn.alderongames.com/files/788/conversions/Thumbnail-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_QM50NNJ0D3_SK",
+    "name": "Primordial Tyrants: Apatosaurus",
+    "description": "Apatosaurus, one of the most famous sauropods, is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/1211/conversions/PT_Apatosaurus_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Z857QJG02V_SK",
+    "name": "Primordial Tyrants: Argentinosaurus",
+    "description": "Argentinosaurus, the largest known land animal, is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/391/conversions/PT_argent_mod_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZK04PD79W_SK",
+    "name": "Primordial Tyrants: Carnotaurus",
+    "description": "Carnotaurus, the most famous Abelisaurid, is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/282/conversions/PT_carno_mod_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYVEXZ57GX_SK",
+    "name": "Primordial Tyrants: Dilophosaurus",
+    "description": "Dilophosaurus, one of the largest carnivorous dinos in the early Jurassic, has been brought back to life by the Primordial Tyrants team.",
+    "icon": "https://web-cdn.alderongames.com/files/1243/conversions/PT_dilo_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYV7X6Y0GX_SK",
+    "name": "Primordial Tyrants: Giganotosaurus",
+    "description": "Giganotosaurus, the largest Carcharodontosaurid, is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/862/conversions/PT_Giganoto_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_QM57N6J7D3_SK",
+    "name": "Primordial Tyrants: Kelenken",
+    "description": "Kelenken, one of the largest phorusrhacid, is brought to you by Primordial Tyrants.\r\n\r\nPrimordial Tyrants is a science-fiction based mod. Artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/949/conversions/PT_kelenken_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6GW7YP373Z_SK",
+    "name": "Primordial Tyrants: Lurdusaurus",
+    "description": "Lurdusaurus is a hadrosauriform that was found in the Elrhaz Formation, in the Tenere desert of Niger. Though it wasn't semi-aquatic in real life, Primordial Tyrants has restored it as a low end semi-aquatic!\n\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/1330/conversions/PT_Lurd_Mod_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Z857Q4PE2V_SK",
+    "name": "Primordial Tyrants: Maip",
+    "description": "Maip, the largest megaraptorian, is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/913/conversions/PT_Maip_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Z85EQRP02V_SK",
+    "name": "Primordial Tyrants: Parasaurolophus",
+    "description": "One of the most iconic dinosaurs is brought to you by PT. PTPara is based on one of the largest cyrocristatus specimens.\r\n\r\nPT is a science-fiction mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/761/conversions/PT_para_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYVEXP60GX_SK",
+    "name": "Primordial Tyrants: Psittacosaurus",
+    "description": "PT brings you Psittacosaurus, one of the most well studied dinosaurs.\r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/1065/conversions/PT_Psittaco_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_5XNEV187PZ_SK",
+    "name": "Primordial Tyrants: Quetzalcoatlus",
+    "description": "Quetzalcoatlus, one of the largest azhdarchids, is brought to you by the Primordial Tyrants team.\r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/816/conversions/PT_Quetz_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_RD10PP20XG_SK",
+    "name": "Primordial Tyrants: Sachicasaurus",
+    "description": "Sachicasaurus, one of the largest known pliosaurs is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/795/conversions/PT_Sachi_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Y250GPQ0VZ_SK",
+    "name": "Primordial Tyrants: Therizinosaurus",
+    "description": "Therizinosaurus is brought to you by the Primordial Tyrants' team.\r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/706/conversions/PT_theri_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_DYV0X96EGX_SK",
+    "name": "Primordial Tyrants: Torvosaurus",
+    "description": "Torvosaurus, the largest Megalosaurid, is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/1210/conversions/PT_Torvosaurus_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NV57RRW7JD_SK",
+    "name": "Primordial Tyrants: Tyrannosaurus",
+    "description": "A different take on the official Tyrannosaurus, PT brings you the most famous dinosaur!\r\n\r\nPT takes scientific liberties when making playables.\r\n\r\nThere is an issue with having both rexes enabled and their abilities. Recommended to disable vanilla.",
+    "icon": "https://web-cdn.alderongames.com/files/878/conversions/PT_Rex_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_5XN7VXW0PZ_SK",
+    "name": "Primordial Tyrants: Utahraptor",
+    "description": "Utahraptor, the largest Dromaeosauridae, is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/1129/conversions/PT_utah_mod_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Y25EGXK7VZ_SK",
+    "name": "Primordial Tyrants: Yunnanosaurus",
+    "description": "Yunnanosaurus, a prosauropod found in the Jurassic period, is brought to you by the Primordial Tyrants team. \r\n\r\nPT is a science-fiction based mod, so artistic liberties will be taken.",
+    "icon": "https://web-cdn.alderongames.com/files/872/conversions/PT_yunn_mod_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_QM5ENGD7D3_SK",
+    "name": "Primordial Tyrants: Yutyrannus",
+    "description": "Yutyrannus is a support based carnivore that focuses on buffing teammates. Yutyrannus is brought to you by the Primordial Tyrants team.",
+    "icon": "https://web-cdn.alderongames.com/files/845/conversions/PT_Yuty_mod_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5G0Z1Y7PN_SK",
+    "name": "Psycho Dodo Clan's Holiday Madness",
+    "description": "An assortment of holiday themed creator mode objects to enjoy!\n\nHave ideas on a holiday item? Contact me and let me know!",
+    "icon": "https://web-cdn.alderongames.com/files/1142/conversions/Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZK74KD09W_SK",
+    "name": "Radical Rocks",
+    "description": "Adds a set of rock building blocks usable in Creator Mode!",
+    "icon": "https://web-cdn.alderongames.com/files/356/conversions/d49928be166d993456d497c490ba64e7-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJ023758N_SK",
+    "name": "Rainbow Dinos",
+    "description": "A pack of rainbow dinosaur skins!\r\n\r\nThis is an example mod skin pack to test modding functionality, and is an example of what you can do!",
+    "icon": "https://web-cdn.alderongames.com/files/79/edee390bc6ba2a1bb9427509a9f242de.jpg"
+  },
+  {
+    "sku": "UGC_M_N59EDWP0WQ_SK",
+    "name": "Simple Skins",
+    "description": "A simple / funky skin mod ! Enjoy :)",
+    "icon": "https://web-cdn.alderongames.com/files/377/conversions/MAIN-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_QM57NW7D3P_SK",
+    "name": "Stoneclaw Highlands",
+    "description": "This 4km x 4km map is perfect for a smaller group of players that enjoy wide open spaces and rolling hillsides. Discover hidden secrets and stories on this Scotland-inspired lush landscape.",
+    "icon": "https://web-cdn.alderongames.com/files/75/daf3eeae9d3aeb5bdf9a2b9f86ba8bab.jpg"
+  },
+  {
+    "sku": "UGC_M_QM57NQJ7D3_SK",
+    "name": "Strawberry Skins",
+    "description": "A skin mod trying to bring both semi-realistic to realistic patterns alive aswell as more fun skins!",
+    "icon": "https://web-cdn.alderongames.com/files/1332/conversions/Angel-Headshot---Eotrike-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_RD1EPJ9EXG_SK",
+    "name": "Teutonia",
+    "description": "Official TEUTONIC [EU] Community Map.\r\n\r\n- Night Vision\r\n- Scent System\r\n- Custom commands\r\n- 8x8 km to explore.\r\n- Multi biomes like Jungle, deserts, snow, volcano an more!\r\n- Caves and hidden places!",
+    "icon": "https://web-cdn.alderongames.com/files/302/conversions/teutonia3-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_QM5ENMJ7D3_SK",
+    "name": "TGB: Japanese Giant Salamander",
+    "description": "The Japanese Giant Salamander could end up like the rest of the prehistoric creatures in this game, extinct. To help raise awarness of the species and it's plight I thought what better way to do so then adding it to Path of Titans.\r\nHelp support this animal by searching up sustainable daisen.\r\nAs big as the Japanese Giant Salamander is we have scaled up this prehistoric animal.\r\nMod Created by the Divine Beasts Team: theDoctorTHE11th/SadEch/Matheusfers/Gisli\r\nSkins : Xseidet/FowlMarlee\r\nEmote Art : Grana",
+    "icon": "https://web-cdn.alderongames.com/files/1170/conversions/Salamander_Mod_Pic_TGBM_V2-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_N597D9ZEWQ_SK",
+    "name": "The Crimson Isle's Cryolophosaurus",
+    "description": "The Crimson Isle’s Cryolophosaurus\r\n\r\nCryolophosaurus, known as the \"frozen crested lizard\", is a distinctive theropod that roamed the Earth around 190 million years ago. Discovered in the early 1990s in Antarctica, this dinosaur's in-game variant introduces new behaviors and interactions.\r\n\r\nCreated by: Feilong with the help of TheDoctorTHE11th, with contributions from Toa Metru and M-Z and VividSky.  \r\n\r\nSpecial Thanks: GigaPark, Pi, the WOTG mod team and The Crimson Isle Mod Team.",
+    "icon": "https://web-cdn.alderongames.com/files/1112/conversions/TCI_Cryo_Larger_Logo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43GE695ENR_SK",
+    "name": "The Jurassic Savannah Skins [TJS]",
+    "description": "This is a realistic skin pack!\r\n\r\nZanthar -Allo\r\nFirefly -Campto\r\nMud -Cerato\r\nSavannah -Iguanodon\r\nCanyon -Stego",
+    "icon": "https://web-cdn.alderongames.com/files/466/conversions/TJSLogo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5G0Z310PN_SK",
+    "name": "The Nyctatyrannus",
+    "description": "Isla Nycta's titular mascot - a mid-sized predator of the night from fantastical origins. \r\n=== [ Made With Love By ] ===\r\nMod Developer: TheDoctorTHE11th / Divine Beasts Team\r\nOriginal Model: Arkaria\r\nAnimations: Scorching_Kami\r\nTextures and Subspecies: Matheusfers\r\nSkins: GameVideosForLife, Ky\r\nSounds: Simon Chylinski, Shane Armstrong\r\nProject Manager: NR",
+    "icon": "https://web-cdn.alderongames.com/files/695/conversions/IslaNyctaModBanner_v5-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJ0281058_SK",
+    "name": "The Pit",
+    "description": "A small pvp map.",
+    "icon": "https://web-cdn.alderongames.com/files/1360/conversions/T_CThePit_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NZK0J4RE12_SK",
+    "name": "Titanus Constructus: Ampelosaurus",
+    "description": "A mid-sized armored sauropod specializing in a defensive game style, Ampelosaurus is not an easy foe to contend with. Armed with decently sized spines, and sometimes osteoderms, this dinosaur is built for wear and tear.\r\nOnly the bravest apexes dare challenge an adult. A pair however may prove challenging for a lone Ampelosaurus.",
+    "icon": "https://web-cdn.alderongames.com/files/790/conversions/Ampelo_Mod_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YNRE3PY781_SK",
+    "name": "Titanus Constructus: Citipati",
+    "description": "This mod adds the smaller mid-tier oviraptorid, Citipati to your game. Playable as a speedy solo, or a supportive group, there is no wrong way to enjoy this silly dinosaur!\r\n\r\n“Beak Snap” and \"Threaten\" emote animation by DefinitelyNotDilo.",
+    "icon": "https://web-cdn.alderongames.com/files/1046/conversions/Citipati_Mod_Icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZK74NG09W_SK",
+    "name": "TSG: Bonapartenykus",
+    "description": "Adds a playable alvarezsaurid from late Cretaceous Argentina.",
+    "icon": "https://web-cdn.alderongames.com/files/1327/conversions/TSGBonaIcon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_43G069Q0NR_SK",
+    "name": "Velocciraptor",
+    "description": "Velocci’s Raptor makes its grand entrance into Path of Titans! Based off of the YouTuber Veloccis mascot!\r\nVelocciraptor is a big deinonychus, roughly double the size of it and double the threat!\r\n\r\nMade by:SadEch\r\nSetup by:theDoctorTHE11th",
+    "icon": "https://web-cdn.alderongames.com/files/430/conversions/Tumb-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_YZK743K09W_SK",
+    "name": "Veneer",
+    "description": "Developed for Second Origin realism servers. Want to contribute or have feedback?",
+    "icon": "https://web-cdn.alderongames.com/files/479/conversions/veneericon01-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_6YJ02KY758_SK",
+    "name": "Zealandia Natural",
+    "description": "Discover an ultra-realistic skin mod, designed for total immersion in the world of Zealandia, a unique server that plunges you into the heart of a reserve populated by prehistoric animals. This mod is specially adapted for players who wish to live an authentic experience among these giants from another time.\n\nA huge thank you to Smaug for his valuable contribution in making this project a reality.\nAnd also to the entire Zealandia staff for their useful and precise help on fixing issues.",
+    "icon": "https://web-cdn.alderongames.com/files/1312/conversions/LogoMod-icon.jpg"
+  }
+]

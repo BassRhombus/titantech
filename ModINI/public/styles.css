@@ -1,0 +1,259 @@
+/* General Styling */
+* { 
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #e0e0e0;
+    background-color: #121212;
+    padding: 20px;
+}
+
+/* Header Styling */
+header { 
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #1e2a38;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #4CAF50;
+}
+
+/* Controls and Search */
+.search-bar { 
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#searchInput { 
+    padding: 12px 15px;
+    width: 400px;
+    max-width: 100%;
+    font-size: 16px;
+    border: 1px solid #333;
+    border-radius: 25px;
+    background-color: #252525;
+    color: #e0e0e0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease;
+}
+
+#searchInput:focus {
+    outline: none;
+    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+    border-color: #4CAF50;
+}
+
+#searchInput::placeholder {
+    color: #888;
+}
+
+.controls { 
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.controls button { 
+    padding: 12px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.controls button:hover { 
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.controls button:active {
+    transform: translateY(0);
+}
+
+/* Mods Grid */
+.mods-container { 
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.mod-card { 
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-in-out;
+    animation-fill-mode: both;
+    border: 1px solid #333;
+}
+
+.mod-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    border-color: #4CAF50;
+}
+
+.mod-card img { 
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.mod-card h2 { 
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 18px;
+    color: #4CAF50;
+}
+
+.mod-card p { 
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #bbb;
+}
+
+/* Custom Checkbox Styling */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px 0;
+    font-weight: 500;
+    justify-content: space-between;
+    color: #ccc;
+}
+
+.checkbox-container span {
+    margin-right: 10px;
+}
+
+.checkbox-container input {
+    display: none;
+}
+
+.checkbox-container svg {
+    overflow: visible;
+    width: 25px;
+    height: 25px;
+    background: #2a2a2a;
+    border-radius: 5px;
+    border: 1px solid #4CAF50;
+}
+
+.path {
+    fill: none;
+    stroke: #4CAF50;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke-dasharray 0.5s ease, stroke-dashoffset 0.5s ease;
+    stroke-dasharray: 70.5096664428711 9999999;
+    stroke-dashoffset: -262.2723388671875;
+}
+
+.checkbox-container input:checked ~ svg {
+    background: #4CAF50;
+}
+
+.checkbox-container input:checked ~ svg .path {
+    stroke: white;
+    stroke-dasharray: 241 9999999;
+    stroke-dashoffset: 0;
+}
+
+/* Loading indicator */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    grid-column: 1 / -1;
+    color: #ccc;
+}
+
+.spinner {
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border-left-color: #4CAF50;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mods-container {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    #searchInput {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .mods-container {
+        grid-template-columns: 1fr;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+}

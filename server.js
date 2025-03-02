@@ -31,6 +31,10 @@ app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
+app.get('/bots.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'bots.html'));
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`DinoMod Hub server running at http://localhost:${PORT}/`);

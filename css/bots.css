@@ -1,0 +1,227 @@
+/* Bots page specific styles */
+.bots-intro {
+    padding: 3rem 5%;
+    text-align: center;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/bots-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 2rem;
+}
+
+.bots-intro h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.bots-intro p {
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.bots-grid-section, .custom-bot-section {
+    padding: 2rem 5%;
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+}
+
+.bots-grid-section h2, .custom-bot-section h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+.custom-bot-section p {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+}
+
+.bots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    margin-top: 2rem;
+}
+
+.bot-card {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.bot-card:hover {
+    transform: translateY(-5px);
+}
+
+.bot-banner {
+    position: relative;
+    height: 180px;
+}
+
+.bot-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bot-type {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.bot-info {
+    padding: 1.5rem;
+}
+
+.bot-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.8rem;
+    font-size: 1.5rem;
+}
+
+.bot-info p {
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+    color: #cccccc;
+    height: 65px;
+    overflow: hidden;
+}
+
+.bot-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.bot-features span {
+    background-color: rgba(47, 158, 65, 0.2);
+    color: var(--primary-color);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid rgba(47, 158, 65, 0.3);
+}
+
+.bot-link {
+    display: block;
+    width: 100%;
+    padding: 0.8rem;
+    text-align: center;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.bot-link:hover {
+    background-color: var(--secondary-color);
+}
+
+.custom-bot-container {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.custom-bot-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.custom-bot-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.custom-bot-info ul {
+    list-style: none;
+    margin-bottom: 2rem;
+}
+
+.custom-bot-info ul li {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.custom-bot-info ul li i {
+    color: var(--primary-color);
+}
+
+.custom-bot-image {
+    flex: 1;
+    min-width: 300px;
+}
+
+.custom-bot-image img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Coming Soon Overlay styles */
+.disabled-form {
+    position: relative;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.form-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 8px;
+}
+
+.coming-soon-message {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 2rem;
+    text-align: center;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.coming-soon-message i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .custom-bot-container {
+        flex-direction: column-reverse;
+    }
+    
+    .bot-info p {
+        height: auto;
+    }
+}
