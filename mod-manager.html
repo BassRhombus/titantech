@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mod Manager - DinoMod Hub</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/mod-manager.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/mod-manager.css">
 </head>
 <body>
     <header>
         <div class="logo-container">
             <img src="images/logo.png" alt="DinoMod Hub Logo" class="logo">
-            <h1>DinoMod Hub</h1>
+            <h1>TitanTech Hub</h1>
         </div>
         <nav>
-             <ul class="nav-links">
+            <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="mod-manager.html" class="active">Mod Manager</a></li>
                 <li><a href="community.html">Community</a></li>
@@ -29,179 +29,29 @@
                 <div class="line"></div>
             </div>
         </nav>
+        
+        <div class="mod-manager-intro">
+            <h2>Path of Titans Mod Selector</h2>
+            <p>Select mods and generate your configuration file</p>
+        </div>
     </header>
-
-    <main>
-        <section class="mod-manager-intro">
-            <h2>Path of Titans Mod Manager</h2>
-            <p>Create server profiles, manage your mod collection, and share with your community</p>
-            
-            <div class="mod-login-prompt" id="loginPrompt">
-                <i class="fas fa-lock"></i>
-                <h3>Server Owner Access</h3>
-                <p>Login with Discord to create and manage your server profiles</p>
-                <a href="login.html" class="login-btn"><i class="fab fa-discord"></i> Login with Discord</a>
-            </div>
-        </section>
-
-        <section class="public-servers">
-            <h2>Public Server Profiles</h2>
-            <div class="search-filter">
-                <input type="text" placeholder="Search servers..." id="serverSearch">
-                <div class="filter-options">
-                    <select id="serverFilter">
-                        <option value="all">All Servers</option>
-                        <option value="popular">Most Popular</option>
-                        <option value="recent">Recently Updated</option>
-                        <option value="realism">Realism</option>
-                        <option value="modded">Heavily Modded</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="server-grid">
-                <!-- Server cards would be dynamically generated -->
-                <div class="server-profile-card">
-                    <div class="server-banner">
-                        <img src="images/server1-banner.jpg" alt="Isla Nublar Server Banner">
-                        <div class="server-status online">Online</div>
-                    </div>
-                    <div class="server-info">
-                        <h3>Isla Nublar</h3>
-                        <p class="server-description">Semi-realism server with custom dinosaur skins and maps</p>
-                        <div class="server-stats">
-                            <span><i class="fas fa-users"></i> 85/100</span>
-                            <span><i class="fas fa-puzzle-piece"></i> 24 mods</span>
-                        </div>
-                        <div class="server-tags">
-                            <span>Semi-Realism</span>
-                            <span>Custom Skins</span>
-                            <span>Custom Maps</span>
-                        </div>
-                        <a href="server-detail.html?id=1" class="view-server-btn">View Server</a>
-                    </div>
-                </div>
-
-                <div class="server-profile-card">
-                    <div class="server-banner">
-                        <img src="images/server2-banner.jpg" alt="Prehistoric Paradise Server Banner">
-                        <div class="server-status online">Online</div>
-                    </div>
-                    <div class="server-info">
-                        <h3>Prehistoric Paradise</h3>
-                        <p class="server-description">Modded gameplay with custom maps and dinosaurs</p>
-                        <div class="server-stats">
-                            <span><i class="fas fa-users"></i> 67/100</span>
-                            <span><i class="fas fa-puzzle-piece"></i> 35 mods</span>
-                        </div>
-                        <div class="server-tags">
-                            <span>Custom Dinos</span>
-                            <span>Events</span>
-                            <span>PVP</span>
-                        </div>
-                        <a href="server-detail.html?id=2" class="view-server-btn">View Server</a>
-                    </div>
-                </div>
-
-                <div class="server-profile-card">
-                    <div class="server-banner">
-                        <img src="images/server3-banner.jpg" alt="Apex Predators Server Banner">
-                        <div class="server-status online">Online</div>
-                    </div>
-                    <div class="server-info">
-                        <h3>Apex Predators</h3>
-                        <p class="server-description">Hardcore survival with balanced gameplay mods</p>
-                        <div class="server-stats">
-                            <span><i class="fas fa-users"></i> 92/100</span>
-                            <span><i class="fas fa-puzzle-piece"></i> 18 mods</span>
-                        </div>
-                        <div class="server-tags">
-                            <span>Hardcore</span>
-                            <span>Survival</span>
-                            <span>Balanced</span>
-                        </div>
-                        <a href="server-detail.html?id=3" class="view-server-btn">View Server</a>
-                    </div>
-                </div>
-
-                <div class="server-profile-card">
-                    <div class="server-banner">
-                        <img src="images/server4-banner.jpg" alt="Mesozoic Meadows Server Banner">
-                        <div class="server-status offline">Offline</div>
-                    </div>
-                    <div class="server-info">
-                        <h3>Mesozoic Meadows</h3>
-                        <p class="server-description">Family-friendly server with growth boost and community events</p>
-                        <div class="server-stats">
-                            <span><i class="fas fa-users"></i> 0/100</span>
-                            <span><i class="fas fa-puzzle-piece"></i> 12 mods</span>
-                        </div>
-                        <div class="server-tags">
-                            <span>Growth Boost</span>
-                            <span>Family-Friendly</span>
-                            <span>Events</span>
-                        </div>
-                        <a href="server-detail.html?id=4" class="view-server-btn">View Server</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pagination">
-                <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">5</a>
-                <a href="#">Next &raquo;</a>
-            </div>
-        </section>
-
-        <section class="mod-features">
-            <h2>Mod Manager Features</h2>
-            <div class="features-container">
-                <div class="feature">
-                    <div class="feature-icon">
-                        <i class="fas fa-server"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>Server Profiles</h3>
-                        <p>Create custom profiles for each of your Path of Titans servers. Organize mods, settings, and server information all in one place.</p>
-                    </div>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>Mod Storage</h3>
-                        <p>Upload and store your mod files securely in the cloud. Access them from anywhere and easily distribute them to players.</p>
-                    </div>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">
-                        <i class="fas fa-share-alt"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>Community Sharing</h3>
-                        <p>Share your server profile with your community. Let players easily see what mods they need to join your server.</p>
-                    </div>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>Stats and Analytics</h3>
-                        <p>Track user engagement with your server profile and monitor mod downloads to understand your community better.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
+    
+    <div class="mod-manager-content">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search mods...">
+        </div>
+    
+        <div class="controls">
+            <button id="generateBtn">Generate Config</button>
+            <button id="selectAllBtn">Select All</button>
+            <button id="deselectAllBtn">Deselect All</button>
+        </div>
+    
+        <div id="modsContainer" class="mods-container">
+            <!-- Mods will be displayed here -->
+        </div>
+    </div>
+    
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
@@ -214,13 +64,14 @@
                     <li><a href="index.html">Home</a></li>
                     <li><a href="mod-manager.html">Mod Manager</a></li>
                     <li><a href="community.html">Community</a></li>
+                    <li><a href="bots.html">Bots/Scripts</a></li>
                     <li><a href="about.html">About</a></li>
                 </ul>
             </div>
             <div class="footer-social">
                 <h4>Connect With Us</h4>
                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="https://discord.gg/bgvCWqdW" target="_blank"><i class="fab fa-discord"></i></a>
                     <a href="#"><i class="fab fa-twitter"></i></a>
                     <a href="#"><i class="fab fa-youtube"></i></a>
                     <a href="#"><i class="fab fa-reddit"></i></a>
@@ -228,11 +79,947 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 DinoMod Hub. Not affiliated with Path of Titans.</p>
+            <p>&copy; 2025. Not affiliated with Path of Titans.</p>
         </div>
     </footer>
-
-    <script src="js/main.js"></script>
+    
     <script src="js/mod-manager.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
+```
+
+## 2. Update css/mod-manager.css file
+
+Replace the content of [css/mod-manager.css](css/mod-manager.css) with:
+
+```css
+/* Mod Manager Styles */
+.mod-manager-intro {
+    padding: 2rem 5%;
+    text-align: center;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/mod-manager-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 3rem 5%;
+    margin-bottom: 2rem;
+}
+
+.mod-manager-intro h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.mod-manager-intro p {
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+}
+
+#modsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 5%;
+}
+
+.mod-card {
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #333;
+}
+
+.mod-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-5px);
+}
+
+.controls {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 5%;
+}
+
+.controls button {
+    background-color: var(--primary-color);
+    padding: 12px 20px;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.controls button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.search-bar {
+    max-width: 1200px;
+    margin: 0 auto 1rem;
+    padding: 0 5%;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #333;
+    color: #e0e0e0;
+    border-radius: 25px;
+}
+
+.mod-manager-content {
+    padding: 0;
+}
+
+/* Mods Grid */
+.mods-container { 
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.mod-card { 
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-in-out;
+    animation-fill-mode: both;
+    border: 1px solid #333;
+}
+
+.mod-card img { 
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.mod-card h2 { 
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+.mod-card p { 
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #bbb;
+}
+
+/* Custom Checkbox Styling */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px 0;
+    font-weight: 500;
+    justify-content: space-between;
+    color: #ccc;
+}
+
+.checkbox-container span {
+    margin-right: 10px;
+}
+
+.checkbox-container input {
+    display: none;
+}
+
+.checkbox-container svg {
+    overflow: visible;
+    width: 25px;
+    height: 25px;
+    background: #2a2a2a;
+    border-radius: 5px;
+    border: 1px solid var(--primary-color);
+}
+
+.path {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke-dasharray 0.5s ease, stroke-dashoffset 0.5s ease;
+    stroke-dasharray: 70.5096664428711 9999999;
+    stroke-dashoffset: -262.2723388671875;
+}
+
+.checkbox-container input:checked ~ svg {
+    background: var(--primary-color);
+}
+
+.checkbox-container input:checked ~ svg .path {
+    stroke: white;
+    stroke-dasharray: 241 9999999;
+    stroke-dashoffset: 0;
+}
+
+/* Loading indicator */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    grid-column: 1 / -1;
+    color: #ccc;
+}
+
+.spinner {
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border-left-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mods-container {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    #searchInput {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .mods-container {
+        grid-template-columns: 1fr;
+    }
+}
+```
+
+## 3. Create js/mod-manager.js file
+
+Create a new file [js/mod-manager.js](js/mod-manager.js) with:
+
+```javascript
+// Load the mods data
+document.addEventListener('DOMContentLoaded', function() {
+    loadModsData();
+    
+    document.getElementById('generateBtn').addEventListener('click', generateConfig);
+    document.getElementById('selectAllBtn').addEventListener('click', selectAllMods);
+    document.getElementById('deselectAllBtn').addEventListener('click', deselectAllMods);
+    document.getElementById('searchInput').addEventListener('input', filterMods);
+});
+
+async function loadModsData() {
+    try {
+        showLoading();
+        const modsData = await fetch('ModINI/public/mods_details.json').then(response => response.json());
+        window.modsData = modsData; // Store for filtering
+        displayMods(modsData);
+    } catch (error) {
+        console.error('Error loading mods data:', error);
+        document.getElementById('modsContainer').innerHTML = '<p>Error loading mods data. Please try again later.</p>';
+    }
+}
+
+function displayMods(mods) {
+    const container = document.getElementById('modsContainer');
+    container.innerHTML = '';
+    
+    mods.forEach(mod => {
+        const modCard = document.createElement('div');
+        modCard.className = 'mod-card';
+        
+        // Generate unique ID for each checkbox
+        const checkboxId = `mod-${mod.sku.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        
+        modCard.innerHTML = `
+            <img src="${mod.icon}" alt="${mod.name}" onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'">
+            <h2>${mod.name}</h2>
+            <p>${mod.description}</p>
+            <label class="checkbox-container">
+                <span>Select this mod</span>
+                <input type="checkbox" id="${checkboxId}" class="mod-checkbox" data-id="${mod.sku}" data-name="${mod.name}">
+                <svg viewBox="0 0 100 100">
+                    <path class="path" d="M20,55 L40,75 L77,27" />
+                </svg>
+            </label>
+        `;
+        
+        container.appendChild(modCard);
+    });
+}
+
+function filterMods() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    if (!window.modsData) return;
+    
+    const filteredMods = window.modsData.filter(mod => 
+        mod.name.toLowerCase().includes(searchTerm) || 
+        mod.description.toLowerCase().includes(searchTerm)
+    );
+    
+    displayMods(filteredMods);
+}
+
+function selectAllMods() {
+    document.querySelectorAll('.mod-checkbox').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateSelectedCount();
+}
+
+function deselectAllMods() {
+    document.querySelectorAll('.mod-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateSelectedCount();
+}
+
+function generateConfig() {
+    const selectedMods = [];
+    document.querySelectorAll('.mod-checkbox:checked').forEach(checkbox => {
+        selectedMods.push({
+            id: checkbox.dataset.id,
+            name: checkbox.dataset.name
+        });
+    });
+    
+    if (selectedMods.length === 0) {
+        alert('Please select at least one mod.');
+        return;
+    }
+    
+    let configContent = '[PathOfTitans.Mods]\n';
+    
+    selectedMods.forEach(mod => {
+        configContent += `EnabledMods=${mod.id}\n#${mod.name}\n`;
+    });
+    
+    downloadConfig(configContent, 'GameUserSettings.ini');
+}
+
+function downloadConfig(content, filename) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const element = document.createElement('a');
+    element.href = url;
+    element.download = filename;
+    element.style.display = 'none';
+    
+    document.body.appendChild(element);
+    element.click();
+    
+    setTimeout(() => {
+        document.body.removeChild(element);
+        URL.revokeObjectURL(url);
+    }, 100);
+}
+
+// Show loading indicator
+function showLoading() {
+    const container = document.getElementById('modsContainer');
+    container.innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading mods...</p>
+        </div>
+    `;
+}
+
+// Update count of selected mods
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.mod-checkbox:checked').length;
+    const generateBtn = document.getElementById('generateBtn');
+    generateBtn.textContent = count > 0 ? `Generate Config (${count})` : 'Generate Config';
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('mod-checkbox')) {
+        updateSelectedCount();
+    }
+});
+```
+
+## 4. Update your server.js file
+
+Modify your [server.js](server.js) to use the new files:
+
+```javascript
+const express = require('express');
+const path = require('path');
+const app = express();
+const PORT = 3003;
+
+// Serve static files
+app.use(express.static(__dirname));
+
+// Default route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Catch-all for HTML pages
+app.get('/:page.html', (req, res) => {
+  res.sendFile(path.join(__dirname, req.params.page + '.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
+});
+```
+
+Now your mod manager is fully integrated into the main site structure with separated HTML, CSS, and JavaScript files!<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mod Manager - DinoMod Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/mod-manager.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="DinoMod Hub Logo" class="logo">
+            <h1>TitanTech Hub</h1>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="mod-manager.html" class="active">Mod Manager</a></li>
+                <li><a href="community.html">Community</a></li>
+                <li><a href="bots.html">Bots/Scripts</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="login.html" class="login-btn"><i class="fab fa-discord"></i> Login with Discord</a></li>
+            </ul>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+        
+        <div class="mod-manager-intro">
+            <h2>Path of Titans Mod Selector</h2>
+            <p>Select mods and generate your configuration file</p>
+        </div>
+    </header>
+    
+    <div class="mod-manager-content">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search mods...">
+        </div>
+    
+        <div class="controls">
+            <button id="generateBtn">Generate Config</button>
+            <button id="selectAllBtn">Select All</button>
+            <button id="deselectAllBtn">Deselect All</button>
+        </div>
+    
+        <div id="modsContainer" class="mods-container">
+            <!-- Mods will be displayed here -->
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/footer-logo.png" alt="DinoMod Hub">
+                <p>DinoMod Hub - Path of Titans Server Management</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="mod-manager.html">Mod Manager</a></li>
+                    <li><a href="community.html">Community</a></li>
+                    <li><a href="bots.html">Bots/Scripts</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Connect With Us</h4>
+                <div class="social-icons">
+                    <a href="https://discord.gg/bgvCWqdW" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-reddit"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025. Not affiliated with Path of Titans.</p>
+        </div>
+    </footer>
+    
+    <script src="js/mod-manager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+```
+
+## 2. Update css/mod-manager.css file
+
+Replace the content of [css/mod-manager.css](css/mod-manager.css) with:
+
+```css
+/* Mod Manager Styles */
+.mod-manager-intro {
+    padding: 2rem 5%;
+    text-align: center;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/mod-manager-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 3rem 5%;
+    margin-bottom: 2rem;
+}
+
+.mod-manager-intro h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.mod-manager-intro p {
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+}
+
+#modsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 5%;
+}
+
+.mod-card {
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #333;
+}
+
+.mod-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-5px);
+}
+
+.controls {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 5%;
+}
+
+.controls button {
+    background-color: var(--primary-color);
+    padding: 12px 20px;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.controls button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.search-bar {
+    max-width: 1200px;
+    margin: 0 auto 1rem;
+    padding: 0 5%;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #333;
+    color: #e0e0e0;
+    border-radius: 25px;
+}
+
+.mod-manager-content {
+    padding: 0;
+}
+
+/* Mods Grid */
+.mods-container { 
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.mod-card { 
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-in-out;
+    animation-fill-mode: both;
+    border: 1px solid #333;
+}
+
+.mod-card img { 
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.mod-card h2 { 
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+.mod-card p { 
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #bbb;
+}
+
+/* Custom Checkbox Styling */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px 0;
+    font-weight: 500;
+    justify-content: space-between;
+    color: #ccc;
+}
+
+.checkbox-container span {
+    margin-right: 10px;
+}
+
+.checkbox-container input {
+    display: none;
+}
+
+.checkbox-container svg {
+    overflow: visible;
+    width: 25px;
+    height: 25px;
+    background: #2a2a2a;
+    border-radius: 5px;
+    border: 1px solid var(--primary-color);
+}
+
+.path {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke-dasharray 0.5s ease, stroke-dashoffset 0.5s ease;
+    stroke-dasharray: 70.5096664428711 9999999;
+    stroke-dashoffset: -262.2723388671875;
+}
+
+.checkbox-container input:checked ~ svg {
+    background: var(--primary-color);
+}
+
+.checkbox-container input:checked ~ svg .path {
+    stroke: white;
+    stroke-dasharray: 241 9999999;
+    stroke-dashoffset: 0;
+}
+
+/* Loading indicator */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    grid-column: 1 / -1;
+    color: #ccc;
+}
+
+.spinner {
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border-left-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mods-container {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    #searchInput {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .mods-container {
+        grid-template-columns: 1fr;
+    }
+}
+```
+
+## 3. Create js/mod-manager.js file
+
+Create a new file [js/mod-manager.js](js/mod-manager.js) with:
+
+```javascript
+// Load the mods data
+document.addEventListener('DOMContentLoaded', function() {
+    loadModsData();
+    
+    document.getElementById('generateBtn').addEventListener('click', generateConfig);
+    document.getElementById('selectAllBtn').addEventListener('click', selectAllMods);
+    document.getElementById('deselectAllBtn').addEventListener('click', deselectAllMods);
+    document.getElementById('searchInput').addEventListener('input', filterMods);
+});
+
+async function loadModsData() {
+    try {
+        showLoading();
+        const modsData = await fetch('ModINI/public/mods_details.json').then(response => response.json());
+        window.modsData = modsData; // Store for filtering
+        displayMods(modsData);
+    } catch (error) {
+        console.error('Error loading mods data:', error);
+        document.getElementById('modsContainer').innerHTML = '<p>Error loading mods data. Please try again later.</p>';
+    }
+}
+
+function displayMods(mods) {
+    const container = document.getElementById('modsContainer');
+    container.innerHTML = '';
+    
+    mods.forEach(mod => {
+        const modCard = document.createElement('div');
+        modCard.className = 'mod-card';
+        
+        // Generate unique ID for each checkbox
+        const checkboxId = `mod-${mod.sku.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        
+        modCard.innerHTML = `
+            <img src="${mod.icon}" alt="${mod.name}" onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'">
+            <h2>${mod.name}</h2>
+            <p>${mod.description}</p>
+            <label class="checkbox-container">
+                <span>Select this mod</span>
+                <input type="checkbox" id="${checkboxId}" class="mod-checkbox" data-id="${mod.sku}" data-name="${mod.name}">
+                <svg viewBox="0 0 100 100">
+                    <path class="path" d="M20,55 L40,75 L77,27" />
+                </svg>
+            </label>
+        `;
+        
+        container.appendChild(modCard);
+    });
+}
+
+function filterMods() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    if (!window.modsData) return;
+    
+    const filteredMods = window.modsData.filter(mod => 
+        mod.name.toLowerCase().includes(searchTerm) || 
+        mod.description.toLowerCase().includes(searchTerm)
+    );
+    
+    displayMods(filteredMods);
+}
+
+function selectAllMods() {
+    document.querySelectorAll('.mod-checkbox').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateSelectedCount();
+}
+
+function deselectAllMods() {
+    document.querySelectorAll('.mod-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateSelectedCount();
+}
+
+function generateConfig() {
+    const selectedMods = [];
+    document.querySelectorAll('.mod-checkbox:checked').forEach(checkbox => {
+        selectedMods.push({
+            id: checkbox.dataset.id,
+            name: checkbox.dataset.name
+        });
+    });
+    
+    if (selectedMods.length === 0) {
+        alert('Please select at least one mod.');
+        return;
+    }
+    
+    let configContent = '[PathOfTitans.Mods]\n';
+    
+    selectedMods.forEach(mod => {
+        configContent += `EnabledMods=${mod.id}\n#${mod.name}\n`;
+    });
+    
+    downloadConfig(configContent, 'GameUserSettings.ini');
+}
+
+function downloadConfig(content, filename) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const element = document.createElement('a');
+    element.href = url;
+    element.download = filename;
+    element.style.display = 'none';
+    
+    document.body.appendChild(element);
+    element.click();
+    
+    setTimeout(() => {
+        document.body.removeChild(element);
+        URL.revokeObjectURL(url);
+    }, 100);
+}
+
+// Show loading indicator
+function showLoading() {
+    const container = document.getElementById('modsContainer');
+    container.innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading mods...</p>
+        </div>
+    `;
+}
+
+// Update count of selected mods
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.mod-checkbox:checked').length;
+    const generateBtn = document.getElementById('generateBtn');
+    generateBtn.textContent = count > 0 ? `Generate Config (${count})` : 'Generate Config';
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('mod-checkbox')) {
+        updateSelectedCount();
+    }
+});
+```
+
+## 4. Update your server.js file
+
+Modify your [server.js](server.js) to use the new files:
+
+```javascript
+const express = require('express');
+const path = require('path');
+const app = express();
+const PORT = 3003;
+
+// Serve static files
+app.use(express.static(__dirname));
+
+// Default route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Catch-all for HTML pages
+app.get('/:page.html', (req, res) => {
+  res.sendFile(path.join(__dirname, req.params.page + '.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
+});
+```
+
+Now your mod manager is fully integrated into the main site structure with separated HTML, CSS, and JavaScript files!
