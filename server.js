@@ -20,14 +20,20 @@ const ADMIN_USER_IDS = [
   // You can add more admin IDs here
 ];
 
+// Trust proxy for secure cookies in production
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Configure session middleware
 app.use(session({
   secret: 'titantech_secret_key',
-  resave: false,
-  saveUninitialized: false,
+  resave: true,  // Changed from false
+  saveUninitialized: true,  // Changed from false
   cookie: { 
     secure: process.env.NODE_ENV === 'production', 
-    maxAge: 604800000 // 7 days
+    maxAge: 604800000, // 7 days
+    sameSite: 'lax'  // Added to help with cookie security
   }
 }));
 
@@ -76,12 +82,18 @@ app.get('/auth/discord/callback',
     failureRedirect: '/login.html' 
   }), 
   (req, res) => {
-    console.log('User ID:', req.user.id);
-    res.redirect('/dashboard.html');
+    console.log('User authenticated:', req.user.id);
+    // Force session save to avoid race conditions
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+      }
+      res.redirect('/dashboard.html');
+    });
   }
 );
 
-app.get('/logout', (req, res) => {
+app.get('/logout', (req, res, next) => {  // Added 'next' parameter
   req.logout(function(err) {
     if (err) { return next(err); }
     res.redirect('/');
