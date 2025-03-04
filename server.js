@@ -9,7 +9,9 @@ const PORT = 3003;
 // Discord OAuth2 credentials - replace with your own
 const DISCORD_CLIENT_ID = '1346303613819027496';
 const DISCORD_CLIENT_SECRET = 'ilNi2fsknANLfjLf-bMdW9qoTJEMIvXk';
-const CALLBACK_URL = 'http://localhost:3003/auth/discord/callback';
+const CALLBACK_URL = process.env.NODE_ENV === 'production' 
+  ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}/auth/discord/callback` 
+  : 'http://localhost:3003/auth/discord/callback';
 
 // List of Discord user IDs with admin privileges
 const ADMIN_USER_IDS = [
