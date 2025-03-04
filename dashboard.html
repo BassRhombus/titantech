@@ -151,12 +151,23 @@
                             document.getElementById('userAvatar').src = avatarUrl;
                         }
                         
-                        // Handle admin UI elements if needed
+                        // Handle admin UI elements
                         if (data.user.admin) {
-                            const adminLink = document.createElement('a');
-                            adminLink.href = "admin.html";
-                            adminLink.innerHTML = '<i class="fas fa-shield-alt"></i> Admin Panel';
-                            document.querySelector('.dropdown-content').prepend(adminLink);
+                            // Add admin link to dropdown menu
+                            const adminDropdownLink = document.createElement('a');
+                            adminDropdownLink.href = "admin.html";
+                            adminDropdownLink.innerHTML = '<i class="fas fa-shield-alt"></i> Admin Panel';
+                            document.querySelector('.dropdown-content').prepend(adminDropdownLink);
+                            
+                            // Add admin button to sidebar navigation
+                            const adminSidebarLink = document.createElement('a');
+                            adminSidebarLink.href = "admin.html";
+                            adminSidebarLink.innerHTML = '<i class="fas fa-shield-alt"></i> Admin Panel';
+                            
+                            // Insert before the Settings link (which is the last item)
+                            const sidebarNav = document.querySelector('.sidebar-nav');
+                            const settingsLink = document.querySelector('.sidebar-nav a[href="#settings"]');
+                            sidebarNav.insertBefore(adminSidebarLink, settingsLink);
                         }
                         
                         // Load user's servers and configs (mock for now)

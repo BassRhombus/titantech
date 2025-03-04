@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Admin Panel - TitanTech Hub</title> <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <link rel="stylesheet" href="css/dashboard.css"> <link rel="stylesheet" href="css/admin.css"> </head> <body> <header> <div class="logo-container"> <img src="images/logo.png" alt="TitanTech Hub Logo" class="logo"> <h1>TitanTech Hub</h1> </div> <nav> <ul class="nav-links"> <li><a href="index.html">Home</a></li> <li><a href="mod-manager.html">Mod Manager</a></li> <li><a href="community.html">Community</a></li> <li><a href="bots.html">Bots/Scripts</a></li> <li><a href="about.html">About</a></li> <li class="user-dropdown"> <a href="#" id="userDropdownBtn"> <img id="userAvatar" src="images/default-avatar.png" class="user-avatar-small" alt="User Avatar"> <span id="username">Loading...</span> <i class="fas fa-caret-down"></i> </a> <div class="dropdown-content"> <a href="admin.html"><i class="fas fa-shield-alt"></i> Admin Panel</a> <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a> <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a> <a href="settings.html"><i class="fas fa-cog"></i> Settings</a> <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a> </div> </li> </ul> <div class="hamburger"> <div class="line"></div> <div class="line"></div> <div class="line"></div> </div> </nav> </header>
+        <main>
+        <section class="admin-hero">
+            <div class="welcome-container">
+                <h2>Admin Panel</h2>
+                <p>Manage community servers and user submissions</p>
+            </div>
+        </section>
+    
+        <div class="dashboard-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <a href="admin.html" class="active"><i class="fas fa-server"></i> Manage Servers</a>
+                    <a href="admin-users.html"><i class="fas fa-users"></i> Manage Users</a>
+                    <a href="admin-mods.html"><i class="fas fa-puzzle-piece"></i> Manage Mods</a>
+                    <a href="admin-reports.html"><i class="fas fa-flag"></i> Reports</a>
+                    <a href="admin-settings.html"><i class="fas fa-cog"></i> Admin Settings</a>
+                    <a href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                </nav>
+            </aside>
+    
+            <div class="dashboard-content">
+                <section id="admin-servers">
+                    <div class="admin-header">
+                        <h2>Manage Community Servers</h2>
+                        <div class="admin-actions">
+                            <input type="text" id="serverSearchInput" placeholder="Search servers...">
+                            <select id="serverStatusFilter">
+                                <option value="all">All Servers</option>
+                                <option value="active">Active</option>
+                                <option value="pending">Pending Approval</option>
+                                <option value="reported">Reported</option>
+                            </select>
+                        </div>
+                    </div>
+    
+                    <div class="server-table-container">
+                        <table class="server-table">
+                            <thead>
+                                <tr>
+                                    <th>Server Name</th>
+                                    <th>Owner</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serverTableBody">
+                                <!-- Server data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/footer-logo.png" alt="TitanTech Hub">
+                <p>TitanTech Hub - Path of Titans Server Management</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="mod-manager.html">Mod Manager</a></li>
+                    <li><a href="community.html">Community</a></li>
+                    <li><a href="bots.html">Bots/Scripts</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Connect With Us</h4>
+                <div class="social-icons">
+                    <a href="https://discord.gg/bgvCWqdW" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-reddit"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025. Not affiliated with Path of Titans.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Check if user is admin and fetch user data
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/user')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.loggedIn) {
+                        if (!data.user.admin) {
+                            // Redirect non-admin users
+                            window.location.href = '/dashboard.html';
+                            return;
+                        }
+                        
+                        document.getElementById('username').textContent = data.user.username;
+                        
+                        if (data.user.avatar) {
+                            const avatarUrl = `https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.png`;
+                            document.getElementById('userAvatar').src = avatarUrl;
+                        }
+                        
+                        // Load server data
+                        loadServerData();
+                    } else {
+                        // Redirect to login if not authenticated
+                        window.location.href = '/login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                });
+            
+            // Toggle dropdown
+            document.getElementById('userDropdownBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('.dropdown-content').classList.toggle('show');
+            });
+            
+            // Close dropdown when clicking elsewhere
+            window.addEventListener('click', function(e) {
+                if (!e.target.matches('#userDropdownBtn') && !e.target.parentNode.matches('#userDropdownBtn')) {
+                    const dropdown = document.querySelector('.dropdown-content');
+                    if (dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Search functionality
+            document.getElementById('serverSearchInput').addEventListener('input', filterServers);
+            document.getElementById('serverStatusFilter').addEventListener('change', filterServers);
+        });
+        
+        // Load server data from API
+        function loadServerData() {
+            // In production, this would fetch from your API
+            // For now, we'll use mock data
+            const mockServers = [
+                {
+                    id: 1,
+                    name: "Jurassic Journey",
+                    owner: "DinoMaster#1234",
+                    ownerID: "123456789012345678",
+                    submitted: "2023-05-15",
+                    status: "active",
+                    discord: "https://discord.gg/example"
+                },
+                {
+                    id: 2,
+                    name: "Dino Haven",
+                    owner: "RexLover#5678",
+                    ownerID: "234567890123456789",
+                    submitted: "2023-06-20",
+                    status: "pending",
+                    discord: "https://discord.gg/example2"
+                },
+                {
+                    id: 3,
+                    name: "Prehistoric Paradise",
+                    owner: "DinoQueen#9012",
+                    ownerID: "345678901234567890",
+                    submitted: "2023-07-05",
+                    status: "reported",
+                    discord: "https://discord.gg/example3"
+                }
+            ];
+            
+            displayServers(mockServers);
+        }
+        
+        // Display servers in the table
+        function displayServers(servers) {
+            const tableBody = document.getElementById('serverTableBody');
+            tableBody.innerHTML = '';
+            
+            if (servers.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = '<td colspan="5" class="empty-table">No servers found</td>';
+                tableBody.appendChild(emptyRow);
+                return;
+            }
+            
+            servers.forEach(server => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-server-id', server.id);
+                row.setAttribute('data-server-name', server.name.toLowerCase());
+                row.setAttribute('data-server-status', server.status);
+                
+                row.innerHTML = `
+                    <td>${server.name}</td>
+                    <td>${server.owner}</td>
+                    <td>${server.submitted}</td>
+                    <td><span class="status-badge ${server.status}">${server.status}</span></td>
+                    <td class="action-buttons">
+                        <button class="view-btn" onclick="viewServer(${server.id})"><i class="fas fa-eye"></i></button>
+                        <button class="edit-btn" onclick="editServer(${server.id})"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteServer(${server.id})"><i class="fas fa-trash-alt"></i></button>
+                        ${server.status === 'pending' ? 
+                            `<button class="approve-btn" onclick="approveServer(${server.id})"><i class="fas fa-check"></i></button>` : 
+                            ''}
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Filter servers based on search and status
+        function filterServers() {
+            const searchTerm = document.getElementById('serverSearchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('serverStatusFilter').value;
+            
+            const rows = document.querySelectorAll('#serverTableBody tr');
+            
+            rows.forEach(row => {
+                const serverName = row.getAttribute('data-server-name');
+                const serverStatus = row.getAttribute('data-server-status');
+                
+                const matchesSearch = serverName.includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || serverStatus === statusFilter;
+                
+                row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+            });
+        }
+        
+        // Server action functions
+        function viewServer(id) {
+            alert(`Viewing server details for ID: ${id}`);
+            // In production, this would open a modal with server details or redirect to a detail page
+        }
+        
+        function editServer(id) {
+            alert(`Editing server with ID: ${id}`);
+            // In production, this would open a modal with an edit form
+        }
+        
+        function deleteServer(id) {
+            if (confirm(`Are you sure you want to delete the server with ID: ${id}?`)) {
+                // In production, this would make an API call to delete the server
+                alert(`Server ${id} deleted successfully`);
+                document.querySelector(`tr[data-server-id="${id}"]`).remove();
+            }
+        }
+        
+        function approveServer(id) {
+            if (confirm(`Approve server with ID: ${id}?`)) {
+                // In production, this would make an API call to approve the server
+                alert(`Server ${id} approved successfully`);
+                const row = document.querySelector(`tr[data-server-id="${id}"]`);
+                row.querySelector('.status-badge').textContent = 'active';
+                row.querySelector('.status-badge').className = 'status-badge active';
+                row.setAttribute('data-server-status', 'active');
+                row.querySelector('.approve-btn').remove();
+            }
+        }
+    </script>
+    <script src="js/main.js"></script>
+</body> </html>

@@ -13,7 +13,8 @@ const CALLBACK_URL = 'http://localhost:3003/auth/discord/callback';
 
 // List of Discord user IDs with admin privileges
 const ADMIN_USER_IDS = [
-  '350689943326031872', // Replace with your Discord user ID
+  '350689943326031872',
+  '157928184631918592'
   // You can add more admin IDs here
 ];
 
@@ -120,6 +121,57 @@ app.get('/api/admin/pending-servers', isAuthenticated, isAdmin, (req, res) => {
   res.json(mockPendingServers);
 });
 
+// Server management API endpoints
+app.get('/api/admin/servers', isAuthenticated, isAdmin, (req, res) => {
+  // In a real app, fetch from database
+  const mockServers = [
+    {
+      id: 1,
+      name: "Jurassic Journey",
+      owner: "DinoMaster#1234",
+      ownerID: "123456789012345678",
+      submitted: "2023-05-15",
+      status: "active",
+      discord: "https://discord.gg/example"
+    },
+    {
+      id: 2,
+      name: "Dino Haven",
+      owner: "RexLover#5678",
+      ownerID: "234567890123456789",
+      submitted: "2023-06-20",
+      status: "pending",
+      discord: "https://discord.gg/example2"
+    },
+    {
+      id: 3,
+      name: "Prehistoric Paradise",
+      owner: "DinoQueen#9012",
+      ownerID: "345678901234567890",
+      submitted: "2023-07-05",
+      status: "reported",
+      discord: "https://discord.gg/example3"
+    }
+  ];
+  
+  res.json(mockServers);
+});
+
+app.delete('/api/admin/servers/:id', isAuthenticated, isAdmin, (req, res) => {
+  // In a real app, delete from database
+  res.json({ success: true, message: `Server ${req.params.id} deleted successfully` });
+});
+
+app.put('/api/admin/servers/:id/approve', isAuthenticated, isAdmin, (req, res) => {
+  // In a real app, update status in database
+  res.json({ success: true, message: `Server ${req.params.id} approved successfully` });
+});
+
+app.put('/api/admin/servers/:id', isAuthenticated, isAdmin, express.json(), (req, res) => {
+  // In a real app, update server in database
+  res.json({ success: true, message: `Server ${req.params.id} updated successfully` });
+});
+
 // Serve static files
 app.use(express.static(__dirname));
 
@@ -129,6 +181,16 @@ app.get('/mod-manager.html', (req, res) => {
 });
 
 app.use('/mod-manager', express.static(path.join(__dirname, 'ModINI/public')));
+
+// Add this BEFORE your protected routes
+app.get('/login.html', (req, res) => {
+  // If already logged in, redirect to dashboard
+  if (req.isAuthenticated()) {
+    return res.redirect('/dashboard.html');
+  }
+  // Otherwise serve the login page
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
 
 // Protected routes
 app.get('/dashboard.html', isAuthenticated, (req, res) => {
