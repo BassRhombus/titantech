@@ -1,0 +1,184 @@
+/* Login Page Styles */
+.login-section {
+    display: flex;
+    padding: 3rem 5%;
+    min-height: 70vh;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/login-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.login-container {
+    flex: 1;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+}
+
+.login-container h2 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-container p {
+    color: #ccc;
+    margin-bottom: 2rem;
+}
+
+.login-benefits {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-benefits h3 {
+    color: #e0e0e0;
+    margin-bottom: 1rem;
+}
+
+.login-benefits ul {
+    list-style: none;
+    padding: 0;
+}
+
+.login-benefits li {
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    color: #bbb;
+}
+
+.login-benefits i {
+    color: var(--primary-color);
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.login-options {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.discord-login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #5865F2;
+    color: white;
+    text-decoration: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    max-width: 300px;
+}
+
+.discord-login-btn:hover {
+    background-color: #4752c4;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3);
+}
+
+.discord-login-btn:active {
+    transform: translateY(0);
+}
+
+.discord-login-btn i {
+    font-size: 1.3rem;
+}
+
+.login-note {
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.login-image {
+    flex: 1;
+    max-width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* For logged-in users */
+.user-profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 20px;
+    border: 3px solid var(--primary-color);
+}
+
+.user-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.user-info p {
+    margin-bottom: 0.5rem;
+    color: #ccc;
+}
+
+.user-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 15px;
+}
+
+.user-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.dashboard-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.logout-btn {
+    background-color: transparent;
+    border: 1px solid #666;
+    color: #ccc;
+}
+
+@media (max-width: 992px) {
+    .login-section {
+        flex-direction: column-reverse;
+    }
+    
+    .login-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .login-image {
+        max-width: 100%;
+        margin-bottom: 2rem;
+    }
+}

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Dashboard - TitanTech Hub</title> <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <link rel="stylesheet" href="css/dashboard.css"> </head> <body> <header> <div class="logo-container"> <img src="images/logo.png" alt="TitanTech Hub Logo" class="logo"> <h1>TitanTech Hub</h1> </div> <nav> <ul class="nav-links"> <li><a href="index.html">Home</a></li> <li><a href="mod-manager.html">Mod Manager</a></li> <li><a href="community.html">Community</a></li> <li><a href="bots.html">Bots/Scripts</a></li> <li><a href="about.html">About</a></li> <li class="user-dropdown"> <a href="#" id="userDropdownBtn"> <img id="userAvatar" src="images/default-avatar.png" class="user-avatar-small" alt="User Avatar"> <span id="username">Loading...</span> <i class="fas fa-caret-down"></i> </a> <div class="dropdown-content"> <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a> <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a> <a href="settings.html"><i class="fas fa-cog"></i> Settings</a> <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a> </div> </li> </ul> <div class="hamburger"> <div class="line"></div> <div class="line"></div> <div class="line"></div> </div> </nav> </header>
+        <main>
+        <section class="dashboard-hero">
+            <div class="welcome-container">
+                <h2>Welcome, <span id="welcomeUsername">User</span>!</h2>
+                <p>Manage your Path of Titans servers and configurations</p>
+            </div>
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <i class="fas fa-server"></i>
+                    <div class="stat-content">
+                        <h3>Your Servers</h3>
+                        <span id="serverCount">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <div class="stat-content">
+                        <h3>Saved Configs</h3>
+                        <span id="configCount">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-content">
+                        <h3>Community Members</h3>
+                        <span id="memberCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    
+        <div class="dashboard-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <a href="#dashboard" class="active"><i class="fas fa-home"></i> Dashboard</a>
+                    <a href="#servers"><i class="fas fa-server"></i> My Servers</a>
+                    <a href="#configs"><i class="fas fa-puzzle-piece"></i> Mod Configs</a>
+                    <a href="#community"><i class="fas fa-users"></i> My Community</a>
+                    <a href="#bots"><i class="fas fa-robot"></i> My Bots</a>
+                    <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                </nav>
+    
+                <div class="sidebar-action">
+                    <a href="#new-server" class="action-button"><i class="fas fa-plus"></i> Add Server</a>
+                </div>
+            </aside>
+    
+            <div class="dashboard-content">
+                <section id="dashboard-overview">
+                    <div class="section-header">
+                        <h2>Quick Actions</h2>
+                    </div>
+    
+                    <div class="quick-actions">
+                        <a href="#new-config" class="action-card">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Create New Config</span>
+                        </a>
+                        <a href="#add-server" class="action-card">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Server</span>
+                        </a>
+                        <a href="#community-page" class="action-card">
+                            <i class="fas fa-users"></i>
+                            <span>View Community</span>
+                        </a>
+                        <a href="#explore-mods" class="action-card">
+                            <i class="fas fa-puzzle-piece"></i>
+                            <span>Browse Mods</span>
+                        </a>
+                    </div>
+    
+                    <div class="section-header">
+                        <h2>Your Servers</h2>
+                        <a href="#all-servers" class="view-all">View All</a>
+                    </div>
+    
+                    <div class="server-cards" id="serverContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-server"></i>
+                            <h3>No Servers Added Yet</h3>
+                            <p>Add your first Path of Titans server to manage mods and configurations.</p>
+                            <a href="#add-server" class="cta-button">Add Server</a>
+                        </div>
+                    </div>
+    
+                    <div class="section-header">
+                        <h2>Recent Configurations</h2>
+                        <a href="#all-configs" class="view-all">View All</a>
+                    </div>
+    
+                    <div class="config-list" id="configContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-puzzle-piece"></i>
+                            <h3>No Configurations Saved</h3>
+                            <p>Create your first mod configuration to easily manage your server setup.</p>
+                            <a href="mod-manager.html" class="cta-button">Create Configuration</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/footer-logo.png" alt="TitanTech Hub">
+                <p>TitanTech Hub - Path of Titans Server Management</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="mod-manager.html">Mod Manager</a></li>
+                    <li><a href="community.html">Community</a></li>
+                    <li><a href="bots.html">Bots/Scripts</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Connect With Us</h4>
+                <div class="social-icons">
+                    <a href="https://discord.gg/bgvCWqdW" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-reddit"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025. Not affiliated with Path of Titans.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Fetch user data
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/user')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.loggedIn) {
+                        document.getElementById('username').textContent = data.user.username;
+                        document.getElementById('welcomeUsername').textContent = data.user.username;
+                        
+                        if (data.user.avatar) {
+                            const avatarUrl = `https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.png`;
+                            document.getElementById('userAvatar').src = avatarUrl;
+                        }
+                        
+                        // Handle admin UI elements if needed
+                        if (data.user.admin) {
+                            const adminLink = document.createElement('a');
+                            adminLink.href = "admin.html";
+                            adminLink.innerHTML = '<i class="fas fa-shield-alt"></i> Admin Panel';
+                            document.querySelector('.dropdown-content').prepend(adminLink);
+                        }
+                        
+                        // Load user's servers and configs (mock for now)
+                        loadMockData();
+                    } else {
+                        // Redirect to login if not authenticated
+                        window.location.href = 'login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                });
+            
+            // Toggle user dropdown
+            document.getElementById('userDropdownBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('.dropdown-content').classList.toggle('show');
+            });
+            
+            // Close dropdown when clicking elsewhere
+            window.addEventListener('click', function(e) {
+                if (!e.target.matches('#userDropdownBtn') && !e.target.parentNode.matches('#userDropdownBtn')) {
+                    const dropdown = document.querySelector('.dropdown-content');
+                    if (dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                    }
+                }
+            });
+        });
+        
+        // Mock data loading function (replace with real API calls later)
+        function loadMockData() {
+            // Update stat counts (mock data)
+            document.getElementById('serverCount').textContent = '0';
+            document.getElementById('configCount').textContent = '0';
+            document.getElementById('memberCount').textContent = '127';
+            
+            // You would fetch real data here in production
+        }
+    </script>
+    <script src="js/main.js"></script>
+</body> </html>
