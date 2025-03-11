@@ -72,6 +72,12 @@
     "icon": "https://web-cdn.alderongames.com/files/1288/conversions/LivyModIcon-icon.jpg"
   },
   {
+    "sku": "UGC_M_Z857QV302V_SK",
+    "name": "Arazoa Prognathodon",
+    "description": "The Arazoa modding team take on the Prognathodon. An extinct genus of marine lizard belonging to the Mosasaur family.",
+    "icon": "https://web-cdn.alderongames.com/files/1290/conversions/ProgModIcon-icon.jpg"
+  },
+  {
     "sku": "UGC_M_4RMEKQWEZY_SK",
     "name": "Arazoa Tropeognathus",
     "description": "The Arazoa Adapted Realism take on Tropeognathus",
@@ -274,6 +280,12 @@
     "name": "Divine Beasts: Giganotosaurus",
     "description": "Divine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\r\n\r\nGiganotosaurus was one of the largest meat-eating dinosaurs. It roamed modern-day Argentina during the late Cretaceous Period, about 99.6 to 97 million years ago.\r\n\r\nMade by: theDoctorTHE11th/Leviathan/Docjay24/Gisli\r\nSpecial thanks:\r\nSadech/Matheusfers",
     "icon": "https://web-cdn.alderongames.com/files/1076/conversions/giganotosaurus_photo-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_63475Y878W_SK",
+    "name": "Divine Beasts: Halszkaraptor",
+    "description": "Description\nDivine Beasts is a Sciencefiction based mod, we don't claim realism and will take creative liberties where we see fit both in gameplay and design!\n\nHalszkaraptor is a genus of waterfowl-like dromaeosaurid dinosaurs from Mongolia that lived during the Late Cretaceous period.\n\nMade by:\ntheDoctorTHE11th/Matheusfers/Gisli/SadEch/Oska/FowlMarlee",
+    "icon": "https://web-cdn.alderongames.com/files/1329/conversions/Divine_Ports_Halszkaraptor_Thumbnail3-icon.jpg"
   },
   {
     "sku": "UGC_M_12G0W137WK_SK",
@@ -555,7 +567,7 @@
     "sku": "UGC_M_JG179QX7QN_SK",
     "name": "Maplewood",
     "description": "Psycho Dodo Clan presents: Maplewood\nA great 10x10 expanse of forest, grasslands, marsh/wetlands/sloughs, and lakes/rivers!\nLook for information signs, learn about the park!\nHigh altitude brings great fog!\nComputer weather control =  o key\nTime and weather control on console: R3\nMobile: Volume down\nNight vision = computer - n\nConsole - L2\n\n*PHOTOSENSATIVITY WARNING: THIS MAP HAS LIGHTNING!*\n\nSpecial thanks to Fortress (FBTH) for helping me out with some aspects of the map!",
-    "icon": "https://web-cdn.alderongames.com/files/1377/conversions/Icon-icon.jpg"
+    "icon": "https://web-cdn.alderongames.com/files/1402/conversions/spring-pic-icon.jpg"
   },
   {
     "sku": "UGC_M_NV5ERMM0JD_SK",
@@ -730,6 +742,12 @@
     "name": "Strawberry Skins",
     "description": "A skin mod trying to bring both semi-realistic to realistic patterns alive aswell as more fun skins!",
     "icon": "https://web-cdn.alderongames.com/files/1332/conversions/Angel-Headshot---Eotrike-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_4RM0K330ZY_SK",
+    "name": "Tear",
+    "description": "A small map.",
+    "icon": "https://web-cdn.alderongames.com/files/1401/conversions/IMG_7577-icon.jpg"
   },
   {
     "sku": "UGC_M_RD1EPJ9EXG_SK",

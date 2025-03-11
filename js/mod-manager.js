@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchInput').addEventListener('input', filterMods);
 });
 
+// Add this global variable at the top of your file, after the DOMContentLoaded event listener
+let selectedModIds = new Set();
+
 async function loadModsData() {
     try {
         showLoading();
@@ -20,6 +23,7 @@ async function loadModsData() {
     }
 }
 
+// Update the displayMods function to preserve selections
 function displayMods(mods) {
     const container = document.getElementById('modsContainer');
     container.innerHTML = '';
@@ -31,13 +35,16 @@ function displayMods(mods) {
         // Generate unique ID for each checkbox
         const checkboxId = `mod-${mod.sku.replace(/[^a-zA-Z0-9]/g, '-')}`;
         
+        // Check if this mod was previously selected
+        const isChecked = selectedModIds.has(mod.sku) ? 'checked' : '';
+        
         modCard.innerHTML = `
             <img src="${mod.icon}" alt="${mod.name}" onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'">
             <h2>${mod.name}</h2>
             <p>${mod.description}</p>
             <label class="checkbox-container">
                 <span>Select this mod</span>
-                <input type="checkbox" id="${checkboxId}" class="mod-checkbox" data-id="${mod.sku}" data-name="${mod.name}">
+                <input type="checkbox" id="${checkboxId}" class="mod-checkbox" data-id="${mod.sku}" data-name="${mod.name}" ${isChecked}>
                 <svg viewBox="0 0 100 100">
                     <path class="path" d="M20,55 L40,75 L77,27" />
                 </svg>
@@ -46,6 +53,9 @@ function displayMods(mods) {
         
         container.appendChild(modCard);
     });
+    
+    // Update the count to reflect current selections
+    updateSelectedCount();
 }
 
 function filterMods() {
@@ -60,16 +70,21 @@ function filterMods() {
     displayMods(filteredMods);
 }
 
+// Update selectAllMods function
 function selectAllMods() {
-    document.querySelectorAll('.mod-checkbox').forEach(checkbox => {
+    const checkboxes = document.querySelectorAll('.mod-checkbox');
+    checkboxes.forEach(checkbox => {
         checkbox.checked = true;
+        selectedModIds.add(checkbox.dataset.id);
     });
     updateSelectedCount();
 }
 
+// Update deselectAllMods function
 function deselectAllMods() {
     document.querySelectorAll('.mod-checkbox').forEach(checkbox => {
         checkbox.checked = false;
+        selectedModIds.delete(checkbox.dataset.id);
     });
     updateSelectedCount();
 }
@@ -132,8 +147,16 @@ function updateSelectedCount() {
     generateBtn.textContent = count > 0 ? `Generate Config (${count})` : 'Generate Config';
 }
 
+// Update the click handler to track selections
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('mod-checkbox')) {
+        // Update our tracking Set when checkboxes are clicked
+        const modId = e.target.dataset.id;
+        if (e.target.checked) {
+            selectedModIds.add(modId);
+        } else {
+            selectedModIds.delete(modId);
+        }
         updateSelectedCount();
     }
 });
