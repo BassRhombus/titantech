@@ -150,18 +150,6 @@
     "icon": "https://web-cdn.alderongames.com/files/1255/conversions/AsylumLoungeTN1-icon.jpg"
   },
   {
-    "sku": "UGC_M_K5G0ZN10PN_SK",
-    "name": "Avernus",
-    "description": "A Deathmatch Survival Map.\r\nAvernus is truly a hellish place of fire and violence. Here be dragons...\r\n\r\nIf you want to know more about background lore, or want to support the development of \r\nthe Ex Argilla maps by reporting bugs or with suggestions and ideas, consider joining our discord.\r\n\r\n\r\nMy special thanks to Oida for a lot of invaluable counsel!",
-    "icon": "https://web-cdn.alderongames.com/files/1282/conversions/AvernusIcon-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_YNR03ZY081_SK",
-    "name": "Beringia",
-    "description": "A pleistocene subarctic landscape. Explore Beringia during the last Ice Age, 15 000 years ago.\r\n\r\nIf you want to know more about background lore, or want to support the development of the Ex Argilla maps by reporting bugs or with suggestions and ideas, consider joining our discord.\r\n\r\nMy special thanks to Oida for a lot of invaluable counsel!",
-    "icon": "https://web-cdn.alderongames.com/files/1184/conversions/BeringiaIcon-icon.jpg"
-  },
-  {
     "sku": "UGC_M_RD17PN2EXG_SK",
     "name": "Beringia Mammuthus Columbi",
     "description": "Columbian mammoth from the Beringia project of Ex Argilla",
@@ -558,12 +546,6 @@
     "icon": "https://web-cdn.alderongames.com/files/1280/conversions/Mod-ICON2-icon.jpg"
   },
   {
-    "sku": "UGC_M_K5G7ZX1EPN_SK",
-    "name": "KTO Mysteries | Yangchuanosaurus",
-    "description": "Yangchuanosaurus is a large predator with multiple bleed abilities that make it a powerful big game hunter. Its speed is low but it has a large stamina pool to travel long distances and chase down big prey. Yangchuanosaurus' turn radius makes it a formidable opponent, allowing it to reliably land attacks on you whilst standing its ground.\r\n\r\nSkins by Fluff and Sergi\r\nEverything else by Sergi",
-    "icon": "https://web-cdn.alderongames.com/files/801/conversions/Mod-ICON-icon.jpg"
-  },
-  {
     "sku": "UGC_M_JG179QX7QN_SK",
     "name": "Maplewood",
     "description": "Psycho Dodo Clan presents: Maplewood\nA great 10x10 expanse of forest, grasslands, marsh/wetlands/sloughs, and lakes/rivers!\nLook for information signs, learn about the park!\nHigh altitude brings great fog!\nComputer weather control =  o key\nTime and weather control on console: R3\nMobile: Volume down\nNight vision = computer - n\nConsole - L2\n\n*PHOTOSENSATIVITY WARNING: THIS MAP HAS LIGHTNING!*\n\nSpecial thanks to Fortress (FBTH) for helping me out with some aspects of the map!",
@@ -801,7 +783,7 @@
     "sku": "UGC_M_YZK74NG09W_SK",
     "name": "TSG: Bonapartenykus",
     "description": "Adds a playable alvarezsaurid from late Cretaceous Argentina.",
-    "icon": "https://web-cdn.alderongames.com/files/1327/conversions/TSGBonaIcon-icon.jpg"
+    "icon": "https://web-cdn.alderongames.com/files/1415/conversions/Bonapartenykus-icon.jpg"
   },
   {
     "sku": "UGC_M_43G069Q0NR_SK",
