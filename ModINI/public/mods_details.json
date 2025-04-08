@@ -90,6 +90,12 @@
     "icon": "https://web-cdn.alderongames.com/files/1287/conversions/XiphModIcon-icon.jpg"
   },
   {
+    "sku": "UGC_M_NZK0JVY012_SK",
+    "name": "Arazoa: Adversaries",
+    "description": "Now with more deathmatch!",
+    "icon": "https://web-cdn.alderongames.com/files/1416/conversions/ArazoaAdversaries-icon.jpg"
+  },
+  {
     "sku": "UGC_M_Y25EGKQ0VZ_SK",
     "name": "Archaic Eons | Cenozoic Timelines: Andrewsarchus",
     "description": "Adds the mysterious enigmatic ungulate from Mongolia to Path of Titans.\r\n\r\nCredits to:\r\nJiggy for allowing me to mod the game.\r\n\r\nMordekaiser for helping with sounds.\r\n\r\nPnoodle\r\nDocJay24\r\nNautilus\r\nRospaw\r\nfor helping me with learning the kit.",
@@ -174,12 +180,6 @@
     "icon": "https://web-cdn.alderongames.com/files/1254/conversions/Ekrixi_ModPage_icon-icon.jpg"
   },
   {
-    "sku": "UGC_M_N2R01Z8E3D_SK",
-    "name": "Capture the Egg",
-    "description": "Two teams compete to steal the opposing team's Egg. Return the egg to your own nest to score points! Killing other players does not reward points, but you can earn marks to unlock different skins. All players on your team can benefit from group buffs, and abilities do not require marks to unlock. Test out different combat strategies and hone your skills!\r\nCompatible with other mod creatures and maps.",
-    "icon": "https://web-cdn.alderongames.com/files/997/conversions/c4e26568fc8391298cb0e97f9ff1b9ab-icon.jpg"
-  },
-  {
     "sku": "UGC_M_63475MJ78W_SK",
     "name": "CMIPlus",
     "description": "Additional Creator mode items like a pill for boss fights. Feel free to suggest item additions.",
@@ -214,12 +214,6 @@
     "name": "Death's Crazy Skins",
     "description": "A nice Mixture of Cool Skins and most Have 100+ Variation\r\nAlso \r\nPiebald, Camo For Some!",
     "icon": "https://web-cdn.alderongames.com/files/1373/conversions/Titelloses_366-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_Y25EGJQEVZ_SK",
-    "name": "Dinosaur Team Deathmatch",
-    "description": "Up to 6 teams compete in this Team Deathmatch game mode!\r\nTeams must reach the points goal to win the round. Larger dinosaurs score more points when defeated, and you can earn marks in order to unlock different skins. All players on your team can benefit from group buffs, and abilities do not require marks to unlock. Test out different combat strategies and hone your skills! \r\nCompatible with other mod creatures and maps.",
-    "icon": "https://web-cdn.alderongames.com/files/968/conversions/e81a93241f67377a09907bb8449b9317-icon.jpg"
   },
   {
     "sku": "UGC_M_Z85EQ5372V_SK",
@@ -410,19 +404,19 @@
   {
     "sku": "UGC_M_634E5J8E8W_SK",
     "name": "Great Archelon",
-    "description": "The Great Archelon, a realism mod. Coast to coast, the Archelon can be found basking in the hot sun or riding the ocean currents!\r\n\r\nCredits:\r\nCreated by: FBTH (Fortress, HematoSalpinx)\r\nUnique Animations:  Gnu\r\nSound:  M-Z\r\nSkins by: Gnu, FBTH (Fortress/HematoSalpinx)\r\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod), Extinction RP, Laela, ROTUND, WoTG's QA Team, Alderon Games \r\n\r\nCommissioned by: Djellal",
+    "description": "The Great Archelon, a realism mod. Coast to coast, the Archelon can be found basking in the hot sun or riding the ocean currents!\n\nCredits:\nCreated by: HematoSalpinx (Fortress)\nCommissioned by: Djellal\nUnique Animations:  Gnu\nSound:  M-Z\nSkins by: Gnu, HematoSalpinx (Fortress)\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod), Extinction RP, Laela, ROTUND, WoTG's QA Team, Alderon Games \n\nCommissioned by: Djellal",
     "icon": "https://web-cdn.alderongames.com/files/1172/conversions/UI_Logo_Archelon-icon.jpg"
   },
   {
     "sku": "UGC_M_N590DRNEWQ_SK",
     "name": "Great Tenontosaurus",
-    "description": "The Great Tenontosaurus, a realism mod.\r\n\r\nCredits:\r\nCreated by: FBTH (HematoSalpinx), Feilong\r\nOriginal Animations: Alderon Games\r\nUnique Animations: Toa Metru, Gnu, FBTH (HematoSalpinx), Feilong\r\nSound:  Janey, Gigapark (Alert)\r\nSkins by: Pi, FBTH (HematoSalpinx)\r\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod), Extinction RP, Laela, ROTUND, WoTG's QA Team, Alderon Games \r\n\r\nCommissioned by: Djellal",
+    "description": "The Great Tenontosaurus, a realism mod.\n\nCredits:\nCreated by: HematoSalpinx (Fortress), Feilong\nCommissioned by: Djellal\nAnimations: Toa Metru, Gnu, HematoSalpinx (Fortress), Feilong\nSound:  Janey, Gigapark (Alert)\nSkins by: Pi, HematoSalpinx (Fortress)\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod), Extinction RP, Laela, ROTUND, WoTG's QA Team, Alderon Games",
     "icon": "https://web-cdn.alderongames.com/files/978/conversions/image-54-icon.jpg"
   },
   {
     "sku": "UGC_M_YZK74JGE9W_SK",
     "name": "Great Triceratops",
-    "description": "The Great Triceratops, a realism mod.\r\n\r\nCredits:\r\nCreated by: FBTH (Fortress) & Feilong\r\nOriginal Animations: Alderon Games\r\nSkins by: Gigapark, Pi, FBTH (HematoSalpinx), Lortram\r\nNew animations: Bradz, Toa, FBTH, Gorilla Workshop\r\nNew audio: M-Z\r\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod) Laela, ROTUND, WoTG's QA Team, Alderon Games\r\n\r\nCommissioned by: Djellal",
+    "description": "The Great Triceratops, a realism mod.\n\nCredits:\nCreated by: HematoSalpinx (Fortress) & Feilong\nCommissioned by: Djellal\nOriginal Animations: Alderon Games\nSkins by: Gigapark, Pi, HematoSalpinx (Fortress), Lortram\nNew animations: Bradz, Toa, HematoSalpinx (Fortress), Gorilla Workshop\nNew audio: M-Z\nSpecial Thanks: Jiggy, Djellal/Smaug/Aronline/SosoSenpai/Gigapark (Extinction Groupe Mod) Laela, ROTUND, WoTG's QA Team, Alderon Games",
     "icon": "https://web-cdn.alderongames.com/files/989/conversions/Logo_GreatTrike-icon.jpg"
   },
   {
@@ -476,7 +470,7 @@
   {
     "sku": "UGC_M_W61E8Z40MD_SK",
     "name": "Isle of Myths: Astra Island",
-    "description": "A Tropical Island with dense Jungle and Tropical Beaches.\nMade for the perfect Jungle feeling!\nBiom additions coming in future!\n\nScent Controls:\nPC - I\nConsole-  Gamepad Face Button Right",
+    "description": "A Tropical Island with dense Jungle and Tropical Beaches.\nMade for the perfect Jungle feeling!",
     "icon": "https://web-cdn.alderongames.com/files/1361/conversions/New-Project-(11)-icon.jpg"
   },
   {
@@ -510,12 +504,6 @@
     "icon": "https://web-cdn.alderongames.com/files/933/conversions/Celenai-Preview-icon.jpg"
   },
   {
-    "sku": "UGC_M_5XN0VVW0PZ_SK",
-    "name": "King of the Hill",
-    "description": "Two teams compete in this King of the Hill game mode!\r\nStand inside zones to capture them and earn points! Reach the points goal to win the round. Killing other players does not reward points, but you can earn marks to unlock different skins. All players on your team can benefit from group buffs, and abilities do not require marks to unlock. Test out different combat strategies and hone your skills!\r\nCompatible with other mod creatures and maps.",
-    "icon": "https://web-cdn.alderongames.com/files/996/conversions/6fb015d109360769a951f305d46dcc07-icon.jpg"
-  },
-  {
     "sku": "UGC_M_43G76JQ0NR_SK",
     "name": "KTO Additions | Deinosuchus",
     "description": "Deinosuchus is a tank and brawler type playable, possessing high raw damage, bonebreak, and high defenses. As a tank it also has bad mobility, but compensates with abilities such as its lunge, granting it bursts of speed through the water and onto land.\n\nSkins by Fluff, Vivid, Grim, and Sergi\nAnimations by Nimwit and Sergi\nSounds by Arson and Sergi\nEverything else by Sergi",
@@ -544,6 +532,12 @@
     "name": "KTO Mysteries | Nanuqsaurus",
     "description": "Nanuqsaurus is a medium sized tyrannosaur. Armed with a powerful bite, it possesses high damage attacks and the ability to splinter bones. It is also capable of healing itself and cleansing itself of status effects by cleaning its wounds, making it an effective combatant against whatever opposes it.\n\nSkins by Fluff and Sergi\nEverything else by Sergi",
     "icon": "https://web-cdn.alderongames.com/files/1280/conversions/Mod-ICON2-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_K5G7ZX1EPN_SK",
+    "name": "KTO Mysteries | Yangchuanosaurus",
+    "description": "Yangchuanosaurus is a large predator with multiple bleed abilities that make it a powerful big game hunter. Its speed is low but it has a large stamina pool to travel long distances and chase down big prey. Yangchuanosaurus' turn radius makes it a formidable opponent, allowing it to reliably land attacks on you whilst standing its ground.\r\n\r\nSkins by Fluff and Sergi\r\nEverything else by Sergi",
+    "icon": "https://web-cdn.alderongames.com/files/1417/conversions/Mod-ICON-new-copy-icon.jpg"
   },
   {
     "sku": "UGC_M_JG179QX7QN_SK",
