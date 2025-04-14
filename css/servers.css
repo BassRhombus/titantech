@@ -1,0 +1,187 @@
+/* Hero section styling */
+.servers-hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('../images/servers-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 4rem 5%;
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.servers-hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.servers-hero p {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Server list section */
+.server-list {
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+    padding: 0 5%;
+}
+
+/* Server rows */
+.server-row {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Server cards */
+.server-card {
+    flex: 1;
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #333;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    min-height: 180px;
+}
+
+.server-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-color);
+}
+
+/* Server icons */
+.server-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    flex-shrink: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.server-icon i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+/* Server details */
+.server-details {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.server-details h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.server-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.server-version h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #e0e0e0;
+}
+
+/* Connection info display */
+.connection-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 1rem;
+}
+
+.copy-btn {
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.copy-btn:hover {
+    background-color: var(--primary-hover-color);
+}
+
+.server-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.server-list ul li {
+    padding: 0.5rem 0;
+}
+
+.connection-note {
+    margin-top: 0.5rem;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Game-specific styling */
+.minecraft .server-icon {
+    background-color: #507D2A;
+}
+
+.pot .server-icon {
+    background-color: #8B4513;
+}
+
+.ark .server-icon {
+    background-color: #702963;
+}
+
+.sotf .server-icon {
+    background-color: #1C4600;
+}
+
+/* Use emoji for dinosaur icon since Font Awesome doesn't have one */
+.fas.fa-dinosaur:before {
+    content: "🦖";
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .server-row {
+        flex-direction: column;
+    }
+    
+    .server-card {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 480px) {
+    .server-card {
+        flex-direction: column;
+    }
+    
+    .server-icon {
+        width: 100%;
+        padding: 1rem 0;
+    }
+    
+    .connection-info {
+        flex-wrap: wrap;
+    }
+}
