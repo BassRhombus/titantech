@@ -5,20 +5,20 @@
     background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/mod-manager-bg.jpg');
     background-size: cover;
     background-position: center;
-    padding: 1.5rem 5%; /* Reduced padding to make header less thick */
-    margin-bottom: 1.5rem;
+    padding: 1rem 5%; /* Further reduced padding */
+    margin-bottom: 1rem; /* Reduced margin */
 }
 
 .mod-manager-intro h2 {
-    font-size: 2rem; /* Slightly smaller */
-    margin-bottom: 0.5rem; /* Reduced margin */
+    font-size: 1.8rem; /* Further reduced font size */
+    margin-bottom: 0.3rem; /* Reduced margin */
     color: var(--primary-color);
 }
 
 .mod-manager-intro p {
-    font-size: 1rem;
+    font-size: 0.9rem; /* Slightly smaller text */
     max-width: 700px;
-    margin: 0 auto 1rem; /* Reduced bottom margin */
+    margin: 0 auto 0.7rem; /* Further reduced bottom margin */
 }
 
 #modsContainer {
