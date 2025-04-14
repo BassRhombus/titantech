@@ -1,23 +1,13 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const passport = require('passport');
-const DiscordStrategy = require('passport-discord').Strategy;
 const app = express();
 const PORT = 3003;
 
-// Discord OAuth2 credentials - replace with your own
-const DISCORD_CLIENT_ID = '1346303613819027496';
-const DISCORD_CLIENT_SECRET = 'ilNi2fsknANLfjLf-bMdW9qoTJEMIvXk';
-const CALLBACK_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://titantech.party/auth/discord/callback' 
-  : 'http://localhost:3003/auth/discord/callback';
-
-// List of Discord user IDs with admin privileges
-const ADMIN_USER_IDS = [
-  '350689943326031872',
-  '157928184631918592'
-  // You can add more admin IDs here
+// Simple in-memory user store (replace with database in production)
+const users = [
+  { id: '1', username: 'admin', password: 'admin123', admin: true },
+  { id: '2', username: 'user', password: 'user123', admin: false }
 ];
 
 // Trust proxy for secure cookies in production
@@ -28,39 +18,22 @@ if (process.env.NODE_ENV === 'production') {
 // Configure session middleware
 app.use(session({
   secret: 'titantech_secret_key',
-  resave: true,  // Changed from false
-  saveUninitialized: true,  // Changed from false
+  resave: true,
+  saveUninitialized: true,
   cookie: { 
     secure: process.env.NODE_ENV === 'production', 
     maxAge: 604800000, // 7 days
-    sameSite: 'lax'  // Added to help with cookie security
+    sameSite: 'lax'
   }
 }));
 
-// Initialize Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Configure Discord Strategy
-passport.use(new DiscordStrategy({
-  clientID: DISCORD_CLIENT_ID,
-  clientSecret: DISCORD_CLIENT_SECRET,
-  callbackURL: CALLBACK_URL,
-  scope: ['identify', 'email', 'guilds']
-}, (accessToken, refreshToken, profile, done) => {
-  // Check if user ID is in the admin list
-  profile.admin = ADMIN_USER_IDS.includes(profile.id);
-  console.log(`User ${profile.username} logged in. Admin: ${profile.admin}`);
-  return done(null, profile);
-}));
-
-// Serialize/deserialize user
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((user, done) => done(null, user));
+// Add body parser middleware for form data
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
+  if (req.session.user) {
     return next();
   }
   res.redirect('/login.html');
@@ -68,51 +41,42 @@ function isAuthenticated(req, res, next) {
 
 // Middleware to check if user is admin
 function isAdmin(req, res, next) {
-  if (req.isAuthenticated() && req.user.admin) {
+  if (req.session.user && req.session.user.admin) {
     return next();
   }
   res.status(403).send('Access denied');
 }
 
-// Auth routes
-app.get('/auth/discord', passport.authenticate('discord'));
-
-app.get('/auth/discord/callback', 
-  passport.authenticate('discord', { 
-    failureRedirect: '/login.html' 
-  }), 
-  (req, res) => {
-    console.log('User authenticated:', req.user.id);
-    // Force session save to avoid race conditions
-    req.session.save(err => {
-      if (err) {
-        console.error('Session save error:', err);
-      }
-      res.redirect('/dashboard.html');
-    });
+// Basic login route
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(u => u.username === username && u.password === password);
+  
+  if (user) {
+    // Store user in session (exclude password)
+    req.session.user = {
+      id: user.id,
+      username: user.username,
+      admin: user.admin
+    };
+    res.redirect('/dashboard.html');
+  } else {
+    res.redirect('/login.html?error=1');
   }
-);
+});
 
-app.get('/logout', (req, res, next) => {  // Added 'next' parameter
-  req.logout(function(err) {
-    if (err) { return next(err); }
-    res.redirect('/');
-  });
+// Logout route
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
 });
 
 // API routes
 app.get('/api/user', (req, res) => {
-  if (req.isAuthenticated()) {
+  if (req.session.user) {
     res.json({
       loggedIn: true,
-      user: {
-        id: req.user.id,
-        username: req.user.username,
-        discriminator: req.user.discriminator,
-        avatar: req.user.avatar,
-        email: req.user.email,
-        admin: req.user.admin || false
-      }
+      user: req.session.user
     });
   } else {
     res.json({
@@ -142,49 +106,33 @@ app.get('/api/admin/servers', isAuthenticated, isAdmin, (req, res) => {
     {
       id: 1,
       name: "Jurassic Journey",
-      owner: "DinoMaster#1234",
-      ownerID: "123456789012345678",
+      owner: "DinoMaster",
+      ownerID: "1",
       submitted: "2023-05-15",
-      status: "active",
-      discord: "https://discord.gg/example"
+      status: "active"
     },
     {
       id: 2,
       name: "Dino Haven",
-      owner: "RexLover#5678",
-      ownerID: "234567890123456789",
+      owner: "RexLover",
+      ownerID: "2",
       submitted: "2023-06-20",
-      status: "pending",
-      discord: "https://discord.gg/example2"
+      status: "pending"
     },
     {
       id: 3,
       name: "Prehistoric Paradise",
-      owner: "DinoQueen#9012",
-      ownerID: "345678901234567890",
+      owner: "DinoQueen",
+      ownerID: "3",
       submitted: "2023-07-05",
-      status: "reported",
-      discord: "https://discord.gg/example3"
+      status: "reported"
     }
   ];
   
   res.json(mockServers);
 });
 
-app.delete('/api/admin/servers/:id', isAuthenticated, isAdmin, (req, res) => {
-  // In a real app, delete from database
-  res.json({ success: true, message: `Server ${req.params.id} deleted successfully` });
-});
-
-app.put('/api/admin/servers/:id/approve', isAuthenticated, isAdmin, (req, res) => {
-  // In a real app, update status in database
-  res.json({ success: true, message: `Server ${req.params.id} approved successfully` });
-});
-
-app.put('/api/admin/servers/:id', isAuthenticated, isAdmin, express.json(), (req, res) => {
-  // In a real app, update server in database
-  res.json({ success: true, message: `Server ${req.params.id} updated successfully` });
-});
+// Rest of your API endpoints...
 
 // Serve static files
 app.use(express.static(__dirname));
@@ -196,10 +144,10 @@ app.get('/mod-manager.html', (req, res) => {
 
 app.use('/mod-manager', express.static(path.join(__dirname, 'ModINI/public')));
 
-// Add this BEFORE your protected routes
+// Login page route
 app.get('/login.html', (req, res) => {
   // If already logged in, redirect to dashboard
-  if (req.isAuthenticated()) {
+  if (req.session.user) {
     return res.redirect('/dashboard.html');
   }
   // Otherwise serve the login page

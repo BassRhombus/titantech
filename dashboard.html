@@ -146,11 +146,6 @@
                         document.getElementById('username').textContent = data.user.username;
                         document.getElementById('welcomeUsername').textContent = data.user.username;
                         
-                        if (data.user.avatar) {
-                            const avatarUrl = `https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.png`;
-                            document.getElementById('userAvatar').src = avatarUrl;
-                        }
-                        
                         // Handle admin UI elements
                         if (data.user.admin) {
                             // Add admin link to dropdown menu
@@ -170,8 +165,8 @@
                             sidebarNav.insertBefore(adminSidebarLink, settingsLink);
                         }
                         
-                        // Load user's servers and configs (mock for now)
-                        loadMockData();
+                        // Load user's servers and configs
+                        loadUserData();
                     } else {
                         // Redirect to login if not authenticated
                         window.location.href = 'login.html';
@@ -199,7 +194,7 @@
         });
         
         // Mock data loading function (replace with real API calls later)
-        function loadMockData() {
+        function loadUserData() {
             // Update stat counts (mock data)
             document.getElementById('serverCount').textContent = '0';
             document.getElementById('configCount').textContent = '0';

@@ -11,7 +11,7 @@
 <body>
     <header>
         <div class="logo-container">
-            <img src="images/logo.png" alt="DinoMod Hub Logo" class="logo">
+            <img src="images/logo.png" alt="TitanTech Hub Logo" class="logo">
             <h1>TitanTech Hub</h1>
         </div>
         <nav>
@@ -21,7 +21,7 @@
                 <li><a href="community.html">Community</a></li>
                 <li><a href="bots.html">Bots/Scripts</a></li>
                 <li><a href="about.html">About</a></li>
-                <li><a href="login.html" class="active login-btn"><i class="fab fa-discord"></i> Login with Discord</a></li>
+                <li><a href="login.html" class="active login-btn"><i class="fas fa-sign-in-alt"></i> Login</a></li>
             </ul>
             <div class="hamburger">
                 <div class="line"></div>
@@ -35,7 +35,7 @@
         <section class="login-section">
             <div class="login-container">
                 <h2>Login to TitanTech Hub</h2>
-                <p>Connect with your Discord account to access all features</p>
+                <p>Connect with your account to access all features</p>
                 
                 <div class="login-benefits">
                     <h3>Why Login?</h3>
@@ -48,13 +48,26 @@
                 </div>
                 
                 <div class="login-options">
-                    <a href="/auth/discord" id="discord-login" class="discord-login-btn">
-                        <i class="fab fa-discord"></i> Login with Discord
-                    </a>
+                    <form action="/login" method="post" class="login-form">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-error" id="loginError">
+                            Invalid username or password. Please try again.
+                        </div>
+                        <button type="submit" class="login-btn">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
                 </div>
                 
                 <div class="login-note">
-                    <p>We use Discord for authentication to provide a secure and convenient login experience. We only request basic profile information.</p>
+                    <p>Default login: <strong>username:</strong> admin, <strong>password:</strong> admin123</p>
                 </div>
             </div>
             
@@ -67,8 +80,8 @@
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
-                <img src="images/footer-logo.png" alt="DinoMod Hub">
-                <p>DinoMod Hub - Path of Titans Server Management</p>
+                <img src="images/footer-logo.png" alt="TitanTech Hub">
+                <p>TitanTech Hub - Path of Titans Server Management</p>
             </div>
             <div class="footer-links">
                 <h4>Quick Links</h4>
@@ -83,10 +96,9 @@
             <div class="footer-social">
                 <h4>Connect With Us</h4>
                 <div class="social-icons">
-                    <a href="https://discord.gg/bgvCWqdW" target="_blank"><i class="fab fa-discord"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                    <a href="#"><i class="fab fa-reddit"></i></a>
+                    <a href="https://twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://youtube.com/" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://reddit.com/" target="_blank"><i class="fab fa-reddit"></i></a>
                 </div>
             </div>
         </div>
@@ -96,6 +108,19 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script>
+        // Show error message if login failed
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorParam = urlParams.get('error');
+            const errorElement = document.getElementById('loginError');
+            
+            if (errorParam === '1') {
+                errorElement.style.display = 'block';
+            } else {
+                errorElement.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
-```
