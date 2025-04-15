@@ -802,5 +802,11 @@
     "name": "Zealandia Natural",
     "description": "Discover an ultra-realistic skin mod, designed for total immersion in the world of Zealandia, a unique server that plunges you into the heart of a reserve populated by prehistoric animals. This mod is specially adapted for players who wish to live an authentic experience among these giants from another time.\n\nA huge thank you to Smaug for his valuable contribution in making this project a reality.\nAnd also to the entire Zealandia staff for their useful and precise help on fixing issues.",
     "icon": "https://web-cdn.alderongames.com/files/1312/conversions/LogoMod-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_VJK0MN87R3_SK",
+    "name": "Juniper Arena - Deathmatch Essentials",
+    "description": "A collection of creator mode objects for use in deathmatch like servers",
+    "icon": "https://web-cdn.alderongames.com/files/1422/conversions/juniper_icon_final-icon.jpg"
   }
 ]
