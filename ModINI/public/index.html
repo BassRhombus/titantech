@@ -1,3 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mod Manager - TitanTech Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Google AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1883759877039329"
+    crossorigin="anonymous"></script>
+    
+    <style>
     #modsContainer {
         max-width: 1200px;
         margin: 0 auto;
@@ -54,4 +67,97 @@
     .mod-manager-content {
         padding: 0;
     }
-</style>
+    
+    /* AdSense container styling */
+    .ad-container {
+        max-width: 1200px;
+        margin: 1rem auto;
+        padding: 0 5%;
+        text-align: center;
+        overflow: hidden;
+    }
+    
+    .ad-container-side {
+        width: 300px;
+        margin: 1rem;
+        float: right;
+    }
+    
+    /* Responsive ad styling */
+    @media (max-width: 768px) {
+        .ad-container-side {
+            width: 100%;
+            margin: 1rem auto;
+            float: none;
+        }
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="mod-manager-intro">
+            <h2>Path of Titans Mod Selector</h2>
+            <p>Select mods and generate your configuration file</p>
+        </div>
+    </header>
+    
+    <main>
+        <!-- Top AdSense banner -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="XXXXXXXXXX"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+        
+        <div class="mod-manager-content">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search mods...">
+            </div>
+            
+            <div class="controls">
+                <button id="generateBtn">Generate Config</button>
+                <button id="selectAllBtn">Select All</button>
+                <button id="deselectAllBtn">Deselect All</button>
+            </div>
+            
+            <!-- Side AdSense ad -->
+            <div class="ad-container-side">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                     data-ad-slot="XXXXXXXXXX"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+            
+            <div id="modsContainer" class="mods-container">
+                <!-- Mods will be loaded here via JavaScript -->
+            </div>
+            
+            <!-- Bottom AdSense banner -->
+            <div class="ad-container">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                     data-ad-slot="XXXXXXXXXX"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+    </main>
+    
+    <script src="../js/mod-manager.js"></script>
+</body>
+</html>
