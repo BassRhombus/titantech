@@ -6,46 +6,10 @@
     "icon": "https://web-cdn.alderongames.com/files/1080/conversions/Absentiaicon4-icon.jpg"
   },
   {
-    "sku": "UGC_M_DYV7XQ60GX_SK",
-    "name": "Ancient Gods: Camarasaurus",
-    "description": "This mod introduces a stylized Camarasaurus with over 25 gameplay abilities and items with an emphasis on skillful building and counter building. It has two crit zones, the base of the tail for damage and the belly for bleed / venom.\r\n\r\nChallengers beware, for this ancient god is no gentle giant.\r\n\r\n--\r\n\r\nAncient Gods is a mod collection inspired but not constrained by science. All creatures for the Ancient Gods collection are gameplay oriented first, with everything else designed around that fact.",
-    "icon": "https://web-cdn.alderongames.com/files/945/conversions/AGCCamara_Cover2-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_Y257G65EVZ_SK",
-    "name": "Ancient Monster: Cerataspida",
-    "description": "Cerataspida are a large solitary herbivore that travels with herds of other herbivores, protecting them from predators or other threats on the Angrboda Peninsula.\r\n\r\nthis mod was brought to you by the Ancient Monster mod team",
-    "icon": "https://web-cdn.alderongames.com/files/1270/conversions/Cerata_modpage-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_634752J78W_SK",
-    "name": "Ancient Monster: Dankanaptera",
-    "description": "Dankanaptera is a small flying herbivore from the island of Angrboda Craddle. They are often seen flying around licking wounds of larger animals. Some even say they have healing properties",
-    "icon": "https://web-cdn.alderongames.com/files/1311/conversions/DankTLC_modPage-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_W61E8X47MD_SK",
-    "name": "Ancient Monster: Gigamandra",
-    "description": "Gigamandra are medium semi-aquatic herbivore that swim thru the waters of Angrboda Peninsula river ways. They like to make several noises that either animals find relaxing or annoying",
-    "icon": "https://web-cdn.alderongames.com/files/1083/conversions/Gigamandra_Modpage-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_VJK7M6KER3_SK",
-    "name": "Ancient Monster: Golugore",
-    "description": "Golugore is a medium sized carnivorous monstrum from the Angrboda Peninsula that preys on smaller animals but don't let its size fool you this carnivore can easily fend off larger animals if it wanted to.",
-    "icon": "https://web-cdn.alderongames.com/files/822/conversions/Golugore_icon-icon.jpg"
-  },
-  {
     "sku": "UGC_M_QM57NKD7D3_SK",
     "name": "Ancient Monster: Madrehorn",
     "description": "Madrehorn is a massive herbivore with large tusks and a thick hide that allows it to travel alone and without fear of carnivores bothering it. Usually it take groups of apexes to kill one madrehorn",
     "icon": "https://web-cdn.alderongames.com/files/1296/conversions/Modpage_icon-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_NZKEJJRE12_SK",
-    "name": "Ancient Monster: Moraquile",
-    "description": "Moraquile is a large Avian Monstrum that is dubbed the King of the skies, with massive wings and sharp scales this terrifying bird brings a whole new meaning to terror from above\r\n\r\nFeedback and bug reports",
-    "icon": "https://web-cdn.alderongames.com/files/892/conversions/Moraquile_icon-icon.jpg"
   },
   {
     "sku": "UGC_M_VJK0M13ER3_SK",
@@ -144,28 +108,10 @@
     "icon": "https://web-cdn.alderongames.com/files/928/conversions/SqualicoraxAlderonIcon-icon.jpg"
   },
   {
-    "sku": "UGC_M_YZK04ZKE9W_SK",
-    "name": "Asylum Feline",
-    "description": "Add a playable feline species to your game!\r\n\r\nMod assembled by Kai ♂#1412 / KaitouCat from the Asylum community.\r\nBe sure to join the discord community to report any issues and provide feedback.",
-    "icon": "https://web-cdn.alderongames.com/files/856/conversions/2023_April_KaiModIcons_ModIcon-icon.jpg"
-  },
-  {
     "sku": "UGC_M_DYV7XD5EGX_SK",
     "name": "Asylum Lounge [IoA]",
     "description": "The Asylum Lounge is meant as a small map for chilling or killing or just to have fun and goof around on. Custom Quests, TELEPORTERS, and high rewards!",
     "icon": "https://web-cdn.alderongames.com/files/1255/conversions/AsylumLoungeTN1-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_RD17PN2EXG_SK",
-    "name": "Beringia Mammuthus Columbi",
-    "description": "Columbian mammoth from the Beringia project of Ex Argilla",
-    "icon": "https://web-cdn.alderongames.com/files/868/conversions/mammothC_Icon-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_VJKEM8KER3_SK",
-    "name": "Bloop",
-    "description": "This mod adds the giant mythical ocean dweller Bloop to your game.\r\nHuge thanks to the original creator of the bloop concept who gave us permission: JefChangComix",
-    "icon": "https://web-cdn.alderongames.com/files/998/conversions/BloopCover1-icon.jpg"
   },
   {
     "sku": "UGC_M_VJKEMQ30R3_SK",
@@ -178,12 +124,6 @@
     "name": "Candeleros Expansion: Ekrixinatosaurus",
     "description": "Adds Ekrixinatosaurus, a large brawler type Abelisaur from Argentina. \n\nModel, animations some skins and sounds by me-MrFozz\n\nspecial thanks to:\nNautilus- help with some ability setup\nAerisopteryx- Some skins, help with testing and ability icons\nVividsky- Skin help\nJoet57-Testing and moral support",
     "icon": "https://web-cdn.alderongames.com/files/1254/conversions/Ekrixi_ModPage_icon-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_63475MJ78W_SK",
-    "name": "CMIPlus",
-    "description": "Additional Creator mode items like a pill for boss fights. Feel free to suggest item additions.",
-    "icon": "https://web-cdn.alderongames.com/files/634/conversions/CMIPlus-icon.jpg"
   },
   {
     "sku": "UGC_M_K5G0ZGQEPN_SK",
@@ -342,12 +282,6 @@
     "icon": "https://web-cdn.alderongames.com/files/1147/conversions/BistiIcon-icon.jpg"
   },
   {
-    "sku": "UGC_M_43GE6R60NR_SK",
-    "name": "Ex Argilla Dominus",
-    "description": "Ex Argilla Introduces to you a new Draconic Apex predator! Dominus Caeli, a mighty predator that terrorized the lands from above and ground! An apex predator that even Dracovipers and Griffins would be wary of and a challenger to rival apexes like Tyrannosaurus Rex!\n\nSpecial thanks to Fledged feathers and Novacaine for help with skins and Mr.Parasaur for sounds",
-    "icon": "https://web-cdn.alderongames.com/files/1278/conversions/DominusIcon-icon.jpg"
-  },
-  {
     "sku": "UGC_M_W610844EMD_SK",
     "name": "Ex Argilla Dracoviper",
     "description": "Soar through Sky and Sea, Ex Argilla presents the Dracoviper!  These slithery reptiles roam the skies and waters alike! While formidable alone they also prefer to work in numbers to bring down prey larger than themselves with their venomous maw!\r\n\r\n\r\nSpecial thanks to\r\n\r\nFledged feathers, Elys, Novacaine and Janey for help with skin work\r\n\r\nFledged feathers and Elys for ability icons\r\n\r\nInklyon for adult friendly call",
@@ -370,18 +304,6 @@
     "name": "Ex Argilla Magna Ant",
     "description": "Magna Ant crawls into Path of Titans! using strong jaws and a formidable sting players will need to watch their backs lest they be picked up and carried off to a waiting nest.\n\nHuge thank you to my entire team for their support and help in bringing Magna to life as well as NotPixieStyx71 on discord for allowing me to work on such a fun project.\n\nId also like to give a shoutout to the POT modding community for helping me whith my issues and problems as well as explaining things i didnt understand.",
     "icon": "https://web-cdn.alderongames.com/files/1240/conversions/ant-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_6GWEYR373Z_SK",
-    "name": "Ex Argilla Nasutoceratops",
-    "description": "EX-Argilla brings you the Naustoceratops!\r\n the uniquely adorned ceratopsian from cretaceous Utah, use your defensive abilities to be the stone wall protector of the herd. but remember if you choose to face this bovine horned beast, you mess with bull you get the horns!\r\n\r\nWe do not claim accuracy and artistic liberties will be taken.",
-    "icon": "https://web-cdn.alderongames.com/files/1098/conversions/nasutoModIcon-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_JG1E9D97QN_SK",
-    "name": "Ex Argilla Smilodon",
-    "description": "The new completely redone version of Beringia Smilodon. Increased size and new abilities! \r\n\r\nSpecial thanks to Janey and Elys for skin work, Cerealkiller for sounds and Gumzilla for ability icons",
-    "icon": "https://web-cdn.alderongames.com/files/1001/conversions/Smilodon_icon-icon.jpg"
   },
   {
     "sku": "UGC_M_NZK7J8Q712_SK",
@@ -432,28 +354,10 @@
     "icon": "https://web-cdn.alderongames.com/files/1326/conversions/HFCThumb-icon.jpg"
   },
   {
-    "sku": "UGC_M_Z857Q9P72V_SK",
-    "name": "Ignis: Noviana",
-    "description": "The largest drake in Ignis, is brought to you by the Primordial Tyrants team.",
-    "icon": "https://web-cdn.alderongames.com/files/861/conversions/novania_mod_icon-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_6YJ026J758_SK",
-    "name": "Ignis: Ophis",
-    "description": "Ophis, a massive sea serpent, is brought to you by the Primordial Tyrants team.",
-    "icon": "https://web-cdn.alderongames.com/files/464/conversions/Ophis_Mod_Icon-icon.jpg"
-  },
-  {
     "sku": "UGC_M_QM5ENVJ7D3_SK",
     "name": "IoA Ancients Skins",
     "description": "The skins of the Ancients! Made for any kind of server, including Realism.",
     "icon": "https://web-cdn.alderongames.com/files/1334/conversions/IoAAncients-Icon500-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_W617864EMD_SK",
-    "name": "IoA Cursed Skins",
-    "description": "Skins for holidays, events, and deathmatch servers! DO NOT use for realism.",
-    "icon": "https://web-cdn.alderongames.com/files/1325/conversions/IoACursedLogoSmall-icon.jpg"
   },
   {
     "sku": "UGC_M_12G0WJNEWK_SK",
@@ -504,10 +408,10 @@
     "icon": "https://web-cdn.alderongames.com/files/898/conversions/JFD_Ttanneri-icon.jpg"
   },
   {
-    "sku": "UGC_M_W61E8KG0MD_SK",
-    "name": "K-23 Celenai",
-    "description": "Adds a semi-aquatic marsupial alien otter that is stronger than its size might suggest!",
-    "icon": "https://web-cdn.alderongames.com/files/933/conversions/Celenai-Preview-icon.jpg"
+    "sku": "UGC_M_VJK0MN87R3_SK",
+    "name": "Juniper Arena - Deathmatch Essentials",
+    "description": "A collection of creator mode objects for use in deathmatch like servers",
+    "icon": "https://web-cdn.alderongames.com/files/1422/conversions/juniper_icon_final-icon.jpg"
   },
   {
     "sku": "UGC_M_43G76JQ0NR_SK",
@@ -552,34 +456,16 @@
     "icon": "https://web-cdn.alderongames.com/files/1402/conversions/spring-pic-icon.jpg"
   },
   {
+    "sku": "UGC_M_12GEWYX7WK_SK",
+    "name": "Mesozoic Desert",
+    "description": "A 1x1 desert-based deathmatch map for the Mesozoic community, with multiple canyons and a pond to drink from. This map offers all the basics you would need in a deathmatch map!\n\nMap developed by Fragcat\nWith assistance from 'Ray'",
+    "icon": "https://web-cdn.alderongames.com/files/1427/conversions/MesozoicDesertIcon3-icon.jpg"
+  },
+  {
     "sku": "UGC_M_NV5ERMM0JD_SK",
     "name": "Najuro",
     "description": "A map focused for a Sandbox Setting / Chill / Deathmatch environment. Najuro brings in a jungle environment as well as open areas, Homecaves, water & elements / fun you, the players can have fun climbing.\r\n\r\nBy completing a quest you get 10.000 Marks automatically, and a fair bit of growth.\r\n\r\n- The map has 3 points containing food. \r\n\r\nHave fun!",
     "icon": "https://web-cdn.alderongames.com/files/422/conversions/Najuro-512x512-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_43G06350NR_SK",
-    "name": "New Era",
-    "description": "Mobile ready Deathmatch map for the New Era community.",
-    "icon": "https://web-cdn.alderongames.com/files/690/conversions/NewEra-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_Y250G4KEVZ_SK",
-    "name": "Ordinary Prehistoric Skin Mod",
-    "description": "A mod that adds a large amount of skins to the animals for the game, creator Gecko345#2345, message if you have any skin ideas/find bugs.",
-    "icon": "https://web-cdn.alderongames.com/files/1137/conversions/logocon3-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_4RM7KJW0ZY_SK",
-    "name": "P&D's Menagerie: Pentaceratops",
-    "description": "P&D's Menagerie introduces to you, Pentaceratops! \nAn imposing large ceratopsian from Late Cretaceous North America, focused around displacing and debuffing opponents!\n\n-Credits-\nModel, Textures, and Jacksons Skin by Raidesaur\nSounds, Icons, Skin Design, Skin Painting, and Species Morphs by Daubeny\nSkin Design, Skin Painting, and Coding by Pi\nRA map by Toa Metru & Feilong\nAnimations and Brackish/Vega Skins By Toa Metru\nSpecial thanks to Pnoodle",
-    "icon": "https://web-cdn.alderongames.com/files/1165/conversions/Penta_Icon_New-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_YZKE4MK09W_SK",
-    "name": "Paragon",
-    "description": "2x2 map",
-    "icon": "https://web-cdn.alderongames.com/files/788/conversions/Thumbnail-icon.jpg"
   },
   {
     "sku": "UGC_M_QM50NNJ0D3_SK",
@@ -720,12 +606,6 @@
     "icon": "https://web-cdn.alderongames.com/files/75/daf3eeae9d3aeb5bdf9a2b9f86ba8bab.jpg"
   },
   {
-    "sku": "UGC_M_QM57NQJ7D3_SK",
-    "name": "Strawberry Skins",
-    "description": "A skin mod trying to bring both semi-realistic to realistic patterns alive aswell as more fun skins!",
-    "icon": "https://web-cdn.alderongames.com/files/1332/conversions/Angel-Headshot---Eotrike-icon.jpg"
-  },
-  {
     "sku": "UGC_M_4RM0K330ZY_SK",
     "name": "Tear",
     "description": "A small map.",
@@ -750,22 +630,16 @@
     "icon": "https://web-cdn.alderongames.com/files/1112/conversions/TCI_Cryo_Larger_Logo-icon.jpg"
   },
   {
-    "sku": "UGC_M_43GE695ENR_SK",
-    "name": "The Jurassic Savannah Skins [TJS]",
-    "description": "This is a realistic skin pack!\r\n\r\nZanthar -Allo\r\nFirefly -Campto\r\nMud -Cerato\r\nSavannah -Iguanodon\r\nCanyon -Stego",
-    "icon": "https://web-cdn.alderongames.com/files/466/conversions/TJSLogo-icon.jpg"
+    "sku": "UGC_M_DYV7XYEGX2_SK",
+    "name": "The Grim Expanse",
+    "description": "This 8km x 8km map is set in a sprawling, arid desert, littered with abandoned ruins and freshwater oasises. You can expect a difficult time surviving on this map, with water being scarce and predators being able to see you from far distances.\r\n\r\nThis is an example mod map to test modding functionality, and is an example of what you can do!",
+    "icon": "https://web-cdn.alderongames.com/files/1297/conversions/4a47a0db6e60853dedfcfdf08a5ca249-icon.jpg"
   },
   {
     "sku": "UGC_M_K5G0Z310PN_SK",
     "name": "The Nyctatyrannus",
     "description": "Isla Nycta's titular mascot - a mid-sized predator of the night from fantastical origins. \r\n=== [ Made With Love By ] ===\r\nMod Developer: TheDoctorTHE11th / Divine Beasts Team\r\nOriginal Model: Arkaria\r\nAnimations: Scorching_Kami\r\nTextures and Subspecies: Matheusfers\r\nSkins: GameVideosForLife, Ky\r\nSounds: Simon Chylinski, Shane Armstrong\r\nProject Manager: NR",
     "icon": "https://web-cdn.alderongames.com/files/695/conversions/IslaNyctaModBanner_v5-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_6YJ0281058_SK",
-    "name": "The Pit",
-    "description": "A small pvp map.",
-    "icon": "https://web-cdn.alderongames.com/files/1360/conversions/T_CThePit_Icon-icon.jpg"
   },
   {
     "sku": "UGC_M_NZK0J4RE12_SK",
@@ -792,21 +666,9 @@
     "icon": "https://web-cdn.alderongames.com/files/430/conversions/Tumb-icon.jpg"
   },
   {
-    "sku": "UGC_M_YZK743K09W_SK",
-    "name": "Veneer",
-    "description": "Developed for Second Origin realism servers. Want to contribute or have feedback?",
-    "icon": "https://web-cdn.alderongames.com/files/479/conversions/veneericon01-icon.jpg"
-  },
-  {
     "sku": "UGC_M_6YJ02KY758_SK",
     "name": "Zealandia Natural",
     "description": "Discover an ultra-realistic skin mod, designed for total immersion in the world of Zealandia, a unique server that plunges you into the heart of a reserve populated by prehistoric animals. This mod is specially adapted for players who wish to live an authentic experience among these giants from another time.\n\nA huge thank you to Smaug for his valuable contribution in making this project a reality.\nAnd also to the entire Zealandia staff for their useful and precise help on fixing issues.",
     "icon": "https://web-cdn.alderongames.com/files/1312/conversions/LogoMod-icon.jpg"
-  },
-  {
-    "sku": "UGC_M_VJK0MN87R3_SK",
-    "name": "Juniper Arena - Deathmatch Essentials",
-    "description": "A collection of creator mode objects for use in deathmatch like servers",
-    "icon": "https://web-cdn.alderongames.com/files/1422/conversions/juniper_icon_final-icon.jpg"
   }
 ]
