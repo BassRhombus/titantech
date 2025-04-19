@@ -229,6 +229,24 @@
     }
 }
 
+/* Refresh timestamp styling */
+.refresh-info {
+    text-align: center;
+    padding: 8px 15px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    margin: 10px auto;
+    max-width: 1200px;
+    color: #aaa;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.refresh-info i {
+    margin-right: 5px;
+    color: var(--primary-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .mods-container {

@@ -2,6 +2,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     loadModsData();
     
+    // Set up auto-refresh every 10 minutes (600,000 ms)
+    setInterval(loadModsData, 600000);
+    
     document.getElementById('generateBtn').addEventListener('click', generateConfig);
     document.getElementById('selectAllBtn').addEventListener('click', selectAllMods);
     document.getElementById('deselectAllBtn').addEventListener('click', deselectAllMods);
@@ -14,13 +17,43 @@ let selectedModIds = new Set();
 async function loadModsData() {
     try {
         showLoading();
-        const modsData = await fetch('ModINI/public/mods_details.json').then(response => response.json());
+        // Load from local file which is kept updated by the update-mods.js script
+        const response = await fetch('ModINI/public/mods_details.json');
+        const modsData = await response.json();
+        
         window.modsData = modsData; // Store for filtering
         displayMods(modsData);
+        updateLastRefreshed(); // Update the timestamp
     } catch (error) {
         console.error('Error loading mods data:', error);
         document.getElementById('modsContainer').innerHTML = '<p>Error loading mods data. Please try again later.</p>';
     }
+}
+
+/**
+ * Updates the last refreshed timestamp display
+ */
+function updateLastRefreshed(source = '') {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    const dateString = now.toLocaleDateString();
+    
+    // Create or update the timestamp element
+    let timestampDiv = document.getElementById('lastRefreshed');
+    if (!timestampDiv) {
+        // Create the element if it doesn't exist
+        timestampDiv = document.createElement('div');
+        timestampDiv.id = 'lastRefreshed';
+        timestampDiv.className = 'refresh-info';
+        
+        // Insert it after the search bar
+        const searchBar = document.querySelector('.search-bar');
+        if (searchBar) {
+            searchBar.insertAdjacentElement('afterend', timestampDiv);
+        }
+    }
+    
+    timestampDiv.innerHTML = `<i class="fas fa-sync-alt"></i> Last updated: ${dateString} ${timeString} ${source}`;
 }
 
 // Update the displayMods function to preserve selections
