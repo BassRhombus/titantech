@@ -388,33 +388,67 @@ footer {
     .hero {
         flex-direction: column;
         text-align: center;
+        padding: 2rem 5%;
     }
     
     .hero-content {
         margin-bottom: 2rem;
+        max-width: 100%;
+    }
+    
+    .hero h2 {
+        font-size: 2rem;
     }
     
     .cta-buttons {
         justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .feature-card {
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .server-card {
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
     }
 }
 
 @media (max-width: 768px) {
+    header {
+        padding: 0.8rem 5%;
+    }
+    
+    .logo {
+        height: 40px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
     .nav-links {
         position: fixed;
         right: -100%;
         top: 70px;
         flex-direction: column;
-        background-color: rgba(0, 0, 0, 0.9);
+        background-color: rgba(0, 0, 0, 0.95);
         width: 100%;
+        height: calc(100vh - 70px);
         text-align: center;
         transition: 0.3s;
         box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
-        padding: 20px 0;
+        padding: 2rem 0;
+        z-index: 1000;
     }
     
     .nav-links.active {
         right: 0;
+        display: flex;
     }
     
     .nav-links li {
@@ -423,6 +457,7 @@ footer {
     
     .hamburger {
         display: block;
+        cursor: pointer;
     }
     
     .hamburger.active .line:nth-child(2) {
@@ -437,8 +472,66 @@ footer {
         transform: translateY(-8px) rotate(-45deg);
     }
     
+    /* Adjust feature section */
+    .features {
+        padding: 2rem 5%;
+    }
+    
     .feature-cards {
         flex-direction: column;
         align-items: center;
+        gap: 20px;
+    }
+    
+    .feature-card {
+        padding: 1.5rem;
+    }
+    
+    /* Footer improvements */
+    .footer-content {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .footer-logo, .footer-links, .footer-social {
+        text-align: center;
+        width: 100%;
+    }
+    
+    .social-icons {
+        justify-content: center;
+    }
+    
+    /* Improve server cards */
+    .server-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 15px;
+    }
+    
+    .cta-primary, .cta-secondary {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .hero-image img {
+        max-width: 90%;
     }
 }

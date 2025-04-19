@@ -176,6 +176,7 @@ app.get('/:page.html', (req, res) => {
   }
 });
 
+// Revert to original app.listen
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);
 });

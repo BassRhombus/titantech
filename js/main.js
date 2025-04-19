@@ -6,10 +6,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (hamburger) {
         hamburger.addEventListener('click', function() {
-            navLinks.classList.toggle('open');
+            // Toggle both classes to ensure menu opens and hamburger animates
+            navLinks.classList.toggle('active');
             hamburger.classList.toggle('active');
         });
     }
+    
+    // Close mobile menu when clicking a link
+    const navItems = document.querySelectorAll('.nav-links li a');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+                hamburger.classList.remove('active');
+            }
+        });
+    });
     
     // Discord username copy functionality
     const discordUsernames = document.querySelectorAll('.discord-username');

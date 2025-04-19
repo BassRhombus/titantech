@@ -171,6 +171,31 @@
     }
 }
 
+/* Enhanced Responsive adjustments */
+@media (max-width: 768px) {
+    .servers-hero {
+        padding: 2rem 5%;
+    }
+    
+    .servers-hero h2 {
+        font-size: 2rem;
+    }
+    
+    .server-row {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .server-card {
+        flex-direction: row;
+        min-height: 150px;
+    }
+    
+    .server-info {
+        gap: 1rem;
+    }
+}
+
 @media (max-width: 480px) {
     .server-card {
         flex-direction: column;
@@ -183,5 +208,38 @@
     
     .connection-info {
         flex-wrap: wrap;
+    }
+}
+
+/* Enhanced Responsive adjustments */
+@media (max-width: 480px) {
+    .server-card {
+        flex-direction: column;
+    }
+    
+    .server-icon {
+        width: 100%;
+        height: 80px;
+        padding: 1rem 0;
+    }
+    
+    .server-details {
+        padding: 1rem;
+    }
+    
+    .connection-info {
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+    }
+    
+    .server-address {
+        width: calc(100% - 40px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .copy-btn {
+        width: 32px;
+        height: 32px;
     }
 }

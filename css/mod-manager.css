@@ -238,10 +238,38 @@
     #searchInput {
         width: 100%;
     }
+    
+    .mod-manager-intro {
+        padding: 1.5rem 5%;
+    }
+    
+    .mods-container {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        padding: 1rem 5%;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .controls button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    #searchInput {
+        width: 100%;
+        margin-bottom: 15px;
+    }
 }
 
 @media (max-width: 480px) {
     .mods-container {
         grid-template-columns: 1fr;
+    }
+    
+    .mod-card img {
+        height: 160px;
     }
 }
