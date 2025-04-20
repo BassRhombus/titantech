@@ -6,10 +6,22 @@
     "icon": "https://web-cdn.alderongames.com/files/1080/conversions/Absentiaicon4-icon.jpg"
   },
   {
+    "sku": "UGC_M_VJK7M6KER3_SK",
+    "name": "Ancient Monster: Golugore",
+    "description": "Golugore is a medium sized carnivorous monstrum from the Angrboda Peninsula that preys on smaller animals but don't let its size fool you this carnivore can easily fend off larger animals if it wanted to.",
+    "icon": "https://web-cdn.alderongames.com/files/822/conversions/Golugore_icon-icon.jpg"
+  },
+  {
     "sku": "UGC_M_QM57NKD7D3_SK",
     "name": "Ancient Monster: Madrehorn",
     "description": "Madrehorn is a massive herbivore with large tusks and a thick hide that allows it to travel alone and without fear of carnivores bothering it. Usually it take groups of apexes to kill one madrehorn",
     "icon": "https://web-cdn.alderongames.com/files/1296/conversions/Modpage_icon-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_NZKEJJRE12_SK",
+    "name": "Ancient Monster: Moraquile",
+    "description": "Moraquile is a large Avian Monstrum that is dubbed the King of the skies, with massive wings and sharp scales this terrifying bird brings a whole new meaning to terror from above\r\n\r\nFeedback and bug reports",
+    "icon": "https://web-cdn.alderongames.com/files/892/conversions/Moraquile_icon-icon.jpg"
   },
   {
     "sku": "UGC_M_VJK0M13ER3_SK",
@@ -466,6 +478,12 @@
     "name": "Najuro",
     "description": "A map focused for a Sandbox Setting / Chill / Deathmatch environment. Najuro brings in a jungle environment as well as open areas, Homecaves, water & elements / fun you, the players can have fun climbing.\r\n\r\nBy completing a quest you get 10.000 Marks automatically, and a fair bit of growth.\r\n\r\n- The map has 3 points containing food. \r\n\r\nHave fun!",
     "icon": "https://web-cdn.alderongames.com/files/422/conversions/Najuro-512x512-icon.jpg"
+  },
+  {
+    "sku": "UGC_M_Z857QKV72V_SK",
+    "name": "Primal Wrath's Saurophaganax",
+    "description": "Wrath of The Goliaths Modding team brings you Saurophaganax (Allosaurus anax), a 4 slot, theropod brawler that excels in dealing damage and bleed while having synergy with Allosaurus and Concavenator.\nModel tributes Original WoTG's game Saurophaganax, both models made by Manuelsaurus, original game licensed by Matthew Duncan.",
+    "icon": "https://web-cdn.alderongames.com/files/1428/conversions/SauroIcon-icon.jpg"
   },
   {
     "sku": "UGC_M_QM50NNJ0D3_SK",
