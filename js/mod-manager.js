@@ -1,32 +1,104 @@
+// Add this function to the top - above the DOMContentLoaded event
+async function refreshModsFromAPI() {
+    try {
+        console.log("Requesting server to refresh mods from API...");
+        const response = await fetch('/api/refresh-mods');
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log(`API refresh successful: ${data.message}`);
+            return true;
+        } else {
+            console.error(`API refresh failed: ${data.message}`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error triggering API refresh:', error);
+        return false;
+    }
+}
+
 // Load the mods data
 document.addEventListener('DOMContentLoaded', function() {
+    // Initial load
     loadModsData();
     
-    // Set up auto-refresh every 10 minutes (600,000 ms)
-    setInterval(loadModsData, 600000);
+    // Do an API refresh once when page loads
+    refreshModsFromAPI().then(success => {
+        if (success) {
+            // Reload the data after API refresh
+            setTimeout(loadModsData, 1000);
+        }
+    });
+    
+    // Set up auto-refresh every 5 minutes (300,000 ms)
+    window.modRefreshInterval = setInterval(function() {
+        console.log("Auto-refreshing mod data...");
+        loadModsData();
+    }, 300000);
+    
+    // Log that the interval was set up
+    console.log("Mod auto-refresh scheduled every 5 minutes");
     
     document.getElementById('generateBtn').addEventListener('click', generateConfig);
     document.getElementById('selectAllBtn').addEventListener('click', selectAllMods);
     document.getElementById('deselectAllBtn').addEventListener('click', deselectAllMods);
     document.getElementById('searchInput').addEventListener('input', filterMods);
+    
+    // Add a manual refresh button
+    addRefreshButton();
 });
 
 // Add this global variable at the top of your file, after the DOMContentLoaded event listener
 let selectedModIds = new Set();
 
+// Update the refresh button functionality
+function addRefreshButton() {
+    const controlsDiv = document.querySelector('.controls');
+    if (controlsDiv) {
+        const refreshBtn = document.createElement('button');
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
+        refreshBtn.id = 'refreshBtn';
+        refreshBtn.addEventListener('click', async function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            
+            // First trigger an API refresh
+            const apiRefresh = await refreshModsFromAPI();
+            
+            // Then load the updated data
+            loadModsData().then(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
+                
+                if (apiRefresh) {
+                    alert('Mods data has been refreshed from the API!');
+                }
+            });
+        });
+        controlsDiv.appendChild(refreshBtn);
+    }
+}
+
+// Update loadModsData to return a Promise and sort mods alphabetically
 async function loadModsData() {
     try {
         showLoading();
         // Load from local file which is kept updated by the update-mods.js script
-        const response = await fetch('ModINI/public/mods_details.json');
+        const response = await fetch('ModINI/public/mods_details.json?' + new Date().getTime());
         const modsData = await response.json();
+        
+        // Sort mods alphabetically by name (case-insensitive)
+        modsData.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
         
         window.modsData = modsData; // Store for filtering
         displayMods(modsData);
         updateLastRefreshed(); // Update the timestamp
+        return Promise.resolve();
     } catch (error) {
         console.error('Error loading mods data:', error);
         document.getElementById('modsContainer').innerHTML = '<p>Error loading mods data. Please try again later.</p>';
+        return Promise.reject(error);
     }
 }
 

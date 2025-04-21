@@ -3,6 +3,8 @@ const path = require('path');
 const session = require('express-session');
 const app = express();
 const PORT = 3003;
+const http = require('http');
+const fs = require('fs');
 
 // Simple in-memory user store (replace with database in production)
 const users = [
@@ -85,6 +87,110 @@ app.get('/api/user', (req, res) => {
   }
 });
 
+// Add a new endpoint to refresh mods data from API
+app.get('/api/refresh-mods', async (req, res) => {
+  try {
+    const updateResult = await fetchModsFromAPI();
+    res.json({ success: true, message: `Refreshed mods data. Found ${updateResult.count} mods.` });
+  } catch (error) {
+    console.error('Error refreshing mods data:', error);
+    res.status(500).json({ success: false, message: 'Failed to refresh mods data', error: error.message });
+  }
+});
+
+// Function to fetch mods from API and save them
+async function fetchModsFromAPI() {
+  return new Promise((resolve, reject) => {
+    const API_HOSTNAME = '104.194.10.211';
+    const API_PORT = 3000;
+    const API_PATH = '/potnotifier/mods';
+    const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
+    
+    console.log(`[${new Date().toISOString()}] Fetching mods data from API...`);
+    
+    const req = http.request({
+      hostname: API_HOSTNAME,
+      port: API_PORT,
+      path: API_PATH,
+      method: 'GET',
+      timeout: 30000 // 30 seconds
+    }, (res) => {
+      let data = '';
+      
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        if (res.statusCode === 200 && data.length > 0) {
+          try {
+            const modsData = JSON.parse(data);
+            console.log(`Successfully fetched ${modsData.length} mods from API`);
+            
+            // Transform the data
+            const transformedMods = modsData.map(mod => ({
+              sku: mod.Mod_sku,
+              name: mod.Mod_name,
+              description: mod.Mod_description,
+              icon: mod.Mod_image_link
+            }));
+            
+            // Deduplicate by SKU
+            const uniqueModsMap = new Map();
+            transformedMods.forEach(mod => {
+              if (!uniqueModsMap.has(mod.sku)) {
+                uniqueModsMap.set(mod.sku, mod);
+              }
+            });
+            
+            // Sort alphabetically by name
+            const sortedMods = Array.from(uniqueModsMap.values());
+            sortedMods.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+            
+            // Make sure directory exists
+            const dirPath = path.dirname(JSON_FILE_PATH);
+            if (!fs.existsSync(dirPath)) {
+              fs.mkdirSync(dirPath, { recursive: true });
+            }
+            
+            // Write the file
+            fs.writeFile(JSON_FILE_PATH, JSON.stringify(sortedMods, null, 2), 'utf8', (err) => {
+              if (err) {
+                console.error(`Error writing mods data: ${err.message}`);
+                reject(err);
+                return;
+              }
+              
+              console.log(`Updated mods data file with ${sortedMods.length} mods`);
+              resolve({ count: sortedMods.length });
+            });
+            
+          } catch (error) {
+            console.error(`Error processing API response: ${error.message}`);
+            reject(error);
+          }
+        } else {
+          console.error(`API returned status code: ${res.statusCode}`);
+          reject(new Error(`API request failed with status code: ${res.statusCode}`));
+        }
+      });
+    });
+    
+    req.on('error', (error) => {
+      console.error(`API request error: ${error.message}`);
+      reject(error);
+    });
+    
+    req.on('timeout', () => {
+      console.error(`API request timed out`);
+      req.destroy();
+      reject(new Error('Request timed out'));
+    });
+    
+    req.end();
+  });
+}
+
 // Community server submission (placeholder)
 app.post('/api/submit-server', express.json(), isAuthenticated, (req, res) => {
   // In a real app, store this in a database
@@ -132,7 +238,20 @@ app.get('/api/admin/servers', isAuthenticated, isAdmin, (req, res) => {
   res.json(mockServers);
 });
 
-// Rest of your API endpoints...
+// Set up automatic refresh of mods data every 5 minutes
+setInterval(async () => {
+  try {
+    console.log("Automatic refresh of mods data triggered");
+    await fetchModsFromAPI();
+  } catch (error) {
+    console.error('Error during automatic mods refresh:', error);
+  }
+}, 5 * 60 * 1000); // 5 minutes
+
+// Initial fetch on server start
+fetchModsFromAPI().catch(error => {
+  console.error('Error during initial mods fetch:', error);
+});
 
 // Serve static files
 app.use(express.static(__dirname));

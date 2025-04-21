@@ -7,7 +7,7 @@ const API_HOSTNAME = '104.194.10.211';
 const API_PORT = 3000;
 const API_PATH = '/potnotifier/mods';
 const API_TIMEOUT = 30000; // 30 seconds
-const UPDATE_INTERVAL = 10 * 60 * 1000; // 10 minutes
+const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes (changed from 10)
 const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
 
 // Ensure directory exists
@@ -53,7 +53,13 @@ function transformModData(rawMods) {
     console.log(`[${new Date().toISOString()}] Removed ${duplicates.length} duplicate entries`);
   }
   
-  return Array.from(uniqueModsMap.values());
+  // Convert to array and sort alphabetically
+  const sortedMods = Array.from(uniqueModsMap.values());
+  sortedMods.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  
+  console.log(`[${new Date().toISOString()}] Mods sorted alphabetically by name`);
+  
+  return sortedMods;
 }
 
 // Fallback data in case API fails
