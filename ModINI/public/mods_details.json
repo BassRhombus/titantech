@@ -464,7 +464,7 @@
   {
     "sku": "UGC_M_JG179QX7QN_SK",
     "name": "Maplewood",
-    "description": "Psycho Dodo Clan presents: Maplewood\nA great 10x10 expanse of forest, grasslands, marsh/wetlands/sloughs, and lakes/rivers!\nLook for information signs, learn about the park!\nHigh altitude brings great fog!\nComputer weather control =  o key\nTime and weather control on console: R3\nMobile: Volume down\nNight vision = computer - n\nConsole - L2\n\n*PHOTOSENSATIVITY WARNING: THIS MAP HAS LIGHTNING!*\n\nSpecial thanks to Fortress (FBTH) for helping me out with some aspects of the map!",
+    "description": "Psycho Dodo Clan presents: Maplewood\nA great 10x10 expanse of forest, grasslands, marsh/wetlands/sloughs, and lakes/rivers!\nLook for information signs, learn about the park!\nHigh altitude brings great fog!\nTime and weather control are now brought up by chat command  /CallUDS\nCommunity servers - grant permission by putting the following on your command.ini\n+Permission=CallUDS\n\n*PHOTOSENSATIVITY WARNING: THIS MAP HAS LIGHTNING!*\n\nSpecial thanks to Fortress (FBTH) for helping me out with some aspects of the map!",
     "icon": "https://web-cdn.alderongames.com/files/1402/conversions/spring-pic-icon.jpg"
   },
   {

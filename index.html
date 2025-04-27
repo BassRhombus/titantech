@@ -26,6 +26,9 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
             order: 3;
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
         
         .sponsor-box:hover {
@@ -38,6 +41,8 @@
             text-decoration: none;
             color: #e0e0e0;
             display: block;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
         
         .sponsor-box img {
@@ -72,6 +77,7 @@
                 flex: 0 1 100%;
                 margin: 0 auto;
                 order: 3;
+                display: block !important;
             }
         }
     </style>
@@ -117,9 +123,9 @@
                 <img src="images/home1.png" alt="Path of Titans Dinosaur">
             </div>
             
-            <!-- New Ad Box -->
-            <div class="sponsor-box">
-                <a href="https://gameservershub.com/billing/index.php?m=refer&id=399305" target="_blank">
+            <!-- Modified GSH Sponsor Box with inline style to ensure visibility -->
+            <div class="sponsor-box" style="display: block !important; visibility: visible !important;">
+                <a href="https://gameservershub.com/billing/index.php?m=refer&id=399305" target="_blank" style="display: block !important; visibility: visible !important;">
                     <img src="images/GSHPanel.png" alt="GameServersHub Logo">
                     <h3>GameServersHub</h3>
                     <p>Premium Game Server Hosting Solutions</p>
@@ -207,5 +213,26 @@
     
     <!-- Add JavaScript file for hamburger menu functionality -->
     <script src="js/main.js"></script>
+
+    <!-- Add a script to ensure the sponsor box remains visible after page load -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Force the sponsor box to be displayed even after all scripts load
+            const sponsorBox = document.querySelector('.sponsor-box');
+            if (sponsorBox) {
+                // Make sure it's visible
+                sponsorBox.style.display = 'block';
+                sponsorBox.style.visibility = 'visible';
+                sponsorBox.style.opacity = '1';
+                
+                // Check again after a short delay to catch any scripts that might hide it
+                setTimeout(function() {
+                    sponsorBox.style.display = 'block';
+                    sponsorBox.style.visibility = 'visible';
+                    sponsorBox.style.opacity = '1';
+                }, 500);
+            }
+        });
+    </script>
 </body>
 </html>
