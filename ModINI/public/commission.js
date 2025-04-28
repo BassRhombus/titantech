@@ -16,31 +16,11 @@ document.addEventListener('DOMContentLoaded', function() {
             timeframe: document.getElementById('timeframe').value
         };
         
-        // Here you would typically send the data to your server/backend
-        // For now, we'll simulate a successful submission
+        // Show loading state
+        formSuccess.style.display = 'none';
+        formError.style.display = 'none';
         
-        // Simulate sending data to server with a timeout
-        setTimeout(() => {
-            // Simulate successful submission
-            const success = true; // Change to false to test error state
-            
-            if (success) {
-                // Show success message
-                formSuccess.style.display = 'block';
-                formError.style.display = 'none';
-                commissionForm.reset();
-                
-                // Optional: Scroll to top of form to see success message
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                // Show error message
-                formSuccess.style.display = 'none';
-                formError.style.display = 'block';
-            }
-        }, 1500);
-        
-        // In a real implementation you would use something like:
-        /*
+        // Send data to server
         fetch('/api/commission', {
             method: 'POST',
             headers: {
@@ -55,15 +35,19 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
+            // Show success message
             formSuccess.style.display = 'block';
             formError.style.display = 'none';
             commissionForm.reset();
+            
+            // Scroll to top of form to see success message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         })
         .catch((error) => {
+            // Show error message
             formSuccess.style.display = 'none';
             formError.style.display = 'block';
             console.error('Error:', error);
         });
-        */
     });
 });

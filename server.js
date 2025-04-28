@@ -238,6 +238,25 @@ app.get('/api/admin/servers', isAuthenticated, isAdmin, (req, res) => {
   res.json(mockServers);
 });
 
+// Commission form endpoint
+app.post('/api/commission', (req, res) => {
+  // Log the commission request data
+  console.log('New commission request received:');
+  console.log(req.body);
+  
+  // In a real application, you would:
+  // 1. Store this data in a database
+  // 2. Send an email notification
+  // 3. Create a ticket in your support system
+  // 4. etc.
+  
+  // For now, we'll just log it and return a success response
+  res.json({
+    success: true,
+    message: 'Commission request received successfully'
+  });
+});
+
 // Set up automatic refresh of mods data every 5 minutes
 setInterval(async () => {
   try {

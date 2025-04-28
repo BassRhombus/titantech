@@ -16,6 +16,8 @@
     "node-fetch": "^2.7.0",
     "passport": "^0.7.0",
     "passport-discord": "^0.1.4",
-    "debug": "^4.3.4"
+    "debug": "^4.3.4",
+    "nodemailer": "^6.9.1",
+    "mongoose": "^7.0.3"
   }
 }
