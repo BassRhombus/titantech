@@ -6,6 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
     commissionForm.addEventListener('submit', function(event) {
         event.preventDefault();
         
+        // Show loading state
+        const submitBtn = this.querySelector('.submit-btn');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = 'Submitting...';
+        submitBtn.disabled = true;
+        
         // Collect form data
         const formData = {
             discordUsername: document.getElementById('discordUsername').value,
@@ -16,9 +22,11 @@ document.addEventListener('DOMContentLoaded', function() {
             timeframe: document.getElementById('timeframe').value
         };
         
-        // Show loading state
+        // Hide any previous messages
         formSuccess.style.display = 'none';
         formError.style.display = 'none';
+        
+        console.log('Submitting commission request from mod manager:', formData);
         
         // Send data to server
         fetch('/api/commission', {
@@ -30,7 +38,16 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                // Get more details from the error response
+                return response.text().then(text => {
+                    console.error('Server response:', text);
+                    try {
+                        const jsonData = JSON.parse(text);
+                        throw new Error(jsonData.message || 'Server error: ' + response.status);
+                    } catch (e) {
+                        throw new Error('Server error: ' + response.status);
+                    }
+                });
             }
             return response.json();
         })
@@ -47,7 +64,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show error message
             formSuccess.style.display = 'none';
             formError.style.display = 'block';
+            formError.textContent = 'Error: ' + error.message;
             console.error('Error:', error);
+        })
+        .finally(() => {
+            // Reset button state
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
         });
     });
 });

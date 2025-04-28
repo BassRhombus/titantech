@@ -17,11 +17,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 timeframe: document.getElementById('timeframe').value
             };
             
-            // Show loading state
+            // Show loading state and set a loading message
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.disabled = true;
+            
             formSuccess.style.display = 'none';
             formError.style.display = 'none';
             
-            // Actually send the data to the server
+            console.log('Submitting commission request:', formData);
+            
+            // Send the data to the server
             fetch('/api/commission', {
                 method: 'POST',
                 headers: {
@@ -31,24 +38,41 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // Get more details from the error response
+                    return response.text().then(text => {
+                        console.error('Server response:', text);
+                        try {
+                            const jsonData = JSON.parse(text);
+                            throw new Error(jsonData.message || 'Server error: ' + response.status);
+                        } catch (e) {
+                            throw new Error('Server error: ' + response.status);
+                        }
+                    });
                 }
                 return response.json();
             })
             .then(data => {
+                console.log('Commission submission successful:', data);
                 // Show success message
                 formSuccess.style.display = 'block';
                 formError.style.display = 'none';
+                formError.textContent = '';
                 commissionForm.reset();
                 
                 // Scroll to top of form to see success message
                 window.scrollTo({ top: formSuccess.offsetTop - 100, behavior: 'smooth' });
             })
             .catch((error) => {
-                // Show error message
+                // Show error message with more details
+                console.error('Error submitting commission request:', error);
                 formSuccess.style.display = 'none';
                 formError.style.display = 'block';
-                console.error('Error:', error);
+                formError.textContent = 'There was an error submitting your request: ' + error.message;
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
             });
         });
     }

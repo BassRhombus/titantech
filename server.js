@@ -5,6 +5,53 @@ const app = express();
 const PORT = 3003;
 const http = require('http');
 const fs = require('fs');
+const mongoose = require('mongoose');
+
+// MongoDB connection string with authentication
+// URL encode the username and password to handle special characters
+const username = encodeURIComponent('user-admin');
+const password = encodeURIComponent('hmr7knd0xhp0TKC_ugy');
+const DB_URI = `mongodb://admin:hmr7knd0xhp0TKC_ugy@104.243.37.159:25060/titantech?authSource=admin`;
+
+// Connect to MongoDB with more options
+mongoose.connect(DB_URI, { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  connectTimeoutMS: 10000, // Give up initial connection after 10s
+  socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+})
+.then(() => console.log('Connected to MongoDB successfully'))
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  // Log more details if available
+  if (err.code) {
+    console.error('Error code:', err.code);
+  }
+  if (err.codeName) {
+    console.error('Error codeName:', err.codeName);
+  }
+  console.log('Will proceed without database connection - commission requests will not be saved');
+});
+
+// Setup fallback for when database is not available
+const offlineCommissions = [];
+const isDbConnected = () => mongoose.connection.readyState === 1;
+
+// Define Commission Request Schema
+const commissionSchema = new mongoose.Schema({
+  discordUsername: { type: String, required: true },
+  email: String,
+  botType: { type: String, required: true },
+  botDescription: { type: String, required: true },
+  budget: Number,
+  timeframe: String,
+  submittedAt: { type: Date, default: Date.now },
+  status: { type: String, default: 'pending' }
+});
+
+// Create model
+const CommissionRequest = mongoose.model('CommissionRequest', commissionSchema);
 
 // Simple in-memory user store (replace with database in production)
 const users = [
@@ -33,6 +80,34 @@ app.use(session({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Add API request logging middleware
+app.use('/api/*', (req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  if (req.method === 'POST' || req.method === 'PUT') {
+    console.log('Request body:', JSON.stringify(req.body));
+  }
+  
+  // Save original response methods
+  const originalSend = res.send;
+  const originalJson = res.json;
+  
+  // Override send
+  res.send = function(body) {
+    console.log(`[${new Date().toISOString()}] Response to ${req.method} ${req.originalUrl}:`, 
+      body.length > 500 ? body.substring(0, 500) + '...' : body);
+    return originalSend.call(this, body);
+  };
+  
+  // Override json
+  res.json = function(body) {
+    console.log(`[${new Date().toISOString()}] JSON response to ${req.method} ${req.originalUrl}:`, 
+      JSON.stringify(body).length > 500 ? JSON.stringify(body).substring(0, 500) + '...' : JSON.stringify(body));
+    return originalJson.call(this, body);
+  };
+  
+  next();
+});
+
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
   if (req.session.user) {
@@ -49,8 +124,8 @@ function isAdmin(req, res, next) {
   res.status(403).send('Access denied');
 }
 
-// Basic login route
-app.post('/login', (req, res) => {
+// Basic login route - handle both /login and login paths
+app.post(['/login', 'login'], (req, res) => {
   const { username, password } = req.body;
   const user = users.find(u => u.username === username && u.password === password);
   
@@ -61,14 +136,14 @@ app.post('/login', (req, res) => {
       username: user.username,
       admin: user.admin
     };
-    res.redirect('/dashboard.html');
+    res.redirect('dashboard.html');
   } else {
-    res.redirect('/login.html?error=1');
+    res.redirect('login.html?error=1');
   }
 });
 
-// Logout route
-app.get('/logout', (req, res) => {
+// Logout route - handle both /logout and logout paths
+app.get(['/logout', 'logout'], (req, res) => {
   req.session.destroy();
   res.redirect('/');
 });
@@ -239,22 +314,158 @@ app.get('/api/admin/servers', isAuthenticated, isAdmin, (req, res) => {
 });
 
 // Commission form endpoint
-app.post('/api/commission', (req, res) => {
-  // Log the commission request data
-  console.log('New commission request received:');
-  console.log(req.body);
-  
-  // In a real application, you would:
-  // 1. Store this data in a database
-  // 2. Send an email notification
-  // 3. Create a ticket in your support system
-  // 4. etc.
-  
-  // For now, we'll just log it and return a success response
-  res.json({
-    success: true,
-    message: 'Commission request received successfully'
-  });
+app.post('/api/commission', async (req, res) => {
+  try {
+    // Log the commission request data
+    console.log('New commission request received:');
+    console.log(req.body);
+    
+    if (!isDbConnected()) {
+      // Store in memory if database is not connected
+      console.log('Database not connected. Storing commission in memory.');
+      const timestamp = new Date();
+      offlineCommissions.push({
+        discordUsername: req.body.discordUsername,
+        email: req.body.email || '',
+        botType: req.body.botType,
+        botDescription: req.body.botDescription,
+        budget: req.body.budget ? Number(req.body.budget) : undefined,
+        timeframe: req.body.timeframe,
+        submittedAt: timestamp,
+        status: 'pending'
+      });
+      
+      // Write to a local backup file as well
+      const backupFilePath = path.join(__dirname, 'commission_backup.json');
+      fs.writeFileSync(
+        backupFilePath, 
+        JSON.stringify(offlineCommissions, null, 2), 
+        'utf8'
+      );
+      
+      res.json({
+        success: true,
+        message: 'Commission request received successfully (offline mode)'
+      });
+      return;
+    }
+    
+    // Create a new commission request document
+    const newCommission = new CommissionRequest({
+      discordUsername: req.body.discordUsername,
+      email: req.body.email || '',
+      botType: req.body.botType,
+      botDescription: req.body.botDescription,
+      budget: req.body.budget ? Number(req.body.budget) : undefined,
+      timeframe: req.body.timeframe
+    });
+    
+    // Save to database
+    await newCommission.save();
+    
+    res.json({
+      success: true,
+      message: 'Commission request received successfully'
+    });
+  } catch (error) {
+    console.error('Error saving commission request:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process commission request',
+      error: error.message
+    });
+  }
+});
+
+// Add an admin endpoint to view commission requests
+app.get('/api/admin/commissions', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    if (!isDbConnected()) {
+      // Return in-memory commissions if DB is not available
+      return res.json(offlineCommissions);
+    }
+    
+    const commissions = await CommissionRequest.find().sort({ submittedAt: -1 });
+    res.json(commissions);
+  } catch (error) {
+    console.error('Error fetching commission requests:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch commission requests',
+      error: error.message
+    });
+  }
+});
+
+// Add an endpoint to update commission status
+app.put('/api/admin/commissions/:id', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    // Validate status
+    const validStatuses = ['pending', 'in-progress', 'completed', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid status value' 
+      });
+    }
+    
+    if (!isDbConnected()) {
+      // Handle updates for in-memory commissions
+      const index = offlineCommissions.findIndex(c => c.id === id);
+      if (index === -1) {
+        return res.status(404).json({
+          success: false,
+          message: 'Commission request not found'
+        });
+      }
+      
+      offlineCommissions[index].status = status;
+      
+      // Update the backup file
+      const backupFilePath = path.join(__dirname, 'commission_backup.json');
+      fs.writeFileSync(
+        backupFilePath, 
+        JSON.stringify(offlineCommissions, null, 2), 
+        'utf8'
+      );
+      
+      return res.json({
+        success: true,
+        message: 'Commission status updated (offline mode)',
+        commission: offlineCommissions[index]
+      });
+    }
+    
+    // Update commission status in DB
+    const commission = await CommissionRequest.findByIdAndUpdate(
+      id, 
+      { status }, 
+      { new: true }
+    );
+    
+    if (!commission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Commission request not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Commission status updated',
+      commission
+    });
+  } catch (error) {
+    console.error('Error updating commission status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update commission status',
+      error: error.message
+    });
+  }
 });
 
 // Set up automatic refresh of mods data every 5 minutes
@@ -299,6 +510,11 @@ app.get('/dashboard.html', isAuthenticated, (req, res) => {
 
 app.get('/admin.html', isAuthenticated, isAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// Admin commissions page route
+app.get('/admin-commissions.html', isAuthenticated, isAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-commissions.html'));
 });
 
 // Default route
