@@ -164,11 +164,15 @@
                 fetch('/api/admin/commissions')
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                            return response.text().then(text => {
+                                console.error("Server response:", text);
+                                throw new Error(`Server returned ${response.status}: ${text}`);
+                            });
                         }
                         return response.json();
                     })
                     .then(commissions => {
+                        console.log("Received commissions:", commissions);
                         displayCommissions(commissions);
                     })
                     .catch(error => {
@@ -180,7 +184,7 @@
             function displayCommissions(commissions) {
                 const tableBody = document.getElementById('commissionsTableBody');
                 
-                if (commissions.length === 0) {
+                if (!commissions || commissions.length === 0) {
                     tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No commission requests found</td></tr>';
                     return;
                 }
@@ -195,11 +199,17 @@
                         return;
                     }
                     
-                    const date = new Date(commission.submittedAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
+                    let date;
+                    try {
+                        date = new Date(commission.submittedAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                    } catch(e) {
+                        console.error("Error formatting date:", e);
+                        date = "Unknown date";
+                    }
                     
                     tableHTML += `
                         <tr data-id="${commissionId}" data-username="${commission.discordUsername.toLowerCase()}" data-status="${commission.status}">
@@ -288,6 +298,8 @@
                 return;
             }
             
+            console.log(`Updating status for commission ${id}`);
+            
             const newStatus = prompt('Enter new status (pending, in-progress, completed, rejected):');
             if (!newStatus) return;
             
@@ -296,8 +308,6 @@
                 alert('Invalid status. Please use: pending, in-progress, completed, or rejected');
                 return;
             }
-            
-            console.log(`Updating commission ${id} to status: ${newStatus}`);
             
             fetch(`/api/admin/commissions/${id}`, {
                 method: 'PUT',
@@ -309,17 +319,20 @@
             .then(response => {
                 if (!response.ok) {
                     return response.text().then(text => {
+                        console.error("Server response:", text);
                         try {
                             const errorData = JSON.parse(text);
                             throw new Error(errorData.message || 'Failed to update status');
                         } catch (e) {
-                            throw new Error('Failed to update status');
+                            throw new Error(`Server error: ${response.status}`);
                         }
                     });
                 }
                 return response.json();
             })
             .then(data => {
+                console.log("Status update successful:", data);
+                
                 const row = document.querySelector(`tr[data-id="${id}"]`);
                 if (!row) {
                     throw new Error(`Could not find row with ID ${id}`);
