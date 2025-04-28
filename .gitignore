@@ -47,3 +47,4 @@ temp/
 # User-specific files
 .npmrc
 .yarnrc
+/data
