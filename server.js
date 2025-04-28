@@ -5,176 +5,56 @@ const app = express();
 const PORT = 3003;
 const http = require('http');
 const fs = require('fs');
-const mongoose = require('mongoose');
 
-// MongoDB connection string with authentication
-// URL encode the username and password to handle special characters
-const username = encodeURIComponent('user-admin');
-const password = encodeURIComponent('hmr7knd0xhp0TKC_ugy');
-const DB_URI = `mongodb://${username}:${password}@104.243.37.159:25060/titantech?authSource=admin`;
+// Setup local JSON storage
+const dataDir = path.join(__dirname, 'data');
+const commissionsFile = path.join(dataDir, 'commissions.json');
 
-console.log('Attempting to connect to MongoDB...');
-
-// Connect to MongoDB with more options
-mongoose.connect(DB_URI, { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 30000, // Increase timeout to 30s for initial connection
-  connectTimeoutMS: 30000, // Longer timeout for initial connection
-  socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-  retryWrites: true,
-  heartbeatFrequencyMS: 10000, // Send ping every 10 seconds to check connection
-})
-.then(() => console.log('Connected to MongoDB successfully'))
-.catch(err => {
-  console.error('MongoDB connection error:', err);
-  // Log more details if available
-  if (err.code) {
-    console.error('Error code:', err.code);
-  }
-  if (err.codeName) {
-    console.error('Error codeName:', err.codeName);
-  }
-  console.error('Error reason:', err.reason ? JSON.stringify(err.reason) : 'Unknown');
-  
-  // Try alternative connection string format as a fallback
-  console.log('Trying alternative MongoDB connection format...');
-  mongoose.connect(`mongodb://user-admin:hmr7knd0xhp0TKC_ugy@104.243.37.159:25060/titantech?authSource=admin`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000,
-    retryWrites: true
-  })
-  .then(() => console.log('Connected to MongoDB successfully with alternative format'))
-  .catch(altErr => {
-    console.error('Alternative MongoDB connection also failed:', altErr);
-    console.log('Will proceed without database connection - commission requests will be saved locally');
-  });
-});
-
-// Create a function to handle mongoose reconnection
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected! Attempting to reconnect...');
-});
-
-mongoose.connection.on('connected', () => {
-  console.log('MongoDB reconnected!');
-  
-  // When reconnected, check if there are offline commissions to sync
-  syncOfflineCommissions().catch(err => {
-    console.error('Error syncing offline commissions:', err);
-  });
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('MongoDB connection error:', err);
-});
-
-// Setup fallback for when database is not available
-const offlineCommissions = [];
-const offlineCommissionsFile = path.join(__dirname, 'commission_backup.json');
-
-// Load any existing offline commissions from backup file on startup
-try {
-  if (fs.existsSync(offlineCommissionsFile)) {
-    const savedCommissions = JSON.parse(fs.readFileSync(offlineCommissionsFile, 'utf8'));
-    if (Array.isArray(savedCommissions)) {
-      offlineCommissions.push(...savedCommissions);
-      console.log(`Loaded ${savedCommissions.length} offline commissions from backup file`);
-    }
-  }
-} catch (err) {
-  console.error('Error loading offline commissions:', err);
+// Create data directory if it doesn't exist
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+  console.log(`Created data directory at ${dataDir}`);
 }
 
-const isDbConnected = () => mongoose.connection.readyState === 1;
+// Initialize commissions storage
+let commissions = [];
 
-// Generate a unique ID for offline commissions
-function generateOfflineId() {
-  return 'offline_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-}
-
-// Function to sync offline commissions to MongoDB when connection is available
-async function syncOfflineCommissions() {
-  if (!isDbConnected() || offlineCommissions.length === 0) return;
-  
-  console.log(`Attempting to sync ${offlineCommissions.length} offline commissions to MongoDB...`);
-  
-  const syncedCommissions = [];
-  
-  for (const commission of offlineCommissions) {
-    try {
-      // Skip commissions that don't have required fields
-      if (!commission.discordUsername || !commission.botType || !commission.botDescription) {
-        console.warn('Skipping invalid commission:', commission);
-        continue;
-      }
-      
-      // Create a new commission document
-      const newCommission = new CommissionRequest({
-        discordUsername: commission.discordUsername,
-        email: commission.email || '',
-        botType: commission.botType,
-        botDescription: commission.botDescription,
-        budget: commission.budget,
-        timeframe: commission.timeframe,
-        submittedAt: commission.submittedAt || new Date(),
-        status: commission.status || 'pending'
-      });
-      
-      // Save to MongoDB
-      await newCommission.save();
-      syncedCommissions.push(commission);
-      console.log(`Synced commission from ${commission.discordUsername} to MongoDB`);
-    } catch (err) {
-      console.error(`Failed to sync commission ${commission.id || 'unknown'}:`, err);
+// Load existing commissions from JSON file
+function loadCommissions() {
+  try {
+    if (fs.existsSync(commissionsFile)) {
+      const data = fs.readFileSync(commissionsFile, 'utf8');
+      commissions = JSON.parse(data);
+      console.log(`Loaded ${commissions.length} commissions from ${commissionsFile}`);
+    } else {
+      console.log(`No commissions file found at ${commissionsFile}, starting with empty array`);
+      saveCommissions(); // Create the initial empty file
     }
-  }
-  
-  // Remove synced commissions from offline storage
-  if (syncedCommissions.length > 0) {
-    for (const synced of syncedCommissions) {
-      const index = offlineCommissions.findIndex(c => c.id === synced.id);
-      if (index !== -1) {
-        offlineCommissions.splice(index, 1);
-      }
-    }
-    
-    // Update the backup file
-    try {
-      fs.writeFileSync(
-        offlineCommissionsFile,
-        JSON.stringify(offlineCommissions, null, 2),
-        'utf8'
-      );
-      console.log(`Updated offline commissions file after syncing ${syncedCommissions.length} commissions`);
-    } catch (err) {
-      console.error('Error updating offline commissions file:', err);
-    }
+  } catch (err) {
+    console.error(`Error loading commissions from ${commissionsFile}:`, err);
+    commissions = []; // Start with empty array in case of error
   }
 }
 
-// Try to sync on startup after a delay to allow connection to establish
-setTimeout(() => {
-  syncOfflineCommissions().catch(err => {
-    console.error('Error in initial sync of offline commissions:', err);
-  });
-}, 30000);
+// Save commissions to JSON file
+function saveCommissions() {
+  try {
+    fs.writeFileSync(commissionsFile, JSON.stringify(commissions, null, 2), 'utf8');
+    console.log(`Saved ${commissions.length} commissions to ${commissionsFile}`);
+    return true;
+  } catch (err) {
+    console.error(`Error saving commissions to ${commissionsFile}:`, err);
+    return false;
+  }
+}
 
-// Define Commission Request Schema
-const commissionSchema = new mongoose.Schema({
-  discordUsername: { type: String, required: true },
-  email: String,
-  botType: { type: String, required: true },
-  botDescription: { type: String, required: true },
-  budget: Number,
-  timeframe: String,
-  submittedAt: { type: Date, default: Date.now },
-  status: { type: String, default: 'pending' }
-});
+// Generate a unique ID for commissions
+function generateId() {
+  return 'commission_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
 
-// Create model
-const CommissionRequest = mongoose.model('CommissionRequest', commissionSchema);
+// Load commissions at startup
+loadCommissions();
 
 // Simple in-memory user store (replace with database in production)
 const users = [
@@ -443,55 +323,32 @@ app.post('/api/commission', async (req, res) => {
     console.log('New commission request received:');
     console.log(req.body);
     
-    if (!isDbConnected()) {
-      // Store in memory if database is not connected
-      console.log('Database not connected. Storing commission in memory.');
-      const timestamp = new Date();
-      const newOfflineCommission = {
-        id: generateOfflineId(),
-        discordUsername: req.body.discordUsername,
-        email: req.body.email || '',
-        botType: req.body.botType,
-        botDescription: req.body.botDescription,
-        budget: req.body.budget ? Number(req.body.budget) : undefined,
-        timeframe: req.body.timeframe,
-        submittedAt: timestamp,
-        status: 'pending'
-      };
-      
-      offlineCommissions.push(newOfflineCommission);
-      
-      // Write to a local backup file as well
-      fs.writeFileSync(
-        offlineCommissionsFile, 
-        JSON.stringify(offlineCommissions, null, 2), 
-        'utf8'
-      );
-      
-      res.json({
-        success: true,
-        message: 'Commission request received successfully (offline mode)'
-      });
-      return;
-    }
-    
-    // Create a new commission request document
-    const newCommission = new CommissionRequest({
+    // Create a new commission
+    const timestamp = new Date();
+    const newCommission = {
+      id: generateId(),
       discordUsername: req.body.discordUsername,
       email: req.body.email || '',
       botType: req.body.botType,
       botDescription: req.body.botDescription,
       budget: req.body.budget ? Number(req.body.budget) : undefined,
-      timeframe: req.body.timeframe
-    });
+      timeframe: req.body.timeframe,
+      submittedAt: timestamp,
+      status: 'pending'
+    };
     
-    // Save to database
-    await newCommission.save();
+    // Add to commissions array
+    commissions.push(newCommission);
     
-    res.json({
-      success: true,
-      message: 'Commission request received successfully'
-    });
+    // Save to JSON file
+    if (saveCommissions()) {
+      res.json({
+        success: true,
+        message: 'Commission request received successfully'
+      });
+    } else {
+      throw new Error('Failed to save commission to disk');
+    }
   } catch (error) {
     console.error('Error saving commission request:', error);
     res.status(500).json({
@@ -505,14 +362,7 @@ app.post('/api/commission', async (req, res) => {
 // Add an admin endpoint to view commission requests
 app.get('/api/admin/commissions', isAuthenticated, isAdmin, async (req, res) => {
   try {
-    if (!isDbConnected()) {
-      // Return in-memory commissions if DB is not available
-      console.log(`Returning ${offlineCommissions.length} offline commissions`);
-      return res.json(offlineCommissions);
-    }
-    
-    const commissions = await CommissionRequest.find().sort({ submittedAt: -1 });
-    console.log(`Returning ${commissions.length} commissions from database`);
+    console.log(`Returning ${commissions.length} commissions from JSON file`);
     res.json(commissions);
   } catch (error) {
     console.error('Error fetching commission requests:', error);
@@ -541,53 +391,30 @@ app.put('/api/admin/commissions/:id', isAuthenticated, isAdmin, async (req, res)
       });
     }
     
-    if (!isDbConnected()) {
-      // Handle updates for in-memory commissions
-      const index = offlineCommissions.findIndex(c => c.id === id);
-      console.log(`Looking for offline commission with ID: ${id}, found at index: ${index}`);
-      
-      if (index === -1) {
-        return res.status(404).json({
-          success: false,
-          message: 'Commission request not found'
-        });
-      }
-      
-      offlineCommissions[index].status = status;
-      
-      // Update the backup file
-      fs.writeFileSync(
-        offlineCommissionsFile, 
-        JSON.stringify(offlineCommissions, null, 2), 
-        'utf8'
-      );
-      
-      return res.json({
-        success: true,
-        message: 'Commission status updated (offline mode)',
-        commission: offlineCommissions[index]
-      });
-    }
+    // Find the commission by id
+    const index = commissions.findIndex(c => c.id === id);
+    console.log(`Looking for commission with ID: ${id}, found at index: ${index}`);
     
-    // Update commission status in DB
-    const commission = await CommissionRequest.findByIdAndUpdate(
-      id, 
-      { status }, 
-      { new: true }
-    );
-    
-    if (!commission) {
+    if (index === -1) {
       return res.status(404).json({
         success: false,
         message: 'Commission request not found'
       });
     }
     
-    res.json({
-      success: true,
-      message: 'Commission status updated',
-      commission
-    });
+    // Update the status
+    commissions[index].status = status;
+    
+    // Save to JSON file
+    if (saveCommissions()) {
+      return res.json({
+        success: true,
+        message: 'Commission status updated',
+        commission: commissions[index]
+      });
+    } else {
+      throw new Error('Failed to save updated commission to disk');
+    }
   } catch (error) {
     console.error('Error updating commission status:', error);
     res.status(500).json({
