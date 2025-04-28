@@ -8,6 +8,33 @@
     background-position: center;
     margin-bottom: 2rem;
     border-radius: 8px;
+    position: relative; /* Added for positioning the back button */
+}
+
+/* Back button styling */
+.back-button {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: var(--primary-color);
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.back-button i {
+    margin-right: 8px;
+}
+
+.back-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateX(-5px);
 }
 
 .commission-intro h2 {
