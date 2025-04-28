@@ -11,15 +11,19 @@ const mongoose = require('mongoose');
 // URL encode the username and password to handle special characters
 const username = encodeURIComponent('user-admin');
 const password = encodeURIComponent('hmr7knd0xhp0TKC_ugy');
-const DB_URI = `mongodb://admin:hmr7knd0xhp0TKC_ugy@104.243.37.159:25060/titantech?authSource=admin`;
+const DB_URI = `mongodb://${username}:${password}@104.243.37.159:25060/titantech?authSource=admin`;
+
+console.log('Attempting to connect to MongoDB...');
 
 // Connect to MongoDB with more options
 mongoose.connect(DB_URI, { 
   useNewUrlParser: true, 
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-  connectTimeoutMS: 10000, // Give up initial connection after 10s
+  serverSelectionTimeoutMS: 30000, // Increase timeout to 30s for initial connection
+  connectTimeoutMS: 30000, // Longer timeout for initial connection
   socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+  retryWrites: true,
+  heartbeatFrequencyMS: 10000, // Send ping every 10 seconds to check connection
 })
 .then(() => console.log('Connected to MongoDB successfully'))
 .catch(err => {
@@ -31,7 +35,39 @@ mongoose.connect(DB_URI, {
   if (err.codeName) {
     console.error('Error codeName:', err.codeName);
   }
-  console.log('Will proceed without database connection - commission requests will not be saved');
+  console.error('Error reason:', err.reason ? JSON.stringify(err.reason) : 'Unknown');
+  
+  // Try alternative connection string format as a fallback
+  console.log('Trying alternative MongoDB connection format...');
+  mongoose.connect(`mongodb://user-admin:hmr7knd0xhp0TKC_ugy@104.243.37.159:25060/titantech?authSource=admin`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000,
+    retryWrites: true
+  })
+  .then(() => console.log('Connected to MongoDB successfully with alternative format'))
+  .catch(altErr => {
+    console.error('Alternative MongoDB connection also failed:', altErr);
+    console.log('Will proceed without database connection - commission requests will be saved locally');
+  });
+});
+
+// Create a function to handle mongoose reconnection
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected! Attempting to reconnect...');
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB reconnected!');
+  
+  // When reconnected, check if there are offline commissions to sync
+  syncOfflineCommissions().catch(err => {
+    console.error('Error syncing offline commissions:', err);
+  });
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
 });
 
 // Setup fallback for when database is not available
@@ -57,6 +93,73 @@ const isDbConnected = () => mongoose.connection.readyState === 1;
 function generateOfflineId() {
   return 'offline_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
+
+// Function to sync offline commissions to MongoDB when connection is available
+async function syncOfflineCommissions() {
+  if (!isDbConnected() || offlineCommissions.length === 0) return;
+  
+  console.log(`Attempting to sync ${offlineCommissions.length} offline commissions to MongoDB...`);
+  
+  const syncedCommissions = [];
+  
+  for (const commission of offlineCommissions) {
+    try {
+      // Skip commissions that don't have required fields
+      if (!commission.discordUsername || !commission.botType || !commission.botDescription) {
+        console.warn('Skipping invalid commission:', commission);
+        continue;
+      }
+      
+      // Create a new commission document
+      const newCommission = new CommissionRequest({
+        discordUsername: commission.discordUsername,
+        email: commission.email || '',
+        botType: commission.botType,
+        botDescription: commission.botDescription,
+        budget: commission.budget,
+        timeframe: commission.timeframe,
+        submittedAt: commission.submittedAt || new Date(),
+        status: commission.status || 'pending'
+      });
+      
+      // Save to MongoDB
+      await newCommission.save();
+      syncedCommissions.push(commission);
+      console.log(`Synced commission from ${commission.discordUsername} to MongoDB`);
+    } catch (err) {
+      console.error(`Failed to sync commission ${commission.id || 'unknown'}:`, err);
+    }
+  }
+  
+  // Remove synced commissions from offline storage
+  if (syncedCommissions.length > 0) {
+    for (const synced of syncedCommissions) {
+      const index = offlineCommissions.findIndex(c => c.id === synced.id);
+      if (index !== -1) {
+        offlineCommissions.splice(index, 1);
+      }
+    }
+    
+    // Update the backup file
+    try {
+      fs.writeFileSync(
+        offlineCommissionsFile,
+        JSON.stringify(offlineCommissions, null, 2),
+        'utf8'
+      );
+      console.log(`Updated offline commissions file after syncing ${syncedCommissions.length} commissions`);
+    } catch (err) {
+      console.error('Error updating offline commissions file:', err);
+    }
+  }
+}
+
+// Try to sync on startup after a delay to allow connection to establish
+setTimeout(() => {
+  syncOfflineCommissions().catch(err => {
+    console.error('Error in initial sync of offline commissions:', err);
+  });
+}, 30000);
 
 // Define Commission Request Schema
 const commissionSchema = new mongoose.Schema({
