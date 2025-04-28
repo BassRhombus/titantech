@@ -464,7 +464,7 @@
   {
     "sku": "UGC_M_JG179QX7QN_SK",
     "name": "Maplewood",
-    "description": "Psycho Dodo Clan presents: Maplewood\nA great 10x10 expanse of forest, grasslands, marsh/wetlands/sloughs, and lakes/rivers!\nLook for information signs, learn about the park!\nHigh altitude brings great fog!\nTime and weather control are now brought up by chat command  /CallUDS\nCommunity servers - grant permission by putting the following on your command.ini\n+Permission=CallUDS\n\n*PHOTOSENSATIVITY WARNING: THIS MAP HAS LIGHTNING!*\n\nSpecial thanks to Fortress (FBTH) for helping me out with some aspects of the map!",
+    "description": "Psycho Dodo Clan presents: Maplewood\nA great 10x10 expanse of forest, grasslands, marsh/wetlands/sloughs, and lakes/rivers!\nLook for information signs, learn about the park!\nHigh altitude brings great fog!\nTime and weather control are now brought up by chat command  /CallUDS\nCommunity servers - grant permission by putting the following on your command.ini\n+Permission=CallUDS\n\nConsole: advise - if you cannot select the \"close\" button, press right thumbstick to put the widget away \n\n*PHOTOSENSATIVITY WARNING: THIS MAP HAS LIGHTNING!*\n\nSpecial thanks to Fortress (FBTH) for helping me out with some aspects of the map!",
     "icon": "https://web-cdn.alderongames.com/files/1402/conversions/spring-pic-icon.jpg"
   },
   {
@@ -622,12 +622,6 @@
     "name": "Stoneclaw Highlands",
     "description": "This 4km x 4km map is perfect for a smaller group of players that enjoy wide open spaces and rolling hillsides. Discover hidden secrets and stories on this Scotland-inspired lush landscape.",
     "icon": "https://web-cdn.alderongames.com/files/75/daf3eeae9d3aeb5bdf9a2b9f86ba8bab.jpg"
-  },
-  {
-    "sku": "UGC_M_4RM0K330ZY_SK",
-    "name": "Tear",
-    "description": "A small map.",
-    "icon": "https://web-cdn.alderongames.com/files/1401/conversions/IMG_7577-icon.jpg"
   },
   {
     "sku": "UGC_M_RD1EPJ9EXG_SK",

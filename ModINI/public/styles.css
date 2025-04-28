@@ -22,12 +22,35 @@ header {
     color: white;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
 }
 
 header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
     color: #4CAF50;
+}
+
+.commission-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #FF5722;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 15px;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.commission-btn:hover {
+    background-color: #E64A19;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.4);
 }
 
 /* Controls and Search */
@@ -246,6 +269,122 @@ header h1 {
     color: #888;
     font-style: italic;
     font-size: 0.9rem;
+}
+
+/* Commission Form Styling */
+.form-container {
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: #1e1e1e;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
+}
+
+.form-container h2 {
+    color: #4CAF50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: #252525;
+    border: 1px solid #333;
+    color: #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.form-group textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+
+.submit-btn {
+    padding: 12px 25px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    width: 100%;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.form-note {
+    text-align: center;
+    color: #999;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.form-success {
+    text-align: center;
+    color: #4CAF50;
+    background-color: rgba(76, 175, 80, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.form-error {
+    text-align: center;
+    color: #f44336;
+    background-color: rgba(244, 67, 54, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    margin-top: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background-color: #444;
 }
 
 /* Responsive Design */
