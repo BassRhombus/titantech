@@ -381,6 +381,11 @@ app.put('/api/admin/commissions/:id', isAuthenticated, isAdmin, async (req, res)
     const { status } = req.body;
     
     console.log(`Attempting to update commission ${id} to status: ${status}`);
+    console.log(`Current commissions: ${commissions.length} total`);
+    
+    // Debug: List all commission IDs to check if the requested one exists
+    const commissionIds = commissions.map(c => c.id);
+    console.log(`Available commission IDs: ${JSON.stringify(commissionIds)}`);
     
     // Validate status
     const validStatuses = ['pending', 'in-progress', 'completed', 'rejected'];
@@ -396,10 +401,38 @@ app.put('/api/admin/commissions/:id', isAuthenticated, isAdmin, async (req, res)
     console.log(`Looking for commission with ID: ${id}, found at index: ${index}`);
     
     if (index === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'Commission request not found'
-      });
+      // Try to reload commissions from disk in case they were updated elsewhere
+      try {
+        loadCommissions();
+        const newIndex = commissions.findIndex(c => c.id === id);
+        
+        if (newIndex === -1) {
+          return res.status(404).json({
+            success: false,
+            message: 'Commission request not found'
+          });
+        } else {
+          console.log(`Found commission after reload at index: ${newIndex}`);
+          // Continue with the found index
+          commissions[newIndex].status = status;
+          
+          if (saveCommissions()) {
+            return res.json({
+              success: true,
+              message: 'Commission status updated after reload',
+              commission: commissions[newIndex]
+            });
+          } else {
+            throw new Error('Failed to save updated commission to disk after reload');
+          }
+        }
+      } catch (reloadError) {
+        console.error('Error reloading commissions:', reloadError);
+        return res.status(404).json({
+          success: false,
+          message: 'Commission request not found and reload failed'
+        });
+      }
     }
     
     // Update the status
