@@ -396,31 +396,58 @@ app.put('/api/admin/commissions/:id', isAuthenticated, isAdmin, async (req, res)
       });
     }
     
-    // Find the commission by id
-    const index = commissions.findIndex(c => c.id === id);
+    // Find the commission by id - handle both direct match and MongoDB ObjectId string formats
+    let index = commissions.findIndex(c => c.id === id);
+    
+    // If not found, try matching just the timestamp part of the ID (for backward compatibility)
+    if (index === -1 && id.includes('_')) {
+      const idParts = id.split('_');
+      if (idParts.length >= 2) {
+        const timestampPart = idParts[1];
+        index = commissions.findIndex(c => 
+          c.id && c.id.includes(timestampPart)
+        );
+        console.log(`Tried matching by timestamp part: ${timestampPart}, found at index: ${index}`);
+      }
+    }
+    
     console.log(`Looking for commission with ID: ${id}, found at index: ${index}`);
     
     if (index === -1) {
       // Try to reload commissions from disk in case they were updated elsewhere
       try {
         loadCommissions();
-        const newIndex = commissions.findIndex(c => c.id === id);
         
-        if (newIndex === -1) {
+        // Try direct match again after reload
+        index = commissions.findIndex(c => c.id === id);
+        
+        // If still not found, try the timestamp part matching again
+        if (index === -1 && id.includes('_')) {
+          const idParts = id.split('_');
+          if (idParts.length >= 2) {
+            const timestampPart = idParts[1];
+            index = commissions.findIndex(c => 
+              c.id && c.id.includes(timestampPart)
+            );
+            console.log(`After reload, tried matching by timestamp part: ${timestampPart}, found at index: ${index}`);
+          }
+        }
+        
+        if (index === -1) {
           return res.status(404).json({
             success: false,
             message: 'Commission request not found'
           });
         } else {
-          console.log(`Found commission after reload at index: ${newIndex}`);
+          console.log(`Found commission after reload at index: ${index}`);
           // Continue with the found index
-          commissions[newIndex].status = status;
+          commissions[index].status = status;
           
           if (saveCommissions()) {
             return res.json({
               success: true,
               message: 'Commission status updated after reload',
-              commission: commissions[newIndex]
+              commission: commissions[index]
             });
           } else {
             throw new Error('Failed to save updated commission to disk after reload');
