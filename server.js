@@ -333,6 +333,7 @@ app.post('/api/commission', async (req, res) => {
       botDescription: req.body.botDescription,
       budget: req.body.budget ? Number(req.body.budget) : undefined,
       timeframe: req.body.timeframe,
+      tosAgreement: req.body.tosAgreement === true,
       submittedAt: timestamp,
       status: 'pending'
     };

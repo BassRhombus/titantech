@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 botType: document.getElementById('botType').value,
                 botDescription: document.getElementById('botDescription').value,
                 budget: document.getElementById('budget').value,
-                timeframe: document.getElementById('timeframe').value
+                timeframe: document.getElementById('timeframe').value,
+                tosAgreement: document.getElementById('tosAgreement').checked
             };
             
             // Show loading state and set a loading message
