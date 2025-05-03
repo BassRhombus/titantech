@@ -5,10 +5,45 @@ const app = express();
 const PORT = 3003;
 const http = require('http');
 const fs = require('fs');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 
 // Setup local JSON storage
 const dataDir = path.join(__dirname, 'data');
 const commissionsFile = path.join(dataDir, 'commissions.json');
+const showcaseFile = path.join(dataDir, 'showcase.json');
+
+// Set up multer storage for image uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, 'uploads', 'showcase');
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueId = uuidv4();
+    const ext = path.extname(file.originalname);
+    cb(null, `showcase_${uniqueId}${ext}`);
+  }
+});
+
+// Create upload middleware with file size and type restrictions
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Accept only image files
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed'));
+    }
+    cb(null, true);
+  }
+});
 
 // Create data directory if it doesn't exist
 if (!fs.existsSync(dataDir)) {
@@ -16,8 +51,9 @@ if (!fs.existsSync(dataDir)) {
   console.log(`Created data directory at ${dataDir}`);
 }
 
-// Initialize commissions storage
+// Initialize storage
 let commissions = [];
+let showcaseItems = [];
 
 // Load existing commissions from JSON file
 function loadCommissions() {
@@ -36,6 +72,23 @@ function loadCommissions() {
   }
 }
 
+// Load existing showcase items from JSON file
+function loadShowcaseItems() {
+  try {
+    if (fs.existsSync(showcaseFile)) {
+      const data = fs.readFileSync(showcaseFile, 'utf8');
+      showcaseItems = JSON.parse(data);
+      console.log(`Loaded ${showcaseItems.length} showcase items from ${showcaseFile}`);
+    } else {
+      console.log(`No showcase file found at ${showcaseFile}, starting with empty array`);
+      saveShowcaseItems(); // Create the initial empty file
+    }
+  } catch (err) {
+    console.error(`Error loading showcase items from ${showcaseFile}:`, err);
+    showcaseItems = []; // Start with empty array in case of error
+  }
+}
+
 // Save commissions to JSON file
 function saveCommissions() {
   try {
@@ -48,13 +101,26 @@ function saveCommissions() {
   }
 }
 
+// Save showcase items to JSON file
+function saveShowcaseItems() {
+  try {
+    fs.writeFileSync(showcaseFile, JSON.stringify(showcaseItems, null, 2), 'utf8');
+    console.log(`Saved ${showcaseItems.length} showcase items to ${showcaseFile}`);
+    return true;
+  } catch (err) {
+    console.error(`Error saving showcase items to ${showcaseFile}:`, err);
+    return false;
+  }
+}
+
 // Generate a unique ID for commissions
 function generateId() {
   return 'commission_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
-// Load commissions at startup
+// Load commissions and showcase items at startup
 loadCommissions();
+loadShowcaseItems();
 
 // Simple in-memory user store (replace with database in production)
 const users = [
@@ -484,6 +550,241 @@ app.put('/api/admin/commissions/:id', isAuthenticated, isAdmin, async (req, res)
       error: error.message
     });
   }
+});
+
+// Add an endpoint to upload showcase items
+app.post('/api/showcase', isAuthenticated, upload.single('image'), async (req, res) => {
+  try {
+    const newShowcaseItem = {
+      id: uuidv4(),
+      title: req.body.title,
+      description: req.body.description,
+      imagePath: req.file.path,
+      uploadedAt: new Date()
+    };
+
+    showcaseItems.push(newShowcaseItem);
+
+    if (saveShowcaseItems()) {
+      res.json({
+        success: true,
+        message: 'Showcase item uploaded successfully',
+        item: newShowcaseItem
+      });
+    } else {
+      throw new Error('Failed to save showcase item to disk');
+    }
+  } catch (error) {
+    console.error('Error uploading showcase item:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload showcase item',
+      error: error.message
+    });
+  }
+});
+
+// Showcase API endpoints
+
+// Public endpoint to get approved showcase items
+app.get('/api/showcase', (req, res) => {
+  try {
+    // Only return approved items for public view
+    const approvedItems = showcaseItems.filter(item => item.status === 'approved');
+    res.json(approvedItems);
+  } catch (error) {
+    console.error('Error fetching showcase items:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch showcase items',
+      error: error.message
+    });
+  }
+});
+
+// Endpoint to submit a new showcase item
+app.post('/api/showcase/submit', upload.single('imageFile'), (req, res) => {
+  try {
+    // Validate required fields
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided'
+      });
+    }
+
+    if (!req.body.imageTitle || !req.body.authorName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+
+    // Create a new showcase item
+    const timestamp = new Date();
+    const newShowcaseItem = {
+      id: uuidv4(),
+      imageTitle: req.body.imageTitle,
+      imageDescription: req.body.imageDescription || '',
+      imagePath: '/uploads/showcase/' + req.file.filename, // Store path relative to public directory
+      authorName: req.body.authorName,
+      submittedAt: timestamp,
+      status: 'pending', // All submissions start with pending status
+      likes: 0
+    };
+    
+    // Add to showcase items array
+    showcaseItems.push(newShowcaseItem);
+    
+    // Save to JSON file
+    if (saveShowcaseItems()) {
+      res.json({
+        success: true,
+        message: 'Your submission has been received and is pending approval by our team.'
+      });
+    } else {
+      throw new Error('Failed to save showcase item to disk');
+    }
+  } catch (error) {
+    console.error('Error submitting showcase item:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process showcase submission',
+      error: error.message
+    });
+  }
+});
+
+// Admin endpoint to get all showcase items (for management)
+app.get('/api/admin/showcase', isAuthenticated, isAdmin, (req, res) => {
+  try {
+    res.json(showcaseItems);
+  } catch (error) {
+    console.error('Error fetching showcase items for admin:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch showcase items',
+      error: error.message
+    });
+  }
+});
+
+// Admin endpoint to update showcase item status
+app.put('/api/admin/showcase/:id', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, reason } = req.body;
+    
+    // Validate status
+    const validStatuses = ['pending', 'approved', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid status value' 
+      });
+    }
+    
+    // Find the item by id
+    const index = showcaseItems.findIndex(item => item.id === id);
+    
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Showcase item not found'
+      });
+    }
+    
+    // Update the status
+    showcaseItems[index].status = status;
+    
+    // Add reason if provided (for rejections)
+    if (reason) {
+      showcaseItems[index].rejectionReason = reason;
+    }
+    
+    // Add timestamp for the status change
+    if (status === 'approved') {
+      showcaseItems[index].approvedAt = new Date();
+    } else if (status === 'rejected') {
+      showcaseItems[index].rejectedAt = new Date();
+    }
+    
+    // Save to JSON file
+    if (saveShowcaseItems()) {
+      return res.json({
+        success: true,
+        message: 'Showcase item status updated',
+        item: showcaseItems[index]
+      });
+    } else {
+      throw new Error('Failed to save updated showcase item to disk');
+    }
+  } catch (error) {
+    console.error('Error updating showcase item status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update showcase item status',
+      error: error.message
+    });
+  }
+});
+
+// Admin endpoint to delete a showcase item
+app.delete('/api/admin/showcase/:id', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find the item by id
+    const index = showcaseItems.findIndex(item => item.id === id);
+    
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Showcase item not found'
+      });
+    }
+    
+    // Get the image path for deletion
+    const imagePath = showcaseItems[index].imagePath;
+    
+    // Remove from array
+    showcaseItems.splice(index, 1);
+    
+    // Save to JSON file
+    if (saveShowcaseItems()) {
+      // Try to delete the image file (but don't fail if we can't)
+      if (imagePath) {
+        const fullImagePath = path.join(__dirname, imagePath);
+        if (fs.existsSync(fullImagePath)) {
+          try {
+            fs.unlinkSync(fullImagePath);
+            console.log(`Deleted showcase image file: ${fullImagePath}`);
+          } catch (err) {
+            console.error(`Warning: Could not delete showcase image file ${fullImagePath}:`, err);
+          }
+        }
+      }
+      
+      return res.json({
+        success: true,
+        message: 'Showcase item deleted successfully'
+      });
+    } else {
+      throw new Error('Failed to save showcase items to disk after deletion');
+    }
+  } catch (error) {
+    console.error('Error deleting showcase item:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete showcase item',
+      error: error.message
+    });
+  }
+});
+
+// Admin route for showcase management page
+app.get('/admin-showcase.html', isAuthenticated, isAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-showcase.html'));
 });
 
 // Set up automatic refresh of mods data every 5 minutes

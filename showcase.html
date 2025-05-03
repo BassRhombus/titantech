@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-adsense-account" content="ca-pub-1883759877039329">
+    <title>Showcase Gallery - TitanTech Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/showcase.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1883759877039329" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="TitanTech Hub Logo" class="logo">
+            <h1>TitanTech Hub</h1>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="mod-manager.html">Mod Manager</a></li>
+                <li><a href="community.html">Community</a></li>
+                <li><a href="servers.html">Game Servers</a></li>
+                <li><a href="bots.html">Bots/Scripts</a></li>
+                <li><a href="showcase.html" class="active">Showcase</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="login.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+            </ul>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="showcase-intro">
+            <h2>Community Showcase</h2>
+            <p>Explore amazing content created by our community members</p>
+            <a href="showcase-submit.html" class="cta-primary"><i class="fas fa-upload"></i> Submit Your Content</a>
+        </section>
+
+        <section class="showcase-gallery-section">
+            <div class="filter-controls">
+                <div class="showcase-search">
+                    <input type="text" id="gallerySearch" placeholder="Search gallery...">
+                </div>
+                <div class="showcase-filter">
+                    <select id="categoriesFilter">
+                        <option value="all">All Categories</option>
+                        <option value="screenshots">Screenshots</option>
+                        <option value="artwork">Artwork</option>
+                        <option value="memes">Memes</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="showcase-sort">
+                    <select id="sortOptions">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="popular">Most Popular</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="showcaseGallery" class="showcase-gallery">
+                <!-- Gallery items will be loaded dynamically via JavaScript -->
+                <div class="loading-gallery">
+                    <div class="spinner"></div>
+                    <p>Loading gallery...</p>
+                </div>
+            </div>
+
+            <div class="pagination-controls">
+                <button id="loadMoreBtn" class="load-more-btn">Load More</button>
+            </div>
+        </section>
+
+        <!-- Image Modal for enlarged view -->
+        <div id="imageModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <div class="modal-image-container">
+                    <img id="modalImage" src="" alt="Full size image">
+                </div>
+                <div class="modal-details">
+                    <h2 id="modalTitle"></h2>
+                    <p id="modalDescription"></p>
+                    <div class="modal-author">
+                        <span>By: </span><span id="modalAuthor"></span>
+                    </div>
+                    <div class="modal-stats">
+                        <span class="modal-date" id="modalDate"></span>
+                        <span class="modal-likes">
+                            <i class="fas fa-heart"></i> <span id="likesCount">0</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/footer-logo.png" alt="TitanTech Hub">
+                <p>TitanTech Hub - Game Server Management</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="mod-manager.html">Mod Manager</a></li>
+                    <li><a href="community.html">Community</a></li>
+                    <li><a href="servers.html">Game Servers</a></li>
+                    <li><a href="bots.html">Bots/Scripts</a></li>
+                    <li><a href="showcase.html">Showcase</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Connect With Us</h4>
+                <div class="social-icons">
+                    <a href="https://discord.gg/bgvCWqdW" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-reddit"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025. Not affiliated with Path of Titans.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/showcase.js"></script>
+</body>
+</html>

@@ -42,6 +42,7 @@
                     <a href="admin-users.html"><i class="fas fa-users"></i> Manage Users</a>
                     <a href="admin-mods.html"><i class="fas fa-puzzle-piece"></i> Manage Mods</a>
                     <a href="admin-commissions.html"><i class="fas fa-robot"></i> Bot Commissions</a>
+                    <a href="admin-showcase.html"><i class="fas fa-image"></i> Showcase Submissions</a>
                     <a href="admin-reports.html"><i class="fas fa-flag"></i> Reports</a>
                     <a href="admin-settings.html"><i class="fas fa-cog"></i> Admin Settings</a>
                     <a href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
@@ -223,6 +224,21 @@
                 })
                 .catch(error => {
                     console.error('Error fetching commission data:', error);
+                });
+                
+            // Load showcase submissions count for badge
+            fetch('/api/admin/showcase')
+                .then(response => response.json())
+                .then(data => {
+                    // Highlight if there are pending showcase submissions
+                    const pendingShowcase = data.filter(s => s.status === 'pending').length;
+                    if (pendingShowcase > 0) {
+                        const showcaseLink = document.querySelector('a[href="admin-showcase.html"]');
+                        showcaseLink.innerHTML += ` <span class="badge">${pendingShowcase}</span>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching showcase data:', error);
                 });
         }
         

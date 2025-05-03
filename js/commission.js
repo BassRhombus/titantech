@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Collect form data
             const formData = {
                 discordUsername: document.getElementById('discordUsername').value,
-                email: document.getElementById('email').value,
                 botType: document.getElementById('botType').value,
                 botDescription: document.getElementById('botDescription').value,
                 budget: document.getElementById('budget').value,

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showcase Manager - Admin Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/showcase.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .showcase-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .showcase-table th, .showcase-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        
+        .showcase-table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .showcase-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        .thumbnail-container {
+            width: 100px;
+            height: 60px;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+        
+        .thumbnail-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .detail-row {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .detail-row > td {
+            padding: 20px !important;
+        }
+        
+        .submission-detail {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .submission-image {
+            flex: 0 0 300px;
+            max-width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .submission-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .submission-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        /* Status badge styling */
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        .status-badge.pending {
+            background-color: #f0ad4e;
+            color: #fff;
+        }
+        
+        .status-badge.approved {
+            background-color: #5cb85c;
+            color: #fff;
+        }
+        
+        .status-badge.rejected {
+            background-color: #d9534f;
+            color: #fff;
+        }
+        
+        /* Button styling */
+        .action-buttons button {
+            margin: 0 2px;
+            padding: 5px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: transparent;
+            transition: background-color 0.2s;
+        }
+        
+        .action-buttons button:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .view-btn {
+            color: #5bc0de;
+        }
+        
+        .approve-btn {
+            color: #5cb85c;
+        }
+        
+        .reject-btn {
+            color: #d9534f;
+        }
+        
+        .edit-btn {
+            color: #f0ad4e;
+        }
+        
+        .delete-btn {
+            color: #d9534f;
+        }
+        
+        .detail-actions button {
+            margin-right: 8px;
+            margin-top: 10px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .detail-actions .approve-btn {
+            background-color: #5cb85c;
+        }
+        
+        .detail-actions .reject-btn {
+            background-color: #d9534f;
+        }
+        
+        .detail-actions .edit-btn {
+            background-color: #f0ad4e;
+        }
+        
+        .detail-actions .delete-btn {
+            background-color: #d9534f;
+        }
+        
+        .loading-data, .error-message, .empty-table {
+            text-align: center;
+            padding: 30px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .error-message {
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="TitanTech Hub Logo" class="logo">
+            <h1>TitanTech Hub</h1>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="admin.html">Server Management</a></li>
+                <li><a href="admin-commissions.html">Bot Commissions</a></li>
+                <li><a href="admin-showcase.html" class="active">Showcase Manager</a></li>
+                <li class="user-dropdown">
+                    <a href="#" id="userDropdownBtn">
+                        <span id="username">Admin</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="admin-content">
+        <section class="admin-header">
+            <h2><i class="fas fa-images"></i> Showcase Submissions Manager</h2>
+            <p>Review and manage community image submissions</p>
+        </section>
+
+        <section class="admin-panel">
+            <div class="admin-controls">
+                <div class="search-filter">
+                    <input type="text" id="showcaseSearchInput" placeholder="Search submissions...">
+                    <select id="showcaseStatusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="pending" selected>Pending Approval</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="refresh-container">
+                    <button id="refreshBtn" class="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="showcase-table">
+                    <thead>
+                        <tr>
+                            <th>Thumbnail</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="showcaseTableBody">
+                        <tr>
+                            <td colspan="6" class="loading-data">Loading submissions...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/admin-showcase.js"></script>
+</body>
+</html>
