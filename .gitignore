@@ -48,3 +48,4 @@ temp/
 .npmrc
 .yarnrc
 /data
+/uploads

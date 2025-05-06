@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Variables
     let selectedFile = null;
     
+    // Image settings - these are critical for proper resizing
+    const MAX_WIDTH = 1000;
+    const MAX_HEIGHT = 800;
+    const QUALITY = 0.75; // 75% quality for JPEG
+    const TARGET_FILE_SIZE = 1 * 1024 * 1024; // Target 1MB for better upload reliability
+    
     // Add event listeners
     if (submitForm) {
         // File drop area events
@@ -57,61 +63,136 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function handleDrop(e) {
         const dt = e.dataTransfer;
-        const files = dt.files;
-        
-        if (files.length > 0) {
-            handleFiles(files);
-        }
+        handleFiles(dt.files);
     }
     
     function handleFileSelect(e) {
-        const files = e.target.files;
-        
-        if (files.length > 0) {
-            handleFiles(files);
-        }
+        handleFiles(e.target.files);
     }
     
     function handleFiles(files) {
-        if (files[0]) {
-            // Check file type
-            const file = files[0];
-            const fileType = file.type;
-            
-            if (!fileType.match('image.*')) {
-                alert('Please select an image file (JPEG, PNG, or GIF).');
-                return;
-            }
-            
-            // Check file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size exceeds 5MB. Please select a smaller image.');
-                return;
-            }
-            
-            selectedFile = file;
-            
-            // Preview image
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                previewContainer.style.display = 'block';
-                
-                // Add drop area instruction that file is selected
-                dropArea.querySelector('.drop-instructions').innerHTML = `
-                    <i class="fas fa-check-circle" style="color: #2F9E41;"></i>
-                    <p>Image selected: ${file.name}</p>
-                    <span class="file-requirements">Click to select a different image</span>
-                `;
-            };
-            reader.readAsDataURL(file);
+        if (files.length === 0) return;
+        
+        const file = files[0];
+        // Check if file is an image
+        if (!file.type.match('image.*')) {
+            alert('Please select an image file (JPEG, PNG, etc.)');
+            return;
         }
+        
+        // Show loading state in drop area
+        dropArea.querySelector('.drop-instructions').innerHTML = `
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Processing image...</p>
+        `;
+        
+        // Read the file and process it
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Create an image element to get dimensions
+            const img = new Image();
+            img.onload = function() {
+                // Determine scaling factor
+                let scaleFactor = 1;
+                if (img.width > MAX_WIDTH || img.height > MAX_HEIGHT) {
+                    scaleFactor = Math.min(MAX_WIDTH / img.width, MAX_HEIGHT / img.height);
+                }
+                
+                // Calculate new dimensions
+                const newWidth = Math.floor(img.width * scaleFactor);
+                const newHeight = Math.floor(img.height * scaleFactor);
+                
+                // Create canvas for resizing
+                const canvas = document.createElement('canvas');
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                
+                // Draw image on canvas with new dimensions
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                
+                // Convert to file (reduced quality JPEG for maximum compatibility)
+                const outputFormat = 'image/jpeg';
+                
+                // For reliability, we'll try up to 3 compression levels if needed
+                compressImage(canvas, outputFormat, QUALITY, file.name)
+                    .then(compressedFile => {
+                        selectedFile = compressedFile;
+                        
+                        // Display file info
+                        const originalSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        const newSizeMB = (compressedFile.size / (1024 * 1024)).toFixed(2);
+                        const reductionPercent = Math.round((1 - (compressedFile.size / file.size)) * 100);
+                        
+                        dropArea.querySelector('.drop-instructions').innerHTML = `
+                            <i class="fas fa-check-circle" style="color: #2F9E41;"></i>
+                            <p>Image processed: ${file.name}</p>
+                            <span class="file-requirements">
+                                Original: ${originalSizeMB}MB → Compressed: ${newSizeMB}MB (${reductionPercent}% smaller)<br>
+                                Dimensions: ${newWidth}x${newHeight}px
+                            </span>
+                        `;
+                        
+                        // Show preview
+                        imagePreview.src = URL.createObjectURL(compressedFile);
+                        imagePreview.classList.add('resized-preview');
+                        previewContainer.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error processing image:', error);
+                        dropArea.querySelector('.drop-instructions').innerHTML = `
+                            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                            <p>Error processing image</p>
+                            <span class="file-requirements">Please try a different image or a smaller file.</span>
+                        `;
+                    });
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    // Compress image with multiple attempts if needed
+    async function compressImage(canvas, format, initialQuality, fileName) {
+        // Try different quality levels if needed
+        const qualities = [initialQuality, initialQuality * 0.8, initialQuality * 0.5];
+        let compressedFile = null;
+        
+        for (let quality of qualities) {
+            try {
+                // Convert to blob
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, format, quality);
+                });
+                
+                if (!blob) throw new Error("Failed to create blob");
+                
+                // Check if this compression is good enough
+                if (blob.size <= TARGET_FILE_SIZE || quality === qualities[qualities.length - 1]) {
+                    // Create file from blob
+                    compressedFile = new File([blob], fileName.replace(/\.\w+$/, '.jpg'), {
+                        type: format,
+                        lastModified: new Date().getTime()
+                    });
+                    break;
+                }
+            } catch (error) {
+                console.error('Compression attempt failed:', error);
+                // Continue to next quality level
+            }
+        }
+        
+        if (!compressedFile) {
+            throw new Error("Failed to compress image to required size");
+        }
+        
+        return compressedFile;
     }
     
     function removeImage(e) {
         e.preventDefault();
         
-        // Reset file input
+        // Reset file input and selected file
         fileInput.value = '';
         selectedFile = null;
         
@@ -123,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dropArea.querySelector('.drop-instructions').innerHTML = `
             <i class="fas fa-cloud-upload-alt"></i>
             <p>Drag & drop your image here or click to browse</p>
-            <span class="file-requirements">JPEG, PNG or GIF (Max 5MB)</span>
+            <span class="file-requirements">Images will be automatically resized and compressed</span>
         `;
     }
     
@@ -140,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('imageFile', selectedFile);
         formData.append('imageTitle', document.getElementById('imageTitle').value);
-        formData.append('imageDescription', document.getElementById('imageDescription').value);
+        formData.append('imageDescription', document.getElementById('imageDescription').value || '');
         formData.append('authorName', document.getElementById('authorName').value);
         
         // Show loading state
@@ -156,12 +237,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Submit form
         fetch('/api/showcase/submit', {
             method: 'POST',
-            body: formData, // No need to set Content-Type with FormData
+            body: formData,
         })
         .then(response => {
             if (!response.ok) {
+                if (response.status === 413) {
+                    throw new Error('The image is still too large. Please try a smaller image.');
+                }
                 return response.text().then(text => {
-                    console.error('Server response:', text);
                     try {
                         const jsonData = JSON.parse(text);
                         throw new Error(jsonData.message || 'Server error: ' + response.status);
@@ -194,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Show error message
             formError.style.display = 'block';
-            formError.textContent = 'Error: ' + (error.message || 'Failed to submit. Please try again later.');
+            formError.textContent = 'Error: ' + error.message;
         })
         .finally(() => {
             // Reset button

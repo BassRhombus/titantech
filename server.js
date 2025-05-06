@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 20 * 1024 * 1024, // 20MB limit initially so we can handle resizing on server if needed
   },
   fileFilter: function (req, file, cb) {
     // Accept only image files
@@ -146,8 +146,8 @@ app.use(session({
 }));
 
 // Add body parser middleware for form data
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+app.use(express.json({ limit: '20mb' }));
 
 // Add API request logging middleware
 app.use('/api/*', (req, res, next) => {
