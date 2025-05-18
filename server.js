@@ -247,7 +247,7 @@ async function fetchModsFromAPI() {
   return new Promise((resolve, reject) => {
     const API_HOSTNAME = '104.243.37.159';
     const API_PORT = 25056;
-    const API_PATH = '/potnotifier/mods';
+    const API_PATH = '/api/mods';
     const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
     
     console.log(`[${new Date().toISOString()}] Fetching mods data from API...`);
