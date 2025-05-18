@@ -247,7 +247,7 @@ async function fetchModsFromAPI() {
   return new Promise((resolve, reject) => {
     const API_HOSTNAME = '104.243.37.159';
     const API_PORT = 25056;
-    const API_PATH = '/potnotifier/mods';
+    const API_PATH = '/api/mods'; // Updated path
     const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
     
     console.log(`[${new Date().toISOString()}] Fetching mods data from API...`);
@@ -273,70 +273,6 @@ async function fetchModsFromAPI() {
       }
     });
 
-    // DEFINITIVE creators - these take highest priority
-    const DEFINITIVE_CREATORS = {
-      // DocJay's mods
-      "Ancient Monster: Golugore": "DocJay24",
-      "Ancient Monster: Madrehorn": "DocJay24",
-      "Ancient Monster: Moraquile": "DocJay24",
-      "Ancient Monster: Thalasrex": "DocJay24",
-      "DocJayCreation: Ceratosaurus": "DocJay24",
-      "DocJayCreation: Dryptosaurus": "DocJay24",
-      // Divine Beasts mods
-      "Divine Beasts: Acrocanthosaurus": "theDoctorTHE11th",
-      "Divine Beasts: Ampelosaurus": "theDoctorTHE11th",
-      "Divine Beasts: Carcharodontosaurus": "theDoctorTHE11th",
-      "Divine Beasts: Compsognathus": "theDoctorTHE11th",
-      "Divine Beasts: Deinosuchus": "theDoctorTHE11th",
-      "Divine Beasts: Edmontosaurus Annectens": "theDoctorTHE11th",
-      "Divine Beasts: Edmontosaurus Regalis": "theDoctorTHE11th",
-      "Divine Beasts: Giganotosaurus": "theDoctorTHE11th",
-      "Divine Beasts: Halszkaraptor": "theDoctorTHE11th",
-      "Divine Beasts: Orcinus Orca": "theDoctorTHE11th",
-      "Divine Beasts: Zhuchengtyrannus": "theDoctorTHE11th",
-      "Divine Ports: Dryosaurus": "theDoctorTHE11th",
-      "Divine Ports: Helicoprion": "theDoctorTHE11th",
-      "Divine Ports: Inostrancevia": "theDoctorTHE11th",
-      "Divine Ports: Kryptops": "theDoctorTHE11th",
-      "Divine Ports: Mosasaurus": "theDoctorTHE11th",
-      "Divine Ports: Shonisaurus": "theDoctorTHE11th",
-      "TGB: Japanese Giant Salamander": "theDoctorTHE11th",
-      "The Nyctatyrannus": "theDoctorTHE11th",
-      // PT mods
-      "Primordial Tyrants: Apatosaurus": "PT Team",
-      "Primordial Tyrants: Argentinosaurus": "PT Team",
-      "Primordial Tyrants: Carnotaurus": "PT Team",
-      "Primordial Tyrants: Dilophosaurus": "PT Team",
-      "Primordial Tyrants: Giganotosaurus": "PT Team",
-      "Primordial Tyrants: Kelenken": "PT Team",
-      "Primordial Tyrants: Lurdusaurus": "PT Team",
-      "Primordial Tyrants: Maip": "PT Team",
-      "Primordial Tyrants: Parasaurolophus": "PT Team",
-      "Primordial Tyrants: Psittacosaurus": "PT Team",
-      "Primordial Tyrants: Quetzalcoatlus": "PT Team",
-      "Primordial Tyrants: Sachicasaurus": "PT Team",
-      "Primordial Tyrants: Therizinosaurus": "PT Team",
-      "Primordial Tyrants: Torvosaurus": "PT Team",
-      "Primordial Tyrants: Tyrannosaurus": "PT Team",
-      "Primordial Tyrants: Utahraptor": "PT Team",
-      "Primordial Tyrants: Yunnanosaurus": "PT Team",
-      "Primordial Tyrants: Yutyrannus": "PT Team",
-      "Ignis: Noviana": "PT Team",
-      "Ignis: Ophis": "PT Team",
-      // KTO mods
-      "KTO Additions | Deinosuchus": "Sergi",
-      "KTO Additions | Pachyrhinosaurus": "Sergi",
-      "KTO Mysteries | Diplocaulus": "Sergi",
-      "KTO Mysteries | Dryptosaurus": "Sergi",
-      "KTO Mysteries | Nanuqsaurus": "Sergi",
-      "KTO Mysteries | Yangchuanosaurus": "Sergi",
-      // Great series
-      "Great Archelon": "HematoSalpinx",
-      "Great Diplocaulus": "HematoSalpinx",
-      "Great Tenontosaurus": "HematoSalpinx",
-      "Great Triceratops": "HematoSalpinx"
-    };
-    
     const req = http.request({
       hostname: API_HOSTNAME,
       port: API_PORT,
@@ -345,167 +281,42 @@ async function fetchModsFromAPI() {
       timeout: 30000 // 30 seconds
     }, (res) => {
       let data = '';
-      
       res.on('data', (chunk) => {
         data += chunk;
       });
-      
       res.on('end', () => {
         if (res.statusCode === 200 && data.length > 0) {
           try {
-            const modsData = JSON.parse(data);
-            console.log(`Successfully fetched ${modsData.length} mods from API`);
-            
-            // Transform the data and PRESERVE creator info
-            const transformedMods = modsData.map(mod => {
-              // Step 1: Check definitive creator mapping (highest priority)
-              if (DEFINITIVE_CREATORS[mod.Mod_name]) {
-                return {
-                  sku: mod.Mod_sku,
-                  name: mod.Mod_name,
-                  description: mod.Mod_description,
-                  icon: mod.Mod_image_link,
-                  creator: DEFINITIVE_CREATORS[mod.Mod_name]
-                };
-              }
-              
-              // Step 2: Check existing creator info if available
-              const existingCreator = existingModMap[mod.Mod_sku] ? 
-                                     existingModMap[mod.Mod_sku].creator : null;
-              
-              // Step 3: If existing creator is specific (not generic), keep it
-              if (existingCreator && 
-                  existingCreator !== "Unknown" && 
-                  existingCreator !== "Mod Creator" &&
-                  existingCreator !== "Map Creator" &&
-                  existingCreator !== "Skin Designer") {
-                return {
-                  sku: mod.Mod_sku,
-                  name: mod.Mod_name,
-                  description: mod.Mod_description,
-                  icon: mod.Mod_image_link,
-                  creator: existingCreator
-                };
-              }
-              
-              // Step 4: Try to extract creator from description
-              let extractedCreator = null;
-              
-              if (mod.Mod_description) {
-                const desc = mod.Mod_description;
-                
-                // DocJay detection
-                if (desc.includes("DocJay24") || desc.includes("Ancient monster team")) {
-                  extractedCreator = "DocJay24";
-                }
-                // Divine Beasts detection
-                else if (desc.includes("theDoctorTHE11th") || desc.includes("Divine Beasts team")) {
-                  extractedCreator = "theDoctorTHE11th";
-                }
-                // PT detection
-                else if (desc.includes("Primordial Tyrants team") || desc.includes("PT team")) {
-                  extractedCreator = "PT Team";
-                }
-                // Great series detection
-                else if (desc.includes("HematoSalpinx") || desc.includes("Fortress")) {
-                  extractedCreator = "HematoSalpinx";
-                }
-                // Look for creator in description
-                else if (desc.includes("Made by:") || desc.includes("Created by:")) {
-                  const lines = desc.split('\n');
-                  
-                  for (const line of lines) {
-                    if (line.includes("Made by:")) {
-                      extractedCreator = line.split("Made by:")[1].trim().split(/[\s,/]/)[0];
-                      break;
-                    } else if (line.includes("Created by:")) {
-                      extractedCreator = line.split("Created by:")[1].trim().split(/[\s,/]/)[0];
-                      break;
-                    }
-                  }
-                }
-              }
-              
-              // Step 5: Get API creator field
-              const apiCreator = 
-                       extractedCreator ||
-                       mod.Mod_creator || 
-                       mod.creator || 
-                       mod.modCreator || 
-                       mod.mod_creator || 
-                       mod.Creator || 
-                       mod.author || 
-                       mod.Author;
-              
-              // Step 6: Choose the best creator based on all available info
-              let finalCreator = null;
-              
-              if (apiCreator && apiCreator !== "Unknown" && apiCreator !== "Mod Creator") {
-                finalCreator = apiCreator;
-              } else {
-                // Apply creator mapping based on mod name
-                if (mod.Mod_name.includes("DocJay") || mod.Mod_name.includes("Ancient Monster")) {
-                  finalCreator = "DocJay24";
-                } else if (mod.Mod_name.includes("Divine Beasts") || mod.Mod_name.includes("Divine Ports")) {
-                  finalCreator = "theDoctorTHE11th";
-                } else if (mod.Mod_name.includes("KTO")) {
-                  finalCreator = "Sergi";
-                } else if (mod.Mod_name.includes("Primordial Tyrants") || mod.Mod_name.includes("PT:")) {
-                  finalCreator = "PT Team";
-                } else if (mod.Mod_name.includes("Great")) {
-                  finalCreator = "HematoSalpinx";
-                } else if (mod.Mod_name.includes("IoA") || mod.Mod_name.includes("Isle of Asylum")) {
-                  finalCreator = "Isle of Asylum Team";
-                } else if (mod.Mod_name.includes("Ex Argilla")) {
-                  finalCreator = "ErebusTheDragon";
-                } else if (mod.Mod_name.includes("JFD")) {
-                  finalCreator = "Jagged Fang Designs";
-                } else if (mod.Mod_name.includes("Skins")) {
-                  finalCreator = "Skin Designer";
-                } else if (mod.Mod_name.includes("Map") || mod.Mod_name.includes("Arena") || mod.Mod_name.includes("Island")) {
-                  finalCreator = "Map Creator";
-                } else if (mod.Mod_name.includes("Arazoa")) {
-                  finalCreator = "Arazoa Team";
-                } else if (mod.Mod_name.includes("Archaic Eons")) {
-                  finalCreator = "Archaic Eons Team";
-                } else if (mod.Mod_name.includes("Archetypes")) {
-                  finalCreator = "Archetypes Team";
-                } else if (mod.Mod_name.includes("Titanus")) {
-                  finalCreator = "Titanus Team";
-                } else if (mod.Mod_name.includes("Feilong") || mod.Mod_name.includes("David Rosa")) {
-                  finalCreator = "Feilong";
-                } else {
-                  finalCreator = "Mod Creator";
-                }
-              }
-              
-              return {
-                sku: mod.Mod_sku,
-                name: mod.Mod_name,
-                description: mod.Mod_description,
-                icon: mod.Mod_image_link,
-                creator: finalCreator
-              };
-            });
-            
-            // Deduplicate by SKU
+            const apiResponse = JSON.parse(data);
+            // Support both array and object-with-mods formats
+            const modsData = Array.isArray(apiResponse) ? apiResponse : apiResponse.mods;
+            if (!Array.isArray(modsData)) {
+              throw new Error('API response does not contain a mods array');
+            }
+            console.log('First mod object from API:', JSON.stringify(modsData[0], null, 2));
+            // Transform API data to our format using correct API field names
+            const transformedMods = modsData.map(apiMod => ({
+              sku: apiMod.sku,
+              name: apiMod.name,
+              description: apiMod.description || '',
+              icon: apiMod.icon || '',
+              creator: apiMod.creator || 'Unknown Creator'
+            }));
+            // Deduplicate by SKU (in case API has duplicates)
             const uniqueModsMap = new Map();
             transformedMods.forEach(mod => {
-              if (!uniqueModsMap.has(mod.sku)) {
+              if (mod.sku) {
                 uniqueModsMap.set(mod.sku, mod);
               }
             });
-            
-            // Sort alphabetically by name
+            // Convert back to array and sort alphabetically
             const sortedMods = Array.from(uniqueModsMap.values());
             sortedMods.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-            
             // Make sure directory exists
             const dirPath = path.dirname(JSON_FILE_PATH);
             if (!fs.existsSync(dirPath)) {
               fs.mkdirSync(dirPath, { recursive: true });
             }
-            
             // Write the file
             fs.writeFile(JSON_FILE_PATH, JSON.stringify(sortedMods, null, 2), 'utf8', (err) => {
               if (err) {
@@ -513,11 +324,9 @@ async function fetchModsFromAPI() {
                 reject(err);
                 return;
               }
-              
               console.log(`Updated mods data file with ${sortedMods.length} mods`);
               resolve({ count: sortedMods.length });
             });
-            
           } catch (error) {
             console.error(`Error processing API response: ${error.message}`);
             reject(error);
@@ -528,18 +337,15 @@ async function fetchModsFromAPI() {
         }
       });
     });
-    
     req.on('error', (error) => {
       console.error(`API request error: ${error.message}`);
       reject(error);
     });
-    
     req.on('timeout', () => {
       console.error(`API request timed out`);
       req.destroy();
       reject(new Error('Request timed out'));
     });
-    
     req.end();
   });
 }
