@@ -245,12 +245,97 @@ app.get('/api/refresh-mods', async (req, res) => {
 // Function to fetch mods from API and save them
 async function fetchModsFromAPI() {
   return new Promise((resolve, reject) => {
-    const API_HOSTNAME = '104.194.10.211';
-    const API_PORT = 3000;
+    const API_HOSTNAME = '104.243.37.159';
+    const API_PORT = 25056;
     const API_PATH = '/potnotifier/mods';
     const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
     
     console.log(`[${new Date().toISOString()}] Fetching mods data from API...`);
+    
+    // First read existing file to preserve creator info
+    let existingMods = [];
+    try {
+      if (fs.existsSync(JSON_FILE_PATH)) {
+        const existingData = fs.readFileSync(JSON_FILE_PATH, 'utf8');
+        existingMods = JSON.parse(existingData);
+        console.log(`Read ${existingMods.length} existing mods for creator preservation`);
+      }
+    } catch (error) {
+      console.warn(`Warning: Could not read existing mods file: ${error.message}`);
+      // Continue anyway as we'll get fresh data from API
+    }
+
+    // Create a map of existing mods by SKU for quick lookup
+    const existingModMap = {};
+    existingMods.forEach(mod => {
+      if (mod.sku) {
+        existingModMap[mod.sku] = mod;
+      }
+    });
+
+    // DEFINITIVE creators - these take highest priority
+    const DEFINITIVE_CREATORS = {
+      // DocJay's mods
+      "Ancient Monster: Golugore": "DocJay24",
+      "Ancient Monster: Madrehorn": "DocJay24",
+      "Ancient Monster: Moraquile": "DocJay24",
+      "Ancient Monster: Thalasrex": "DocJay24",
+      "DocJayCreation: Ceratosaurus": "DocJay24",
+      "DocJayCreation: Dryptosaurus": "DocJay24",
+      // Divine Beasts mods
+      "Divine Beasts: Acrocanthosaurus": "theDoctorTHE11th",
+      "Divine Beasts: Ampelosaurus": "theDoctorTHE11th",
+      "Divine Beasts: Carcharodontosaurus": "theDoctorTHE11th",
+      "Divine Beasts: Compsognathus": "theDoctorTHE11th",
+      "Divine Beasts: Deinosuchus": "theDoctorTHE11th",
+      "Divine Beasts: Edmontosaurus Annectens": "theDoctorTHE11th",
+      "Divine Beasts: Edmontosaurus Regalis": "theDoctorTHE11th",
+      "Divine Beasts: Giganotosaurus": "theDoctorTHE11th",
+      "Divine Beasts: Halszkaraptor": "theDoctorTHE11th",
+      "Divine Beasts: Orcinus Orca": "theDoctorTHE11th",
+      "Divine Beasts: Zhuchengtyrannus": "theDoctorTHE11th",
+      "Divine Ports: Dryosaurus": "theDoctorTHE11th",
+      "Divine Ports: Helicoprion": "theDoctorTHE11th",
+      "Divine Ports: Inostrancevia": "theDoctorTHE11th",
+      "Divine Ports: Kryptops": "theDoctorTHE11th",
+      "Divine Ports: Mosasaurus": "theDoctorTHE11th",
+      "Divine Ports: Shonisaurus": "theDoctorTHE11th",
+      "TGB: Japanese Giant Salamander": "theDoctorTHE11th",
+      "The Nyctatyrannus": "theDoctorTHE11th",
+      // PT mods
+      "Primordial Tyrants: Apatosaurus": "PT Team",
+      "Primordial Tyrants: Argentinosaurus": "PT Team",
+      "Primordial Tyrants: Carnotaurus": "PT Team",
+      "Primordial Tyrants: Dilophosaurus": "PT Team",
+      "Primordial Tyrants: Giganotosaurus": "PT Team",
+      "Primordial Tyrants: Kelenken": "PT Team",
+      "Primordial Tyrants: Lurdusaurus": "PT Team",
+      "Primordial Tyrants: Maip": "PT Team",
+      "Primordial Tyrants: Parasaurolophus": "PT Team",
+      "Primordial Tyrants: Psittacosaurus": "PT Team",
+      "Primordial Tyrants: Quetzalcoatlus": "PT Team",
+      "Primordial Tyrants: Sachicasaurus": "PT Team",
+      "Primordial Tyrants: Therizinosaurus": "PT Team",
+      "Primordial Tyrants: Torvosaurus": "PT Team",
+      "Primordial Tyrants: Tyrannosaurus": "PT Team",
+      "Primordial Tyrants: Utahraptor": "PT Team",
+      "Primordial Tyrants: Yunnanosaurus": "PT Team",
+      "Primordial Tyrants: Yutyrannus": "PT Team",
+      "Ignis: Noviana": "PT Team",
+      "Ignis: Ophis": "PT Team",
+      // KTO mods
+      "KTO Additions | Deinosuchus": "Sergi",
+      "KTO Additions | Pachyrhinosaurus": "Sergi",
+      "KTO Mysteries | Diplocaulus": "Sergi",
+      "KTO Mysteries | Dryptosaurus": "Sergi",
+      "KTO Mysteries | Nanuqsaurus": "Sergi",
+      "KTO Mysteries | Yangchuanosaurus": "Sergi",
+      // Great series
+      "Great Archelon": "HematoSalpinx",
+      "Great Diplocaulus": "HematoSalpinx",
+      "Great Tenontosaurus": "HematoSalpinx",
+      "Great Triceratops": "HematoSalpinx"
+    };
     
     const req = http.request({
       hostname: API_HOSTNAME,
@@ -271,13 +356,137 @@ async function fetchModsFromAPI() {
             const modsData = JSON.parse(data);
             console.log(`Successfully fetched ${modsData.length} mods from API`);
             
-            // Transform the data
-            const transformedMods = modsData.map(mod => ({
-              sku: mod.Mod_sku,
-              name: mod.Mod_name,
-              description: mod.Mod_description,
-              icon: mod.Mod_image_link
-            }));
+            // Transform the data and PRESERVE creator info
+            const transformedMods = modsData.map(mod => {
+              // Step 1: Check definitive creator mapping (highest priority)
+              if (DEFINITIVE_CREATORS[mod.Mod_name]) {
+                return {
+                  sku: mod.Mod_sku,
+                  name: mod.Mod_name,
+                  description: mod.Mod_description,
+                  icon: mod.Mod_image_link,
+                  creator: DEFINITIVE_CREATORS[mod.Mod_name]
+                };
+              }
+              
+              // Step 2: Check existing creator info if available
+              const existingCreator = existingModMap[mod.Mod_sku] ? 
+                                     existingModMap[mod.Mod_sku].creator : null;
+              
+              // Step 3: If existing creator is specific (not generic), keep it
+              if (existingCreator && 
+                  existingCreator !== "Unknown" && 
+                  existingCreator !== "Mod Creator" &&
+                  existingCreator !== "Map Creator" &&
+                  existingCreator !== "Skin Designer") {
+                return {
+                  sku: mod.Mod_sku,
+                  name: mod.Mod_name,
+                  description: mod.Mod_description,
+                  icon: mod.Mod_image_link,
+                  creator: existingCreator
+                };
+              }
+              
+              // Step 4: Try to extract creator from description
+              let extractedCreator = null;
+              
+              if (mod.Mod_description) {
+                const desc = mod.Mod_description;
+                
+                // DocJay detection
+                if (desc.includes("DocJay24") || desc.includes("Ancient monster team")) {
+                  extractedCreator = "DocJay24";
+                }
+                // Divine Beasts detection
+                else if (desc.includes("theDoctorTHE11th") || desc.includes("Divine Beasts team")) {
+                  extractedCreator = "theDoctorTHE11th";
+                }
+                // PT detection
+                else if (desc.includes("Primordial Tyrants team") || desc.includes("PT team")) {
+                  extractedCreator = "PT Team";
+                }
+                // Great series detection
+                else if (desc.includes("HematoSalpinx") || desc.includes("Fortress")) {
+                  extractedCreator = "HematoSalpinx";
+                }
+                // Look for creator in description
+                else if (desc.includes("Made by:") || desc.includes("Created by:")) {
+                  const lines = desc.split('\n');
+                  
+                  for (const line of lines) {
+                    if (line.includes("Made by:")) {
+                      extractedCreator = line.split("Made by:")[1].trim().split(/[\s,/]/)[0];
+                      break;
+                    } else if (line.includes("Created by:")) {
+                      extractedCreator = line.split("Created by:")[1].trim().split(/[\s,/]/)[0];
+                      break;
+                    }
+                  }
+                }
+              }
+              
+              // Step 5: Get API creator field
+              const apiCreator = 
+                       extractedCreator ||
+                       mod.Mod_creator || 
+                       mod.creator || 
+                       mod.modCreator || 
+                       mod.mod_creator || 
+                       mod.Creator || 
+                       mod.author || 
+                       mod.Author;
+              
+              // Step 6: Choose the best creator based on all available info
+              let finalCreator = null;
+              
+              if (apiCreator && apiCreator !== "Unknown" && apiCreator !== "Mod Creator") {
+                finalCreator = apiCreator;
+              } else {
+                // Apply creator mapping based on mod name
+                if (mod.Mod_name.includes("DocJay") || mod.Mod_name.includes("Ancient Monster")) {
+                  finalCreator = "DocJay24";
+                } else if (mod.Mod_name.includes("Divine Beasts") || mod.Mod_name.includes("Divine Ports")) {
+                  finalCreator = "theDoctorTHE11th";
+                } else if (mod.Mod_name.includes("KTO")) {
+                  finalCreator = "Sergi";
+                } else if (mod.Mod_name.includes("Primordial Tyrants") || mod.Mod_name.includes("PT:")) {
+                  finalCreator = "PT Team";
+                } else if (mod.Mod_name.includes("Great")) {
+                  finalCreator = "HematoSalpinx";
+                } else if (mod.Mod_name.includes("IoA") || mod.Mod_name.includes("Isle of Asylum")) {
+                  finalCreator = "Isle of Asylum Team";
+                } else if (mod.Mod_name.includes("Ex Argilla")) {
+                  finalCreator = "ErebusTheDragon";
+                } else if (mod.Mod_name.includes("JFD")) {
+                  finalCreator = "Jagged Fang Designs";
+                } else if (mod.Mod_name.includes("Skins")) {
+                  finalCreator = "Skin Designer";
+                } else if (mod.Mod_name.includes("Map") || mod.Mod_name.includes("Arena") || mod.Mod_name.includes("Island")) {
+                  finalCreator = "Map Creator";
+                } else if (mod.Mod_name.includes("Arazoa")) {
+                  finalCreator = "Arazoa Team";
+                } else if (mod.Mod_name.includes("Archaic Eons")) {
+                  finalCreator = "Archaic Eons Team";
+                } else if (mod.Mod_name.includes("Archetypes")) {
+                  finalCreator = "Archetypes Team";
+                } else if (mod.Mod_name.includes("Titanus")) {
+                  finalCreator = "Titanus Team";
+                } else if (mod.Mod_name.includes("Feilong") || mod.Mod_name.includes("David Rosa")) {
+                  finalCreator = "Feilong";
+                } else {
+                  finalCreator = "Mod Creator";
+                }
+              }
+              
+              return {
+                sku: mod.Mod_sku,
+                name: mod.Mod_name,
+                description: mod.Mod_description,
+                icon: mod.Mod_image_link,
+                creator: finalCreator
+              };
+            });
             
             // Deduplicate by SKU
             const uniqueModsMap = new Map();

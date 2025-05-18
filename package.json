@@ -1,15 +1,15 @@
 {
   "name": "titantech",
   "version": "1.0.0",
+  "description": "TitanTech web services",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "fix-creators": "node update-creators-definitive.js",
+    "update-mods": "node update-mods-json.js",
+    "direct-creators": "node update-mods-direct.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "debug": "^4.3.4",
     "express": "^4.21.2",

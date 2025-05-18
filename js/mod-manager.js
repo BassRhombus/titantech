@@ -128,7 +128,7 @@ function updateLastRefreshed(source = '') {
     timestampDiv.innerHTML = `<i class="fas fa-sync-alt"></i> Last updated: ${dateString} ${timeString} ${source}`;
 }
 
-// Update the displayMods function to preserve selections
+// Update the displayMods function to handle creator display better
 function displayMods(mods) {
     const container = document.getElementById('modsContainer');
     container.innerHTML = '';
@@ -143,9 +143,16 @@ function displayMods(mods) {
         // Check if this mod was previously selected
         const isChecked = selectedModIds.has(mod.sku) ? 'checked' : '';
         
+        // Determine how to display the creator
+        let creatorDisplay = mod.creator ? mod.creator : 'Unknown Creator';
+        let creatorClass = mod.creator ? 'specific-creator' : 'unknown-creator';
+        
         modCard.innerHTML = `
             <img src="${mod.icon}" alt="${mod.name}" onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'">
             <h2>${mod.name}</h2>
+            <div class="mod-creator ${creatorClass}">
+                <strong>Creator:</strong> <span>${creatorDisplay}</span>
+            </div>
             <p>${mod.description}</p>
             <label class="checkbox-container">
                 <span>Select this mod</span>

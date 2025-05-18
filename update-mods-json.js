@@ -1,132 +1,51 @@
+/**
+ * This script fetches mods data from the API and updates the local JSON file
+ * It properly preserves creator information from both API and existing mappings
+ */
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
 
 // Configuration
-const API_HOSTNAME = '104.194.10.211';
-const API_PORT = 3000;
-const API_PATH = '/potnotifier/mods';
+const API_HOSTNAME = '104.243.37.159';
+const API_PORT = 25056;
+const API_PATH = '/api/mods';
 const API_TIMEOUT = 30000; // 30 seconds
-const UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes (changed from 10)
 const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
+const BACKUP_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details_backup.json');
 
-// Ensure directory exists
-function ensureDirectoryExists(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    console.log(`[${new Date().toISOString()}] Creating directory: ${dirPath}`);
-    try {
-      fs.mkdirSync(dirPath, { recursive: true });
+// Create a backup of the current file
+function backupCurrentFile() {
+  try {
+    if (fs.existsSync(JSON_FILE_PATH)) {
+      fs.copyFileSync(JSON_FILE_PATH, BACKUP_PATH);
+      console.log(`Backed up current file to ${BACKUP_PATH}`);
       return true;
-    } catch (error) {
-      console.error(`[${new Date().toISOString()}] Error creating directory: ${error.message}`);
-      return false;
     }
+  } catch (error) {
+    console.error(`Failed to create backup: ${error.message}`);
   }
-  return true;
+  return false;
 }
 
-// Function to transform mod data to the required format
-function transformModData(rawMods) {
-  console.log(`[${new Date().toISOString()}] Transforming data for ${rawMods.length} mods`);
-  
-  // Transform the data format
-  const transformedMods = rawMods.map(mod => ({
-    sku: mod.Mod_sku,
-    name: mod.Mod_name,
-    description: mod.Mod_description,
-    icon: mod.Mod_image_link
-  }));
-  
-  // Deduplicate by SKU
-  const uniqueModsMap = new Map();
-  const duplicates = [];
-  
-  transformedMods.forEach(mod => {
-    if (!uniqueModsMap.has(mod.sku)) {
-      uniqueModsMap.set(mod.sku, mod);
-    } else {
-      duplicates.push(mod.name);
-    }
-  });
-  
-  if (duplicates.length > 0) {
-    console.log(`[${new Date().toISOString()}] Removed ${duplicates.length} duplicate entries`);
-  }
-  
-  // Convert to array and sort alphabetically
-  const sortedMods = Array.from(uniqueModsMap.values());
-  sortedMods.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-  
-  console.log(`[${new Date().toISOString()}] Mods sorted alphabetically by name`);
-  
-  return sortedMods;
-}
-
-// Fallback data in case API fails
-const fallbackData = [
-  {
-    sku: "FALLBACK_MOD_1",
-    name: "Fallback Mod 1",
-    description: "This is fallback data used when the API is unavailable.",
-    icon: "https://via.placeholder.com/300x150?text=Fallback+Mod"
-  },
-  {
-    sku: "FALLBACK_MOD_2",
-    name: "Fallback Mod 2",
-    description: "Please check your API connection.",
-    icon: "https://via.placeholder.com/300x150?text=API+Unavailable"
-  }
-];
-
-// Get existing data for backup purposes
-function getExistingData() {
+// Read existing mods data
+function readExistingData() {
   try {
     if (fs.existsSync(JSON_FILE_PATH)) {
       const data = fs.readFileSync(JSON_FILE_PATH, 'utf8');
       return JSON.parse(data);
     }
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] Error reading existing data: ${error.message}`);
+    console.error(`Error reading existing data: ${error.message}`);
   }
-  return null;
+  return [];
 }
 
-// Save data to file with verification
-function saveDataToFile(data, filePath) {
-  const jsonContent = JSON.stringify(data, null, 2);
-  
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filePath, jsonContent, 'utf8', (err) => {
-      if (err) {
-        console.error(`[${new Date().toISOString()}] Error writing to file: ${err.message}`);
-        reject(err);
-        return;
-      }
-      
-      // Verify file was written correctly
-      fs.readFile(filePath, 'utf8', (readErr, fileContent) => {
-        if (readErr) {
-          console.error(`[${new Date().toISOString()}] Error reading file for verification: ${readErr.message}`);
-          reject(readErr);
-          return;
-        }
-        
-        if (fileContent === jsonContent) {
-          console.log(`[${new Date().toISOString()}] File verification successful: ${filePath}`);
-          console.log(`[${new Date().toISOString()}] Wrote ${data.length} unique mods to the file`);
-          resolve(true);
-        } else {
-          console.error(`[${new Date().toISOString()}] File verification failed: Content mismatch`);
-          reject(new Error('File verification failed: Content mismatch'));
-        }
-      });
-    });
-  });
-}
-
-// Function to fetch data from API
+// Fetch data from API
 function fetchFromAPI() {
   return new Promise((resolve, reject) => {
+    console.log(`Connecting to API at http://${API_HOSTNAME}:${API_PORT}${API_PATH}...`);
+    
     const req = http.request({
       hostname: API_HOSTNAME,
       port: API_PORT,
@@ -144,26 +63,26 @@ function fetchFromAPI() {
         if (res.statusCode === 200 && data.length > 0) {
           try {
             const modsData = JSON.parse(data);
-            console.log(`[${new Date().toISOString()}] Successfully fetched ${modsData.length} mods from API`);
+            console.log(`Successfully fetched ${modsData.length} mods from API`);
             resolve(modsData);
           } catch (error) {
-            console.error(`[${new Date().toISOString()}] Error parsing API response: ${error.message}`);
+            console.error(`Error parsing API response: ${error.message}`);
             reject(error);
           }
         } else {
-          console.error(`[${new Date().toISOString()}] API returned status code: ${res.statusCode}`);
+          console.error(`API returned status code: ${res.statusCode}`);
           reject(new Error(`API request failed with status code: ${res.statusCode}`));
         }
       });
     });
     
     req.on('error', (error) => {
-      console.error(`[${new Date().toISOString()}] API request error: ${error.message}`);
+      console.error(`API request error: ${error.message}`);
       reject(error);
     });
     
     req.on('timeout', () => {
-      console.error(`[${new Date().toISOString()}] API request timed out`);
+      console.error(`API request timed out`);
       req.destroy();
       reject(new Error('Request timed out'));
     });
@@ -172,63 +91,96 @@ function fetchFromAPI() {
   });
 }
 
-// Main function to update mods data
-async function updateModsData() {
-  const startTime = new Date();
-  console.log(`\n[${startTime.toISOString()}] ===== UPDATE CYCLE STARTED =====`);
-  
-  // Ensure directory structure exists
-  const jsonDirPath = path.dirname(JSON_FILE_PATH);
-  if (!ensureDirectoryExists(jsonDirPath)) {
-    console.error(`[${new Date().toISOString()}] Cannot create required directories. Aborting update.`);
-    return;
-  }
-  
-  // Get existing data as backup
-  const existingData = getExistingData();
-  
+// Save data to file
+function saveToFile(data) {
   try {
-    // Fetch data from API
-    console.log(`[${new Date().toISOString()}] Fetching mods data from API...`);
-    const apiData = await fetchFromAPI();
-    
-    if (apiData && apiData.length > 0) {
-      // Transform and deduplicate the data
-      const transformedData = transformModData(apiData);
-      
-      // Save the data
-      await saveDataToFile(transformedData, JSON_FILE_PATH);
-      
-      console.log(`[${new Date().toISOString()}] ===== UPDATE CYCLE COMPLETED =====`);
-      console.log(`[${new Date().toISOString()}] Time elapsed: ${(new Date() - startTime) / 1000} seconds\n`);
-    } else {
-      throw new Error('API returned empty array');
+    // Ensure directory exists
+    const dir = path.dirname(JSON_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
+    
+    // Write sorted mods to file
+    fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(data, null, 2), 'utf8');
+    console.log(`Successfully saved ${data.length} mods to ${JSON_FILE_PATH}`);
+    return true;
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] Error during update: ${error.message}`);
-    
-    // Use existing data if available
-    if (existingData && existingData.length > 0) {
-      console.log(`[${new Date().toISOString()}] Restoring from existing data (${existingData.length} mods)`);
-      await saveDataToFile(existingData, JSON_FILE_PATH);
-    } else {
-      // Use fallback data if no existing data
-      console.log(`[${new Date().toISOString()}] Using fallback data`);
-      await saveDataToFile(fallbackData, JSON_FILE_PATH);
-    }
-    
-    console.log(`[${new Date().toISOString()}] ===== UPDATE CYCLE FAILED =====\n`);
+    console.error(`Error writing to file: ${error.message}`);
+    return false;
   }
 }
 
-// Run immediately when script starts
-console.log(`\n[${new Date().toISOString()}] ############################################`);
-console.log(`[${new Date().toISOString()}] ###### STARTING MODS UPDATE SERVICE ######`);
-console.log(`[${new Date().toISOString()}] ############################################`);
-console.log(`[${new Date().toISOString()}] File path: ${JSON_FILE_PATH}`);
-console.log(`[${new Date().toISOString()}] API endpoint: http://${API_HOSTNAME}:${API_PORT}${API_PATH}`);
-console.log(`[${new Date().toISOString()}] Update interval: ${UPDATE_INTERVAL / 60000} minutes\n`);
-updateModsData();
+// Main function
+async function main() {
+  console.log("Starting update of mods_details.json with correct creator information");
+  
+  // Back up current file
+  backupCurrentFile();
+  
+  // Read existing data to preserve creator information
+  const existingMods = readExistingData();
+  console.log(`Read ${existingMods.length} existing mods`);
+  
+  // Create a map of existing mods by SKU for quick lookup
+  const existingModMap = {};
+  existingMods.forEach(mod => {
+    if (mod.sku) {
+      existingModMap[mod.sku] = mod;
+    }
+  });
+  
+  try {
+    // Fetch new data from API
+    const apiResponse = await fetchFromAPI();
+    // Support both array and object-with-mods formats
+    const apiMods = Array.isArray(apiResponse) ? apiResponse : apiResponse.mods;
+    if (!Array.isArray(apiMods)) {
+      throw new Error('API response does not contain a mods array');
+    }
+    // Transform API data to our format using correct API field names
+    const transformedMods = apiMods.map(apiMod => {
+      return {
+        sku: apiMod.sku,
+        name: apiMod.name,
+        description: apiMod.description || "",
+        icon: apiMod.icon || "",
+        creator: apiMod.creator || "Unknown Creator"
+      };
+    });
+    
+    // Deduplicate by SKU (in case API has duplicates)
+    const uniqueModsMap = new Map();
+    transformedMods.forEach(mod => {
+      if (mod.sku) {
+        uniqueModsMap.set(mod.sku, mod);
+      }
+    });
+    
+    // Convert back to array and sort alphabetically
+    const sortedMods = Array.from(uniqueModsMap.values());
+    sortedMods.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    
+    // Save the sorted mods to file
+    if (saveToFile(sortedMods)) {
+      // Show statistics
+      const creatorCounts = {};
+      sortedMods.forEach(mod => {
+        creatorCounts[mod.creator] = (creatorCounts[mod.creator] || 0) + 1;
+      });
+      
+      console.log("\nCreator distribution in updated file:");
+      Object.entries(creatorCounts)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([creator, count]) => {
+          console.log(`${creator}: ${count} mods`);
+        });
+      
+      console.log("\nUpdate completed successfully!");
+    }
+  } catch (error) {
+    console.error(`Failed to update mods: ${error.message}`);
+  }
+}
 
-// Run periodically
-setInterval(updateModsData, UPDATE_INTERVAL);
+// Run the script
+main();

@@ -60,3 +60,7 @@ out/
 
 # Generated files
 coverage/
+
+# Mod details data (do not commit)
+public/mods_details.json
+public/mods_details_backup.json

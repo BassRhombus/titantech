@@ -48,4 +48,5 @@ temp/
 .npmrc
 .yarnrc
 /data
-/uploads
+/uploadsModINI/public/mods_details.json
+ModINI/public/mods_details.json

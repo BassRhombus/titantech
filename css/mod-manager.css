@@ -142,6 +142,35 @@
     text-align: left; /* Force left alignment */
 }
 
+/* Add styling for mod creator information */
+.mod-creator {
+    margin: -5px 0 10px 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.mod-creator span {
+    font-weight: 500;
+}
+
+/* Different styles for different types of creators */
+.mod-creator.specific-creator span {
+    color: #2F9E41; /* Bright green for specific creators */
+}
+
+.mod-creator.generic-creator span {
+    color: #17a2b8; /* Blue for generic creators */
+}
+
+.mod-creator.unknown-creator span {
+    color: #6c757d; /* Gray for unknown creators */
+}
+
+/* Ensure proper spacing */
+.mod-card h2 {
+    margin-bottom: 5px;
+}
+
 /* Custom Checkbox Styling */
 .checkbox-container {
     display: flex;
