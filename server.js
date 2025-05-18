@@ -353,7 +353,13 @@ async function fetchModsFromAPI() {
       res.on('end', () => {
         if (res.statusCode === 200 && data.length > 0) {
           try {
-            const modsData = JSON.parse(data);
+            const modsDataRaw = JSON.parse(data);
+            console.log('Raw API response:', modsDataRaw);
+            // Support both array and object-with-mods formats
+            const modsData = Array.isArray(modsDataRaw) ? modsDataRaw : modsDataRaw.mods;
+            if (!Array.isArray(modsData)) {
+              throw new Error('API response does not contain a mods array');
+            }
             console.log(`Successfully fetched ${modsData.length} mods from API`);
             
             // Transform the data and PRESERVE creator info
