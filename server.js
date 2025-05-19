@@ -245,12 +245,18 @@ app.get('/api/refresh-mods', async (req, res) => {
 // Function to fetch mods from API and save them
 async function fetchModsFromAPI() {
   return new Promise((resolve, reject) => {
-    const API_HOSTNAME = '104.243.37.159';
+    // Use different API host depending on environment
+    let API_HOSTNAME;
+    if (process.env.NODE_ENV === 'production') {
+      API_HOSTNAME = '93a6e810-83b8-48c5-8486-6bd7051b906b';
+    } else {
+      API_HOSTNAME = '104.243.37.159';
+    }
     const API_PORT = 25056;
-    const API_PATH = '/api/mods'; // Updated path
+    const API_PATH = '/api/mods';
     const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
     
-    console.log(`[${new Date().toISOString()}] Fetching mods data from API...`);
+    console.log(`[${new Date().toISOString()}] Fetching mods data from API host: ${API_HOSTNAME}`);
     
     // First read existing file to preserve creator info
     let existingMods = [];
