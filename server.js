@@ -245,12 +245,12 @@ app.get('/api/refresh-mods', async (req, res) => {
 // Function to fetch mods from API and save them
 async function fetchModsFromAPI() {
   return new Promise((resolve, reject) => {
-    // Use different API host depending on environment
+    // Use --dev flag to determine API host
     let API_HOSTNAME;
-    if (process.env.NODE_ENV === 'production') {
-      API_HOSTNAME = '93a6e810-83b8-48c5-8486-6bd7051b906b';
-    } else {
+    if (process.argv.includes('--dev')) {
       API_HOSTNAME = '104.243.37.159';
+    } else {
+      API_HOSTNAME = '93a6e810-83b8-48c5-8486-6bd7051b906b';
     }
     const API_PORT = 25056;
     const API_PATH = '/api/mods';
