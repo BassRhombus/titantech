@@ -272,3 +272,44 @@ document.addEventListener('click', function(e) {
         updateSelectedCount();
     }
 });
+
+// Add event listeners for INI upload
+
+document.getElementById('uploadIniBtn').addEventListener('click', function() {
+    document.getElementById('iniFileInput').click();
+});
+
+document.getElementById('iniFileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const modIds = extractModIdsFromIni(content);
+        if (modIds.length === 0) {
+            alert('No mods found in the uploaded GameUserSettings.ini.');
+            return;
+        }
+        // Update selectedModIds and checkboxes
+        selectedModIds = new Set(modIds);
+        // Re-render mods to update checked state
+        if (window.modsData) displayMods(window.modsData);
+        else loadModsData();
+        alert('Detected and selected ' + modIds.length + ' mods from your INI file!');
+    };
+    reader.readAsText(file);
+});
+
+// Helper to extract mod IDs from INI file
+function extractModIdsFromIni(iniContent) {
+    // Look for lines like EnabledMods=MODID
+    const modIds = [];
+    const lines = iniContent.split(/\r?\n/);
+    for (const line of lines) {
+        const match = line.match(/^EnabledMods=(.+)$/);
+        if (match) {
+            modIds.push(match[1].trim());
+        }
+    }
+    return modIds;
+}
