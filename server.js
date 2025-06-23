@@ -250,9 +250,9 @@ async function fetchModsFromAPI() {
     if (process.argv.includes('--dev')) {
       API_HOSTNAME = '104.243.37.159';
     } else {
-      API_HOSTNAME = '93a6e810-83b8-48c5-8486-6bd7051b906b';
+      API_HOSTNAME = '848da576-521b-4606-a37f-cd7512c5a67e';
     }
-    const API_PORT = 25056;
+    const API_PORT = 25010;
     const API_PATH = '/api/mods';
     const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
     
