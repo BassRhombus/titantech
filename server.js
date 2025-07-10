@@ -808,6 +808,18 @@ app.get('/admin-showcase.html', isAuthenticated, isAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-showcase.html'));
 });
 
+// Add cache-clearing endpoint for development
+app.get('/api/clear-cache', isAuthenticated, isAdmin, (req, res) => {
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.json({ 
+    success: true, 
+    message: 'Cache headers cleared', 
+    timestamp: new Date().toISOString() 
+  });
+});
+
 // Set up automatic refresh of mods data every 5 minutes
 setInterval(async () => {
   try {
@@ -824,7 +836,16 @@ fetchModsFromAPI().catch(error => {
 });
 
 // Serve static files
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, {
+  setHeaders: function (res, path, stat) {
+    // Disable caching for CSS files to ensure updates are reflected
+    if (path.endsWith('.css')) {
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+    }
+  }
+}));
 
 // Special route for mod-manager.html
 app.get('/mod-manager.html', (req, res) => {
