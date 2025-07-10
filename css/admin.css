@@ -1,15 +1,31 @@
 /* Admin Panel Styles */
 .admin-hero {
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/admin-bg.jpg');
+    background: linear-gradient(to right, rgba(13, 13, 20, 0.9), rgba(26, 26, 43, 0.7)), url('../images/banner.jpg');
     background-size: cover;
     background-position: center;
     padding: 2rem 5%;
     color: white;
+    position: relative;
+}
+
+.admin-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 207, 255, 0.1) 0%, rgba(217, 79, 203, 0.1) 100%);
+    pointer-events: none;
 }
 
 .admin-hero h2 {
+    font-family: 'Orbitron', sans-serif;
     color: var(--primary-color);
     margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(217, 79, 203, 0.5);
+    position: relative;
+    z-index: 2;
 }
 
 .admin-header {

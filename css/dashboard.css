@@ -78,11 +78,23 @@
 
 /* Dashboard Hero */
 .dashboard-hero {
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/dashboard-bg.jpg');
+    background: linear-gradient(to right, rgba(13, 13, 20, 0.9), rgba(26, 26, 43, 0.7)), url('../images/banner.jpg');
     background-size: cover;
     background-position: center;
     padding: 3rem 5%;
     color: white;
+    position: relative;
+}
+
+.dashboard-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 207, 255, 0.1) 0%, rgba(217, 79, 203, 0.1) 100%);
+    pointer-events: none;
 }
 
 .welcome-container {
@@ -112,10 +124,18 @@
     display: flex;
     align-items: center;
     min-width: 200px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 15px rgba(0, 207, 255, 0.1);
     flex: 1;
     max-width: 300px;
     border-left: 4px solid var(--primary-color);
+    border: 1px solid rgba(0, 207, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 25px rgba(0, 207, 255, 0.2);
+    border-color: var(--neon-blue);
+    transform: translateY(-3px);
 }
 
 .stat-card i {

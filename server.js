@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const app = express();
-const PORT = 3003;
+const PORT = process.env.PORT || 3003;
 const http = require('http');
 const fs = require('fs');
 const multer = require('multer');
@@ -871,6 +871,6 @@ app.get('/:page.html', (req, res) => {
 });
 
 // Revert to original app.listen
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running at http://0.0.0.0:${PORT}/`);
 });

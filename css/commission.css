@@ -3,12 +3,24 @@
 .commission-intro {
     padding: 3rem 5%;
     text-align: center;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/commission-bg.jpg');
+    background: linear-gradient(to right, rgba(13, 13, 20, 0.9), rgba(26, 26, 43, 0.7)), url('../images/banner.jpg');
     background-size: cover;
     background-position: center;
     margin-bottom: 2rem;
     border-radius: 8px;
-    position: relative; /* Added for positioning the back button */
+    position: relative;
+}
+
+.commission-intro::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 207, 255, 0.1) 0%, rgba(217, 79, 203, 0.1) 100%);
+    pointer-events: none;
+    border-radius: 8px;
 }
 
 /* Back button styling */
@@ -21,10 +33,12 @@
     background-color: rgba(0, 0, 0, 0.6);
     color: var(--primary-color);
     padding: 8px 15px;
-    border-radius: 4px;
+    border-radius: 25px;
     text-decoration: none;
     font-weight: bold;
     transition: all 0.3s ease;
+    z-index: 3;
+    box-shadow: 0 0 15px rgba(217, 79, 203, 0.3);
 }
 
 .back-button i {
@@ -125,20 +139,26 @@
 
 .submit-btn {
     display: inline-block;
-    background-color: var(--primary-color);
+    background: linear-gradient(45deg, var(--neon-magenta), var(--neon-blue));
     color: white;
     border: none;
     padding: 0.8rem 2rem;
-    border-radius: 4px;
+    border-radius: 25px;
+    font-family: 'Rajdhani', sans-serif;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
     font-size: 1rem;
     width: 100%;
+    box-shadow: 0 0 20px rgba(217, 79, 203, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .submit-btn:hover {
-    background-color: var(--secondary-color);
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-magenta));
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0, 207, 255, 0.6);
 }
 
 .form-note {
