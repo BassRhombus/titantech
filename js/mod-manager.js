@@ -45,12 +45,39 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('deselectAllBtn').addEventListener('click', deselectAllMods);
     document.getElementById('searchInput').addEventListener('input', filterMods);
     
+    // Add preview toggle functionality
+    const previewHeader = document.querySelector('.preview-header');
+    const toggleBtn = document.getElementById('togglePreview');
+    const configPreview = document.getElementById('configPreview');
+    
+    if (previewHeader && toggleBtn) {
+        previewHeader.addEventListener('click', function() {
+            configPreview.classList.toggle('collapsed');
+            toggleBtn.classList.toggle('collapsed');
+        });
+    }
+    
     // Add a manual refresh button
     addRefreshButton();
+    
+    // Initialize preview box
+    initializePreview();
 });
 
 // Add this global variable at the top of your file, after the DOMContentLoaded event listener
 let selectedModIds = new Set();
+
+// Initialize the preview box
+function initializePreview() {
+    const previewBox = document.getElementById('configPreview');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const previewCode = document.getElementById('previewCode');
+    
+    // Set initial state
+    selectedCountSpan.textContent = '0';
+    previewCode.innerHTML = '<span class="section-line">[PathOfTitans.Mods]</span>\n<span class="comment-line"># No mods selected</span>';
+    previewBox.style.display = 'none';
+}
 
 // Update the refresh button functionality
 function addRefreshButton() {
@@ -257,6 +284,43 @@ function updateSelectedCount() {
     const count = document.querySelectorAll('.mod-checkbox:checked').length;
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.textContent = count > 0 ? `Generate Config (${count})` : 'Generate Config';
+    
+    // Update preview
+    updateConfigPreview();
+}
+
+// New function to update the configuration preview
+function updateConfigPreview() {
+    const selectedMods = [];
+    document.querySelectorAll('.mod-checkbox:checked').forEach(checkbox => {
+        selectedMods.push({
+            id: checkbox.dataset.id,
+            name: checkbox.dataset.name
+        });
+    });
+    
+    const previewBox = document.getElementById('configPreview');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const previewCode = document.getElementById('previewCode');
+    
+    // Update selected count
+    selectedCountSpan.textContent = selectedMods.length;
+    
+    // Generate preview content
+    if (selectedMods.length === 0) {
+        previewCode.innerHTML = '<span class="section-line">[PathOfTitans.Mods]</span>\n<span class="comment-line"># No mods selected</span>';
+        previewBox.style.display = 'none';
+    } else {
+        let previewContent = '<span class="section-line">[PathOfTitans.Mods]</span>\n';
+        
+        selectedMods.forEach(mod => {
+            previewContent += `<span class="mod-line">EnabledMods=${mod.id}</span>\n`;
+            previewContent += `<span class="comment-line">#${mod.name}</span>\n`;
+        });
+        
+        previewCode.innerHTML = previewContent;
+        previewBox.style.display = 'block';
+    }
 }
 
 // Update the click handler to track selections
@@ -295,6 +359,7 @@ document.getElementById('iniFileInput').addEventListener('change', function(even
         // Re-render mods to update checked state
         if (window.modsData) displayMods(window.modsData);
         else loadModsData();
+        updateConfigPreview(); // Update preview after loading INI
         alert('Detected and selected ' + modIds.length + ' mods from your INI file!');
     };
     reader.readAsText(file);

@@ -24,6 +24,26 @@
             <div id="modsContainer" class="mods-container">
                 <!-- Mods will be loaded here via JavaScript -->
             </div>
+            
+            <!-- Preview Box -->
+            <div id="configPreview" class="config-preview" style="display: none;">
+                <div class="preview-header">
+                    <h3><i class="fas fa-eye"></i> Configuration Preview</h3>
+                    <button id="togglePreview" class="preview-toggle">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </div>
+                <div class="preview-content">
+                    <div class="preview-info">
+                        <p><strong>Selected Mods:</strong> <span id="selectedCount">0</span></p>
+                        <p><strong>Config File:</strong> GameUserSettings.ini</p>
+                    </div>
+                    <div class="preview-code">
+                        <pre id="previewCode">[PathOfTitans.Mods]
+# No mods selected</pre>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
     
