@@ -826,11 +826,12 @@ fetchModsFromAPI().catch(error => {
 // Serve static files
 app.use(express.static(__dirname));
 
-// Special route for mod-manager.html
-app.get('/mod-manager.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'ModINI/public/index.html'));
+// Special route for mods data
+app.get('/ModINI/public/mods_details.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'ModINI/public/mods_details.json'));
 });
 
+// Special route for mod-manager (separate from main site)
 app.use('/mod-manager', express.static(path.join(__dirname, 'ModINI/public')));
 
 // Login page route

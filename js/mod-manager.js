@@ -73,10 +73,24 @@ function initializePreview() {
     const selectedCountSpan = document.getElementById('selectedCount');
     const previewCode = document.getElementById('previewCode');
     
+    // Debug: Check if elements exist
+    console.log('Preview elements:', {
+        previewBox: !!previewBox,
+        selectedCountSpan: !!selectedCountSpan,
+        previewCode: !!previewCode
+    });
+    
+    if (!previewBox || !selectedCountSpan || !previewCode) {
+        console.error('Preview elements not found in DOM');
+        return;
+    }
+    
     // Set initial state
     selectedCountSpan.textContent = '0';
     previewCode.innerHTML = '<span class="section-line">[PathOfTitans.Mods]</span>\n<span class="comment-line"># No mods selected</span>';
     previewBox.style.display = 'none';
+    
+    console.log('Preview initialized successfully');
 }
 
 // Update the refresh button functionality
@@ -283,7 +297,12 @@ function showLoading() {
 function updateSelectedCount() {
     const count = document.querySelectorAll('.mod-checkbox:checked').length;
     const generateBtn = document.getElementById('generateBtn');
-    generateBtn.textContent = count > 0 ? `Generate Config (${count})` : 'Generate Config';
+    
+    console.log('updateSelectedCount called, count:', count);
+    
+    if (generateBtn) {
+        generateBtn.textContent = count > 0 ? `Generate Config (${count})` : 'Generate Config';
+    }
     
     // Update preview
     updateConfigPreview();
@@ -303,6 +322,13 @@ function updateConfigPreview() {
     const selectedCountSpan = document.getElementById('selectedCount');
     const previewCode = document.getElementById('previewCode');
     
+    console.log('updateConfigPreview called with', selectedMods.length, 'mods');
+    
+    if (!previewBox || !selectedCountSpan || !previewCode) {
+        console.error('Preview elements not found during update');
+        return;
+    }
+    
     // Update selected count
     selectedCountSpan.textContent = selectedMods.length;
     
@@ -310,6 +336,7 @@ function updateConfigPreview() {
     if (selectedMods.length === 0) {
         previewCode.innerHTML = '<span class="section-line">[PathOfTitans.Mods]</span>\n<span class="comment-line"># No mods selected</span>';
         previewBox.style.display = 'none';
+        console.log('Preview hidden - no mods selected');
     } else {
         let previewContent = '<span class="section-line">[PathOfTitans.Mods]</span>\n';
         
@@ -320,6 +347,7 @@ function updateConfigPreview() {
         
         previewCode.innerHTML = previewContent;
         previewBox.style.display = 'block';
+        console.log('Preview shown with', selectedMods.length, 'mods');
     }
 }
 

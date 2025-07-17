@@ -531,23 +531,200 @@ header h1 {
     background-color: #444;
 }
 
-/* Responsive Design */
+/* Configuration Preview Box */
+.config-preview {
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    padding: 0 5%;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(0, 207, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 207, 255, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.config-preview.collapsed .preview-content {
+    display: none;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: linear-gradient(45deg, rgba(217, 79, 203, 0.1), rgba(0, 207, 255, 0.1));
+    border-bottom: 1px solid rgba(0, 207, 255, 0.2);
+    cursor: pointer;
+    user-select: none;
+}
+
+.preview-header:hover {
+    background: linear-gradient(45deg, rgba(217, 79, 203, 0.2), rgba(0, 207, 255, 0.2));
+}
+
+.preview-header h3 {
+    margin: 0;
+    color: #e0e0e0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.preview-header h3 i {
+    margin-right: 0.5rem;
+    color: #00CFFF;
+}
+
+.preview-toggle {
+    background: none;
+    border: none;
+    color: #00CFFF;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.preview-toggle:hover {
+    background-color: rgba(0, 207, 255, 0.1);
+}
+
+.preview-toggle.collapsed {
+    transform: rotate(180deg);
+}
+
+.preview-content {
+    padding: 1.5rem;
+}
+
+.preview-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 207, 255, 0.1);
+}
+
+.preview-info p {
+    margin: 0;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+}
+
+.preview-info strong {
+    color: #00CFFF;
+}
+
+.preview-info #selectedCount {
+    color: #D94FCB;
+    font-weight: bold;
+}
+
+.preview-code {
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+}
+
+.preview-code pre {
+    margin: 0;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.preview-code .mod-line {
+    color: #00CFFF;
+}
+
+.preview-code .comment-line {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.preview-code .section-line {
+    color: #D94FCB;
+    font-weight: bold;
+}
+
+/* Scrollbar styling for preview code */
+.preview-code::-webkit-scrollbar {
+    width: 8px;
+}
+
+.preview-code::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.preview-code::-webkit-scrollbar-thumb {
+    background: rgba(0, 207, 255, 0.3);
+    border-radius: 4px;
+}
+
+.preview-code::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 207, 255, 0.5);
+}
+
+/* Responsive adjustments for preview */
 @media (max-width: 768px) {
-    .mods-container {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    .config-preview {
+        margin: 1rem auto 0;
+        padding: 0 2%;
     }
     
-    #searchInput {
-        width: 100%;
+    .preview-header {
+        padding: 0.75rem;
+    }
+    
+    .preview-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .preview-content {
+        padding: 1rem;
+    }
+    
+    .preview-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .preview-code {
+        max-height: 200px;
+        padding: 0.75rem;
+    }
+    
+    .preview-code pre {
+        font-size: 0.8rem;
     }
 }
 
 @media (max-width: 480px) {
-    .mods-container {
-        grid-template-columns: 1fr;
+    .config-preview {
+        margin: 0.5rem auto 0;
     }
     
-    header h1 {
-        font-size: 1.8rem;
+    .preview-header {
+        padding: 0.5rem;
+    }
+    
+    .preview-content {
+        padding: 0.75rem;
+    }
+    
+    .preview-code {
+        max-height: 150px;
+        padding: 0.5rem;
     }
 }
