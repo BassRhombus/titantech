@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
+/* CSS Variables */
+:root {
+    --primary-color: #00CFFF;
+    --secondary-color: #D94FCB;
+    --neon-blue: #00CFFF;
+    --neon-magenta: #D94FCB;
+    --background-dark: #0D0D14;
+    --background-light: #1A1A2B;
+}
+
 /* General Styling */
 * { 
     box-sizing: border-box;
