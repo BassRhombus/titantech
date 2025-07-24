@@ -114,7 +114,6 @@
 .preview-toggle.collapsed i {
     transform: rotate(180deg);
 }
-}
 
 .controls button {
     background: linear-gradient(45deg, var(--neon-magenta), var(--neon-blue));
