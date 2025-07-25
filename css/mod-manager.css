@@ -1,3 +1,8 @@
+/* Neon color variables for button gradients */
+:root {
+    --neon-magenta: #d94fcb;
+    --neon-blue: #00cfff;
+}
 /* Mod Manager Styles */
 /* Mod Manager Intro Section */
 .mod-manager-intro {
