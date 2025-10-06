@@ -858,6 +858,239 @@ app.get('/admin-commissions.html', isAuthenticated, isAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-commissions.html'));
 });
 
+// Cache for servers and mods
+let serversCache = { data: null, timestamp: 0 };
+let modsCache = { data: null, timestamp: 0 };
+const SERVERS_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+const MODS_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
+// Helper function to make HTTPS requests
+function makeHttpsRequest(options) {
+  return new Promise((resolve, reject) => {
+    const https = require('https');
+    const apiReq = https.request(options, (apiRes) => {
+      let data = '';
+
+      apiRes.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      apiRes.on('end', () => {
+        if (apiRes.statusCode === 200) {
+          try {
+            resolve(JSON.parse(data));
+          } catch (error) {
+            reject(new Error('Failed to parse JSON response'));
+          }
+        } else {
+          reject(new Error(`API returned status ${apiRes.statusCode}`));
+        }
+      });
+    });
+
+    apiReq.on('error', (error) => {
+      reject(error);
+    });
+
+    apiReq.end();
+  });
+}
+
+// Fetch and cache all mods
+async function fetchAndCacheMods() {
+  const now = Date.now();
+
+  // Return cached data if still valid
+  if (modsCache.data && (now - modsCache.timestamp) < MODS_CACHE_DURATION) {
+    console.log('Returning cached mods data');
+    return modsCache.data;
+  }
+
+  console.log('Fetching fresh mods data from API (with pagination)');
+
+  try {
+    // Fetch all mods using offset/limit pagination
+    let allMods = [];
+    let offset = 0;
+    const limit = 100;
+    let total = 0;
+
+    do {
+      const options = {
+        hostname: 'pot-api.gsh-servers.com',
+        path: `/api/v1/mods?offset=${offset}&limit=${limit}`,
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer gsh_2280ca130d6a1a5b627418dd431198baef053cab88b03bafb19eea5b320a0b0d',
+          'Accept': 'application/json'
+        }
+      };
+
+      const data = await makeHttpsRequest(options);
+
+      if (data.total) {
+        total = data.total;
+      }
+
+      if (data.items && Array.isArray(data.items)) {
+        allMods = allMods.concat(data.items);
+        console.log(`Fetched mods at offset ${offset}, got ${data.items.length} mods, total so far: ${allMods.length}/${total}`);
+
+        // If we got fewer items than the limit, we've reached the end
+        if (data.items.length < limit) {
+          break;
+        }
+      } else {
+        break;
+      }
+
+      offset += limit;
+    } while (allMods.length < total);
+
+    // Create a lookup map by mod ID
+    const modsMap = {};
+    allMods.forEach(mod => {
+      if (mod.id) {
+        // Store both numeric and string versions of the ID
+        modsMap[mod.id] = mod.name || `Mod ${mod.id}`;
+        modsMap[String(mod.id)] = mod.name || `Mod ${mod.id}`;
+      }
+    });
+
+    modsCache = {
+      data: modsMap,
+      timestamp: now
+    };
+
+    console.log(`Successfully cached ${Object.keys(modsMap).length / 2} unique mods out of ${total} total`);
+    return modsMap;
+  } catch (error) {
+    console.error('Error fetching mods:', error);
+    // Return existing cache if available, even if expired
+    return modsCache.data || {};
+  }
+}
+
+// Fetch and cache servers (with pagination support)
+async function fetchAndCacheServers() {
+  const now = Date.now();
+
+  // Return cached data if still valid
+  if (serversCache.data && (now - serversCache.timestamp) < SERVERS_CACHE_DURATION) {
+    console.log('Returning cached servers data');
+    return serversCache.data;
+  }
+
+  console.log('Fetching fresh servers data from API (with pagination)');
+
+  try {
+    // Fetch all servers using offset/limit pagination
+    let allServers = [];
+    let offset = 0;
+    const limit = 100;
+    let total = 0;
+
+    do {
+      const options = {
+        hostname: 'pot-api.gsh-servers.com',
+        path: `/api/v1/servers?offset=${offset}&limit=${limit}`,
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer gsh_2280ca130d6a1a5b627418dd431198baef053cab88b03bafb19eea5b320a0b0d',
+          'Accept': 'application/json'
+        }
+      };
+
+      const data = await makeHttpsRequest(options);
+
+      if (data.total) {
+        total = data.total;
+      }
+
+      if (data.items && Array.isArray(data.items)) {
+        allServers = allServers.concat(data.items);
+        console.log(`Fetched servers at offset ${offset}, got ${data.items.length} servers, total so far: ${allServers.length}/${total}`);
+
+        // If we got fewer items than the limit, we've reached the end
+        if (data.items.length < limit) {
+          break;
+        }
+      } else {
+        break;
+      }
+
+      offset += limit;
+    } while (allServers.length < total);
+
+    const fullData = {
+      total: total,
+      items: allServers
+    };
+
+    serversCache = {
+      data: fullData,
+      timestamp: now
+    };
+
+    console.log(`Successfully cached ${allServers.length} servers out of ${total} total`);
+    return fullData;
+  } catch (error) {
+    console.error('Error fetching servers:', error);
+    // Return existing cache if available, even if expired
+    return serversCache.data || { total: 0, items: [] };
+  }
+}
+
+// Community servers API endpoint with caching
+app.get('/api/community-servers', async (req, res) => {
+  try {
+    const data = await fetchAndCacheServers();
+    res.json(data);
+  } catch (error) {
+    console.error('Error in community servers endpoint:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// Get all mods endpoint with caching
+app.get('/api/community-mods', async (req, res) => {
+  try {
+    const modsMap = await fetchAndCacheMods();
+    res.json(modsMap);
+  } catch (error) {
+    console.error('Error in community mods endpoint:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// Pre-cache mods on server startup
+fetchAndCacheMods().then(() => {
+  console.log('Initial mods cache loaded');
+}).catch(error => {
+  console.error('Failed to load initial mods cache:', error);
+});
+
+// Auto-refresh caches periodically
+setInterval(() => {
+  fetchAndCacheServers().catch(error => {
+    console.error('Error refreshing servers cache:', error);
+  });
+}, SERVERS_CACHE_DURATION);
+
+setInterval(() => {
+  fetchAndCacheMods().catch(error => {
+    console.error('Error refreshing mods cache:', error);
+  });
+}, MODS_CACHE_DURATION);
+
 // Default route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
