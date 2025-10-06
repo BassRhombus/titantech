@@ -16,7 +16,7 @@
             gap: 20px;
         }
         
-        .sponsor-box {
+        .partner-highlight {
             background: rgba(30, 42, 56, 0.8);
             border: 1px solid #333;
             border-radius: 8px;
@@ -31,13 +31,13 @@
             visibility: visible !important;
         }
         
-        .sponsor-box:hover {
+        .partner-highlight:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
             border-color: var(--primary-color);
         }
         
-        .sponsor-box a {
+        .partner-highlight a {
             text-decoration: none;
             color: #e0e0e0;
             display: block;
@@ -45,24 +45,24 @@
             visibility: visible !important;
         }
         
-        .sponsor-box img {
+        .partner-highlight img {
             max-width: 100%;
             height: auto;
             margin-bottom: 10px;
             border-radius: 5px;
         }
         
-        .sponsor-box h3 {
+        .partner-highlight h3 {
             color: var(--primary-color);
             margin: 10px 0;
         }
         
-        .sponsor-box p {
+        .partner-highlight p {
             font-size: 0.9rem;
             margin-bottom: 10px;
         }
         
-        .sponsor-tag {
+        .partner-info {
             font-size: 0.8rem;
             color: #aaa;
             display: block;
@@ -73,7 +73,7 @@
             .hero-content, .hero-image {
                 flex: 1 1 45%;
             }
-            .sponsor-box {
+            .partner-highlight {
                 flex: 0 1 100%;
                 margin: 0 auto;
                 order: 3;
@@ -214,8 +214,8 @@
                 <img src="images/home1.png" alt="Path of Titans Dinosaur">
             </div>
             
-            <!-- Modified GSH Sponsor Box with inline style to ensure visibility -->
-            <div class="sponsor-box" style="display: block !important; visibility: visible !important;">
+            <!-- Modified GSH Partner Box with inline style to ensure visibility -->
+            <div class="partner-highlight" style="display: block !important; visibility: visible !important;">
                 <a href="https://gameservershub.com/path-of-titans-server-hosting-provider/" target="_blank" style="display: block !important; visibility: visible !important;">
                     <img src="images/GSHPanel.png" alt="GameServersHub Logo">
                     <h3>GameServersHub</h3>
@@ -308,19 +308,19 @@
     <!-- Add a script to ensure the sponsor box remains visible after page load -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Force the sponsor box to be displayed even after all scripts load
-            const sponsorBox = document.querySelector('.sponsor-box');
-            if (sponsorBox) {
+            // Force the partner highlight to be displayed even after all scripts load
+            const partnerBox = document.querySelector('.partner-highlight');
+            if (partnerBox) {
                 // Make sure it's visible
-                sponsorBox.style.display = 'block';
-                sponsorBox.style.visibility = 'visible';
-                sponsorBox.style.opacity = '1';
+                partnerBox.style.display = 'block';
+                partnerBox.style.visibility = 'visible';
+                partnerBox.style.opacity = '1';
                 
                 // Check again after a short delay to catch any scripts that might hide it
                 setTimeout(function() {
-                    sponsorBox.style.display = 'block';
-                    sponsorBox.style.visibility = 'visible';
-                    sponsorBox.style.opacity = '1';
+                    partnerBox.style.display = 'block';
+                    partnerBox.style.visibility = 'visible';
+                    partnerBox.style.opacity = '1';
                 }, 500);
             }
         });
