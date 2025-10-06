@@ -7,23 +7,30 @@
 /* Mod Manager Intro Section */
 .mod-manager-intro {
     text-align: center;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/mod-manager-bg.jpg');
-    background-size: cover;
-    background-position: center;
-    padding: 1rem 5%; /* Further reduced padding */
-    margin-bottom: 1rem; /* Reduced margin */
+    background: transparent;
+    padding: 3rem 5% 2rem;
+    margin-bottom: 1rem;
 }
 
 .mod-manager-intro h2 {
-    font-size: 1.8rem; /* Further reduced font size */
-    margin-bottom: 0.3rem; /* Reduced margin */
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
     color: var(--primary-color);
+    font-family: 'Orbitron', 'Exo', sans-serif;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(0, 207, 255, 0.5);
 }
 
 .mod-manager-intro p {
-    font-size: 0.9rem; /* Slightly smaller text */
+    font-size: 1.2rem;
     max-width: 700px;
-    margin: 0 auto 0.7rem; /* Further reduced bottom margin */
+    margin: 0 auto 1rem;
+    color: #e0e0e0;
+    opacity: 0.9;
 }
 
 #modsContainer {
