@@ -1044,6 +1044,29 @@ async function fetchAndCacheServers() {
   }
 }
 
+// GSH servers endpoint
+app.get('/api/gsh-servers', (req, res) => {
+  try {
+    const serversFilePath = path.join(__dirname, 'servers.txt');
+    if (fs.existsSync(serversFilePath)) {
+      const data = fs.readFileSync(serversFilePath, 'utf8');
+      const ips = data.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+      res.json({ ips });
+    } else {
+      res.json({ ips: [] });
+    }
+  } catch (error) {
+    console.error('Error reading GSH servers file:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
 // Community servers API endpoint with caching
 app.get('/api/community-servers', async (req, res) => {
   try {

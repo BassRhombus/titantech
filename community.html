@@ -344,6 +344,25 @@
             animation: spin 2s linear infinite;
         }
 
+        .gsh-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+        }
+
+        .gsh-badge i {
+            font-size: 0.85rem;
+        }
+
         @keyframes featuredGlow {
             0% {
                 box-shadow: 0 0 30px rgba(0, 207, 255, 0.4), 0 0 50px rgba(217, 79, 203, 0.3);
@@ -705,11 +724,13 @@
         const API_CONFIG = {
             serversUrl: '/api/community-servers',
             modsUrl: '/api/community-mods',
+            gshServersUrl: '/api/gsh-servers',
             refreshInterval: 120000 // 2 minutes
         };
 
         let serversCache = [];
         let modsCache = new Map();
+        let gshServerIPs = new Set();
         let filteredServers = [];
         let refreshTimer = null;
 
@@ -735,6 +756,28 @@
                 if (serversCache.length === 0) {
                     initializeServerBrowser();
                 }
+            }
+        }
+
+        // Fetch GSH server IPs
+        async function fetchGSHServers() {
+            try {
+                const response = await fetch(API_CONFIG.gshServersUrl);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                gshServerIPs.clear();
+
+                // Add all IPs to the Set
+                if (data.ips && Array.isArray(data.ips)) {
+                    data.ips.forEach(ip => {
+                        gshServerIPs.add(ip);
+                    });
+                }
+
+                console.log(`Cached ${gshServerIPs.size} GSH server IPs`);
+            } catch (error) {
+                console.error('Error fetching GSH servers:', error);
             }
         }
 
@@ -825,6 +868,7 @@
                 const discordLink = server.discord && server.discord.link ? server.discord.link : null;
                 const serverIP = server.connection && server.connection.ip_address ? server.connection.ip_address : '';
                 const isFeaturedServer = serverIP === '172.93.102.240';
+                const isGSHServer = gshServerIPs.has(serverIP);
 
                 const modsList = modDefinitions.length > 0
                     ? modDefinitions.map(mod => `<span class="mod-tag">${getModName(mod.id)}</span>`).join('')
@@ -839,6 +883,12 @@
                                     <span class="featured-badge">
                                         <i class="fas fa-star"></i>
                                         Featured
+                                    </span>
+                                ` : ''}
+                                ${isGSHServer ? `
+                                    <span class="gsh-badge">
+                                        <i class="fas fa-server"></i>
+                                        GSH Hosted
                                     </span>
                                 ` : ''}
                                 ${discordLink ? `
@@ -1059,6 +1109,9 @@
         // Initialize the server browser
         async function initializeServerBrowser() {
             console.log('Initializing server browser...');
+
+            // Fetch GSH server IPs
+            await fetchGSHServers();
 
             // Fetch mods first (they don't need to refresh as often)
             await fetchMods();
