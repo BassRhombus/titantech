@@ -1,3 +1,18 @@
+// Curve Overrides storage
+let curveOverrides = [];
+
+// Path of Titans dinosaur species list
+const dinosaurSpecies = [
+    "Achillobator", "Albertaceratops", "Alioramus", "Allosaurus", "Amargasaurus",
+    "Anodontosaurus", "Barsboldia", "Camptosaurus", "Ceratosaurus", "Concavenator",
+    "Daspletosaurus", "Default", "Deinocheirus", "Deinonychus", "Eotriceratops",
+    "Eurhinosaurus", "Generic", "Hatzegopteryx", "Iguanodon", "Kaiwhekea",
+    "Kentrosaurus", "Lambeosaurus", "Latenivenatrix", "Megalania", "Metriacanthosaurus",
+    "Miragaia", "Pachycephalosaurus", "Pycnonemosaurus", "Rhamphorhynchus", "Sarcosuchus",
+    "Spinosaurus", "Stegosaurus", "Struthiomimus", "Styracosaurus", "Suchomimus",
+    "Thalassodromeus", "Tyrannosaurus", "Tyrannotitan"
+];
+
 // Configuration data structure
 const configData = {
     IGameSession: {
@@ -184,7 +199,8 @@ const configData = {
         "Weather System": [
             { name: "bOverrideWeather", type: "boolean", default: "false", description: "Please see Weather Control documentation" },
             { name: "bRandomizeOverrideWeather", type: "boolean", default: "true", description: "Please see Weather Control documentation" }
-        ]
+        ],
+        "Curve Overrides": []
     },
     IGameMode: {
         "Game Mode Settings": [
@@ -249,6 +265,9 @@ function initializeForm() {
         createCategory('SourceRCON', categoryName, configData.SourceRCON[categoryName]);
     });
 
+    // Create Curve Overrides section
+    createCurveOverridesSection();
+
     // Create tab navigation
     createTabs();
 }
@@ -269,7 +288,8 @@ function createTabs() {
         { id: 'player', label: 'Player & Security', categories: ['Player Lifecycle & Security', 'Character Management'] },
         { id: 'weather', label: 'Weather', categories: ['Weather System'] },
         { id: 'IGameMode', label: 'Game Mode', categories: ['Game Mode Settings'] },
-        { id: 'SourceRCON', label: 'SourceRCON', categories: ['SourceRCON Settings'] }
+        { id: 'SourceRCON', label: 'SourceRCON', categories: ['SourceRCON Settings'] },
+        { id: 'curveOverrides', label: 'Curve Overrides', categories: ['Curve Overrides'] }
     ];
 
     tabs.forEach((tab, index) => {
@@ -287,6 +307,238 @@ function createTabs() {
 
     // Show first tab by default
     switchTab('general', ['General Server Settings']);
+}
+
+function createCurveOverridesSection() {
+    const form = document.getElementById('configForm');
+
+    const section = document.createElement('div');
+    section.className = 'section';
+    section.dataset.category = 'Curve Overrides';
+    section.style.display = 'none';
+
+    const heading = document.createElement('h2');
+    heading.textContent = 'Curve Overrides';
+    section.appendChild(heading);
+
+    const description = document.createElement('div');
+    description.className = 'description';
+    description.textContent = 'Add custom curve overrides to modify dinosaur stats and behaviors. Time values are fixed at 0.0, 0.25, 0.5, 0.75, and 1.0 representing growth stages.';
+    description.style.marginBottom = '20px';
+    section.appendChild(description);
+
+    // Add curve override form
+    const addForm = document.createElement('div');
+    addForm.className = 'curve-override-form';
+    addForm.style.background = 'rgba(0, 0, 0, 0.3)';
+    addForm.style.padding = '20px';
+    addForm.style.borderRadius = '8px';
+    addForm.style.marginBottom = '20px';
+
+    // Dinosaur dropdown with search
+    const dinoLabel = document.createElement('label');
+    dinoLabel.textContent = 'Dinosaur Species';
+    dinoLabel.style.display = 'block';
+    dinoLabel.style.marginBottom = '8px';
+    dinoLabel.style.color = '#e0e0e0';
+    addForm.appendChild(dinoLabel);
+
+    const dinoSelect = document.createElement('select');
+    dinoSelect.id = 'curveOverrideDino';
+    dinoSelect.style.width = '100%';
+    dinoSelect.style.padding = '10px';
+    dinoSelect.style.marginBottom = '15px';
+    dinoSelect.style.background = '#252525';
+    dinoSelect.style.border = '1px solid #333';
+    dinoSelect.style.color = '#e0e0e0';
+    dinoSelect.style.borderRadius = '6px';
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Select a dinosaur...';
+    dinoSelect.appendChild(defaultOption);
+
+    dinosaurSpecies.forEach(dino => {
+        const option = document.createElement('option');
+        option.value = dino;
+        option.textContent = dino;
+        dinoSelect.appendChild(option);
+    });
+    addForm.appendChild(dinoSelect);
+
+    // Curve name input
+    const curveLabel = document.createElement('label');
+    curveLabel.textContent = 'Curve Name (e.g., GrowthRate, BiteDamage, StaminaDrain)';
+    curveLabel.style.display = 'block';
+    curveLabel.style.marginBottom = '8px';
+    curveLabel.style.color = '#e0e0e0';
+    addForm.appendChild(curveLabel);
+
+    const curveInput = document.createElement('input');
+    curveInput.type = 'text';
+    curveInput.id = 'curveOverrideName';
+    curveInput.placeholder = 'Enter curve name...';
+    curveInput.style.width = '100%';
+    curveInput.style.padding = '10px';
+    curveInput.style.marginBottom = '15px';
+    curveInput.style.background = '#252525';
+    curveInput.style.border = '1px solid #333';
+    curveInput.style.color = '#e0e0e0';
+    curveInput.style.borderRadius = '6px';
+    addForm.appendChild(curveInput);
+
+    // Value inputs container
+    const valuesLabel = document.createElement('label');
+    valuesLabel.textContent = 'Curve Values (Time: 0.0, 0.25, 0.5, 0.75, 1.0)';
+    valuesLabel.style.display = 'block';
+    valuesLabel.style.marginBottom = '8px';
+    valuesLabel.style.color = '#e0e0e0';
+    addForm.appendChild(valuesLabel);
+
+    const valuesContainer = document.createElement('div');
+    valuesContainer.style.display = 'grid';
+    valuesContainer.style.gridTemplateColumns = 'repeat(5, 1fr)';
+    valuesContainer.style.gap = '10px';
+    valuesContainer.style.marginBottom = '15px';
+
+    const timeValues = ['0.0', '0.25', '0.5', '0.75', '1.0'];
+    timeValues.forEach((time, index) => {
+        const valueInput = document.createElement('input');
+        valueInput.type = 'number';
+        valueInput.step = '0.01';
+        valueInput.id = `curveValue${index}`;
+        valueInput.placeholder = `Time ${time}`;
+        valueInput.style.padding = '10px';
+        valueInput.style.background = '#252525';
+        valueInput.style.border = '1px solid #333';
+        valueInput.style.color = '#e0e0e0';
+        valueInput.style.borderRadius = '6px';
+        valuesContainer.appendChild(valueInput);
+    });
+    addForm.appendChild(valuesContainer);
+
+    // Add button
+    const addButton = document.createElement('button');
+    addButton.textContent = 'Add Curve Override';
+    addButton.style.padding = '10px 20px';
+    addButton.style.background = '#4CAF50';
+    addButton.style.color = 'white';
+    addButton.style.border = 'none';
+    addButton.style.borderRadius = '6px';
+    addButton.style.cursor = 'pointer';
+    addButton.onclick = addCurveOverride;
+    addForm.appendChild(addButton);
+
+    section.appendChild(addForm);
+
+    // Container for added curve overrides
+    const overridesContainer = document.createElement('div');
+    overridesContainer.id = 'curveOverridesList';
+    section.appendChild(overridesContainer);
+
+    form.appendChild(section);
+}
+
+function addCurveOverride() {
+    const dino = document.getElementById('curveOverrideDino').value;
+    const curveName = document.getElementById('curveOverrideName').value.trim();
+    const values = [];
+
+    for (let i = 0; i < 5; i++) {
+        const value = document.getElementById(`curveValue${i}`).value;
+        if (value === '') {
+            alert('Please fill in all 5 curve values');
+            return;
+        }
+        values.push(parseFloat(value));
+    }
+
+    if (!dino) {
+        alert('Please select a dinosaur species');
+        return;
+    }
+
+    if (!curveName) {
+        alert('Please enter a curve name');
+        return;
+    }
+
+    const override = {
+        dinosaur: dino,
+        curve: curveName,
+        values: values
+    };
+
+    curveOverrides.push(override);
+    renderCurveOverrides();
+
+    // Clear form
+    document.getElementById('curveOverrideDino').value = '';
+    document.getElementById('curveOverrideName').value = '';
+    for (let i = 0; i < 5; i++) {
+        document.getElementById(`curveValue${i}`).value = '';
+    }
+
+    generateConfig();
+}
+
+function removeCurveOverride(index) {
+    curveOverrides.splice(index, 1);
+    renderCurveOverrides();
+    generateConfig();
+}
+
+function renderCurveOverrides() {
+    const container = document.getElementById('curveOverridesList');
+    container.innerHTML = '';
+
+    if (curveOverrides.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.textContent = 'No curve overrides added yet.';
+        emptyMessage.style.color = '#999';
+        emptyMessage.style.fontStyle = 'italic';
+        emptyMessage.style.padding = '20px';
+        container.appendChild(emptyMessage);
+        return;
+    }
+
+    curveOverrides.forEach((override, index) => {
+        const overrideItem = document.createElement('div');
+        overrideItem.className = 'config-item changed';
+        overrideItem.style.marginBottom = '15px';
+
+        const title = document.createElement('div');
+        title.style.display = 'flex';
+        title.style.justifyContent = 'space-between';
+        title.style.alignItems = 'center';
+        title.style.marginBottom = '10px';
+
+        const titleText = document.createElement('strong');
+        titleText.textContent = `${override.dinosaur} - ${override.curve}`;
+        titleText.style.color = '#00CFFF';
+        title.appendChild(titleText);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'Remove';
+        removeBtn.style.padding = '5px 15px';
+        removeBtn.style.background = '#f44336';
+        removeBtn.style.color = 'white';
+        removeBtn.style.border = 'none';
+        removeBtn.style.borderRadius = '4px';
+        removeBtn.style.cursor = 'pointer';
+        removeBtn.onclick = () => removeCurveOverride(index);
+        title.appendChild(removeBtn);
+
+        overrideItem.appendChild(title);
+
+        const valuesText = document.createElement('div');
+        valuesText.textContent = `Values: ${override.values.join(', ')}`;
+        valuesText.style.color = '#e0e0e0';
+        valuesText.style.fontFamily = "'Courier New', monospace";
+        overrideItem.appendChild(valuesText);
+
+        container.appendChild(overrideItem);
+    });
 }
 
 function switchTab(tabId, categories) {
@@ -332,7 +584,8 @@ function getTabLabel(tabId) {
         'player': 'Player & Security',
         'weather': 'Weather',
         'IGameMode': 'Game Mode',
-        'SourceRCON': 'SourceRCON'
+        'SourceRCON': 'SourceRCON',
+        'curveOverrides': 'Curve Overrides'
     };
     return labels[tabId] || tabId;
 }
@@ -516,6 +769,8 @@ function generateConfig() {
     // Check IGameSession settings
     Object.keys(configData.IGameSession).forEach(categoryKey => {
         const category = configData.IGameSession[categoryKey];
+        if (category.length === 0) return; // Skip empty categories like Curve Overrides
+
         category.forEach(item => {
             const element = document.getElementById(item.name);
             if (element) {
@@ -541,6 +796,19 @@ function generateConfig() {
                 }
             }
         });
+    });
+
+    // Add curve overrides to IGameSession
+    curveOverrides.forEach(override => {
+        const curvePath = `/Game/Dinosaurs/${override.dinosaur}.${override.curve}`;
+        const keys = [
+            `(Time=0.0,Value=${override.values[0]})`,
+            `(Time=0.25,Value=${override.values[1]})`,
+            `(Time=0.5,Value=${override.values[2]})`,
+            `(Time=0.75,Value=${override.values[3]})`,
+            `(Time=1.0,Value=${override.values[4]})`
+        ].join(',');
+        changedSettings.IGameSession.push(`CurveOverrides=(Curve="${curvePath}",Keys=(${keys}))`);
     });
 
     // Check IGameMode settings
@@ -748,6 +1016,9 @@ function parseAndLoadIni(content) {
         });
     });
 
+    // Reset curve overrides
+    curveOverrides = [];
+
     const lines = content.split('\n');
     let currentSection = null;
     const multilineValues = {}; // Track multiline values like AllowedCharacter
@@ -769,6 +1040,35 @@ function parseAndLoadIni(content) {
         if (match) {
             let key = match[1].trim();
             let value = match[2].trim();
+
+            // Handle CurveOverrides
+            if (key === 'CurveOverrides') {
+                // Parse: CurveOverrides=(Curve="/Game/Dinosaurs/Allosaurus.GrowthRate",Keys=((Time=0.0,Value=0.0),(Time=0.25,Value=0.3),...))
+                const curveMatch = value.match(/Curve="\/Game\/Dinosaurs\/([^.]+)\.([^"]+)"/);
+                const keysMatch = value.match(/Keys=\(\(([^)]+)\)\)/);
+
+                if (curveMatch && keysMatch) {
+                    const dinosaur = curveMatch[1];
+                    const curve = curveMatch[2];
+                    const keysString = keysMatch[1];
+
+                    // Extract values from the keys
+                    const valueMatches = keysString.matchAll(/Value=([\d.]+)/g);
+                    const values = [];
+                    for (const match of valueMatches) {
+                        values.push(parseFloat(match[1]));
+                    }
+
+                    if (values.length === 5) {
+                        curveOverrides.push({
+                            dinosaur: dinosaur,
+                            curve: curve,
+                            values: values
+                        });
+                    }
+                }
+                return;
+            }
 
             // Remove quotes from values
             if ((value.startsWith('"') && value.endsWith('"')) ||
@@ -823,6 +1123,9 @@ function parseAndLoadIni(content) {
             }
         }
     });
+
+    // Render curve overrides
+    renderCurveOverrides();
 
     generateConfig();
     alert('Game.ini file loaded successfully!');

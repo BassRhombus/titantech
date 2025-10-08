@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    document.getElementById('addRoleBtn').addEventListener('click', openRoleModal);
+    document.getElementById('addRoleBtn').addEventListener('click', () => openRoleModal());
     document.getElementById('generateBtn').addEventListener('click', generateConfig);
     document.getElementById('downloadBtn').addEventListener('click', downloadConfig);
     document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
@@ -45,7 +45,7 @@ function setupEventListeners() {
     document.getElementById('templateVIP').addEventListener('click', () => loadTemplate('vip'));
 
     // Player assignment controls
-    document.getElementById('addPlayerBtn').addEventListener('click', openPlayerModal);
+    document.getElementById('addPlayerBtn').addEventListener('click', () => openPlayerModal());
     document.getElementById('closePlayerModal').addEventListener('click', closePlayerModal);
     document.getElementById('cancelPlayerBtn').addEventListener('click', closePlayerModal);
     document.getElementById('savePlayerBtn').addEventListener('click', savePlayer);
