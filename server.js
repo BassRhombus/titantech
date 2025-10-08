@@ -13,6 +13,9 @@ const dataDir = path.join(__dirname, 'data');
 const commissionsFile = path.join(dataDir, 'commissions.json');
 const showcaseFile = path.join(dataDir, 'showcase.json');
 
+// Discord Webhook Configuration
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1425194901422866452/yyABjwin9JqpfqlyQ0958mmiRekcBmiMwCnqk-vpPCJVKxc58mw9_JXLuIpibS7nFD2B';
+
 // Set up multer storage for image uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -1076,6 +1079,123 @@ fetchAndCacheMods().then(() => {
   console.log('Initial mods cache loaded');
 }).catch(error => {
   console.error('Failed to load initial mods cache:', error);
+});
+
+// Discord webhook endpoint for Game.ini generation notifications
+app.post('/api/webhook/game-ini-generated', express.json(), async (req, res) => {
+  try {
+    // Skip if no webhook URL is configured
+    if (!DISCORD_WEBHOOK_URL) {
+      console.log('No Discord webhook URL configured, skipping notification');
+      return res.json({ success: true, message: 'No webhook configured' });
+    }
+
+    const { fileType, changedSettingsCount, timestamp } = req.body;
+
+    // Determine color based on file type
+    let embedColor;
+    if (fileType === 'Game.ini') {
+      embedColor = 0x00CFFF; // Blue
+    } else if (fileType === 'Commands.ini') {
+      embedColor = 0xD94FCB; // Pink
+    } else if (fileType === 'Rules.txt') {
+      embedColor = 0x4CAF50; // Green
+    } else if (fileType === 'MOTD.txt') {
+      embedColor = 0xFF9800; // Orange
+    } else {
+      embedColor = 0x00CFFF; // Default blue
+    }
+
+    // Determine generator name
+    let generatorName;
+    if (fileType.includes('Game.ini')) {
+      generatorName = 'Game.ini Generator';
+    } else if (fileType.includes('Commands.ini')) {
+      generatorName = 'Commands.ini Generator';
+    } else if (fileType.includes('Rules.txt')) {
+      generatorName = 'Rules/MOTD Generator (Rules)';
+    } else if (fileType.includes('MOTD.txt')) {
+      generatorName = 'Rules/MOTD Generator (MOTD)';
+    } else {
+      generatorName = 'TitanTech Hub Generator';
+    }
+
+    // Create Discord embed
+    const embed = {
+      title: `${fileType} Generated`,
+      description: `A user has generated a ${fileType} file using the TitanTech Hub generator.`,
+      color: embedColor,
+      fields: [
+        {
+          name: fileType.includes('.txt') ? '📝 Lines' : '📊 Settings Changed',
+          value: fileType.includes('.txt') ? `${changedSettingsCount} lines` : `${changedSettingsCount} setting(s) modified`,
+          inline: true
+        },
+        {
+          name: '⏰ Generated At',
+          value: new Date(timestamp).toLocaleString(),
+          inline: true
+        },
+        {
+          name: '🔧 Generator',
+          value: generatorName,
+          inline: false
+        }
+      ],
+      footer: {
+        text: 'TitanTech Hub'
+      },
+      timestamp: new Date(timestamp).toISOString()
+    };
+
+    // Send to Discord
+    const https = require('https');
+    const url = new URL(DISCORD_WEBHOOK_URL);
+
+    const postData = JSON.stringify({
+      embeds: [embed]
+    });
+
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    const webhookReq = https.request(options, (webhookRes) => {
+      let data = '';
+
+      webhookRes.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      webhookRes.on('end', () => {
+        if (webhookRes.statusCode === 204 || webhookRes.statusCode === 200) {
+          console.log('Discord webhook sent successfully');
+          res.json({ success: true, message: 'Webhook sent successfully' });
+        } else {
+          console.error(`Discord webhook failed with status ${webhookRes.statusCode}`);
+          res.status(500).json({ success: false, message: 'Webhook failed' });
+        }
+      });
+    });
+
+    webhookReq.on('error', (error) => {
+      console.error('Error sending Discord webhook:', error);
+      res.status(500).json({ success: false, message: 'Webhook error', error: error.message });
+    });
+
+    webhookReq.write(postData);
+    webhookReq.end();
+
+  } catch (error) {
+    console.error('Error in webhook endpoint:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
 });
 
 // Auto-refresh caches periodically

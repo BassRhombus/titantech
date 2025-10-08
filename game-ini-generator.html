@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game.ini Generator - TitanTech</title>
+    <link rel="stylesheet" href="css/style.css?v=1.1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.1">
+    <link rel="stylesheet" href="ModINI/public/styles.css">
+    <style>
+        .section {
+            background: linear-gradient(135deg, rgba(26, 26, 43, 0.8) 0%, rgba(13, 13, 20, 0.8) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 207, 255, 0.2);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h2 {
+            color: #00CFFF;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 207, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .config-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border-left: 3px solid #4CAF50;
+            transition: all 0.3s ease;
+        }
+
+        .config-item.changed {
+            background: rgba(217, 79, 203, 0.15);
+            border-left: 3px solid #D94FCB;
+            box-shadow: 0 0 10px rgba(217, 79, 203, 0.2);
+        }
+
+        .config-item.changed label::after {
+            content: " ✓";
+            color: #D94FCB;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .config-item label {
+            display: block;
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .config-item .description {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .config-item input,
+        .config-item select,
+        .config-item textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #252525;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .config-item textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .config-item input:focus,
+        .config-item select:focus,
+        .config-item textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Toggle Switch Styles */
+        .switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(21px);
+        }
+
+        .switch-label {
+            font-size: 14px;
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button,
+        .action-buttons .upload-btn-wrapper {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .upload-btn-wrapper:hover {
+            background-color: #F57C00;
+            transform: translateY(-2px);
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .generate-btn {
+            background: linear-gradient(45deg, #D94FCB, #00CFFF);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 15px rgba(217, 79, 203, 0.3);
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(45deg, #00CFFF, #D94FCB);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 207, 255, 0.4);
+        }
+
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .download-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .reset-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background-color: #da190b;
+            transform: translateY(-2px);
+        }
+
+        .output-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 207, 255, 0.3);
+            border-radius: 12px;
+        }
+
+        .output-container h3 {
+            color: #00CFFF;
+            margin-bottom: 15px;
+        }
+
+        .output-container pre {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .output-container .section-header {
+            color: #D94FCB;
+            font-weight: bold;
+        }
+
+        .output-container .config-line {
+            color: #00CFFF;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .info-box {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        .info-box strong {
+            color: #4CAF50;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .search-section input {
+            width: 500px;
+            max-width: 100%;
+            padding: 12px 20px;
+            background-color: #252525;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+
+        .search-section input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .section-toggle-item {
+            background: rgba(217, 79, 203, 0.1) !important;
+            border-left: 3px solid #D94FCB !important;
+        }
+
+        .gsh-note {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #4CAF50;
+        }
+
+        .gsh-note strong {
+            color: #4CAF50;
+        }
+
+        /* Beta Warning Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1A1A2B 0%, #0D0D14 100%);
+            border: 2px solid #FF9800;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 152, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header i {
+            font-size: 48px;
+            color: #FF9800;
+        }
+
+        .modal-header h2 {
+            color: #FF9800;
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .modal-body {
+            color: #e0e0e0;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .modal-body p {
+            margin-bottom: 15px;
+        }
+
+        .modal-body strong {
+            color: #FF9800;
+        }
+
+        .modal-body ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .modal-body ul li {
+            margin-bottom: 8px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-accept {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .modal-btn-accept:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .modal-btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(0, 207, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: rgba(26, 26, 43, 0.6);
+            color: #e0e0e0;
+            border: 1px solid rgba(0, 207, 255, 0.3);
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: none;
+        }
+
+        .tab-button:hover {
+            background: rgba(0, 207, 255, 0.1);
+            border-color: #00CFFF;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, rgba(217, 79, 203, 0.2), rgba(0, 207, 255, 0.2));
+            border-color: #00CFFF;
+            color: #00CFFF;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(0, 207, 255, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tab-navigation {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="DinoMod Hub Logo" class="logo">
+            <h1>TitanTech Hub</h1>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="mod-manager.html">Mod Manager</a></li>
+                <li><a href="game-ini-generator.html" class="active">Game.ini Generator</a></li>
+                <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li>
+                <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
+                <li><a href="community.html">Community</a></li>
+                <li><span style="text-decoration: line-through; color: #666; cursor: not-allowed; padding: 0.8rem 1rem;">Game Servers</span></li>
+                <li><a href="bots.html">Bots/Scripts</a></li>
+                <li><a href="showcase.html">Showcase</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="login.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+            </ul>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="mod-manager-intro" style="text-align: center; padding: 2rem 0;">
+            <h2>Path of Titans Game.ini Generator</h2>
+            <p>Configure your server settings - only changed values will be included in the output</p>
+        </section>
+
+    <div class="container">
+
+        <div class="info-box">
+            <strong>Note:</strong> All settings below are set to their default values. Only modify the settings you want to change.
+            Unchanged settings will not be added to the final Game.ini file, keeping your configuration clean and minimal.
+            <div style="margin-top: 10px; font-size: 1.1em;">
+                <strong>Changed Settings: <span id="changedCount" style="color: #D94FCB;">0</span></strong>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="searchInput" placeholder="Search settings...">
+        </div>
+
+        <div class="tab-navigation" id="tabNavigation">
+            <!-- Tabs will be generated by JavaScript -->
+        </div>
+
+        <div class="action-buttons">
+            <div class="upload-btn-wrapper">
+                Upload Game.ini
+                <input type="file" id="uploadFile" accept=".ini" onchange="uploadConfig(event)">
+            </div>
+            <button class="generate-btn" onclick="generateConfig()">Generate Game.ini</button>
+            <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+            <button class="download-btn" onclick="downloadConfig()">Download Game.ini</button>
+            <button class="reset-btn" onclick="resetForm()">Reset All</button>
+        </div>
+
+        <div id="configForm"></div>
+
+        <div class="output-container">
+            <h3>Generated Configuration Preview</h3>
+            <pre id="outputPreview">[/Script/PathOfTitans.IGameSession]
+; No changes made yet. Modify settings above and click "Generate Game.ini" to see your configuration.
+
+[/Script/PathOfTitans.IGameMode]
+; No changes made yet.</pre>
+        </div>
+    </div>
+    </main>
+
+    <!-- Beta Warning Modal -->
+    <div id="betaWarningModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>Beta Testing Notice</h2>
+            </div>
+            <div class="modal-body">
+                <p><strong>This feature is currently in beta testing.</strong></p>
+                <p>Please be aware that:</p>
+                <ul>
+                    <li>Some features may not work as expected</li>
+                    <li>Generated configurations should be reviewed before use</li>
+                    <li>We recommend backing up your current Game.ini before replacing it</li>
+                    <li>Report any issues or bugs you encounter to help us improve</li>
+                </ul>
+                <p>By continuing, you acknowledge that this tool is in active development and may contain bugs or inaccuracies.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-cancel" onclick="handleBetaCancel()">Go Back</button>
+                <button class="modal-btn modal-btn-accept" onclick="handleBetaAccept()">I Understand, Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="GameINI/game-ini-generator.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Beta warning modal functionality
+        function showBetaWarning() {
+            const modal = document.getElementById('betaWarningModal');
+            const hasAccepted = sessionStorage.getItem('betaWarningAccepted');
+
+            if (!hasAccepted) {
+                modal.classList.add('active');
+            }
+        }
+
+        function handleBetaAccept() {
+            sessionStorage.setItem('betaWarningAccepted', 'true');
+            document.getElementById('betaWarningModal').classList.remove('active');
+        }
+
+        function handleBetaCancel() {
+            window.location.href = 'index.html';
+        }
+
+        // Show modal on page load
+        window.addEventListener('DOMContentLoaded', showBetaWarning);
+    </script>
+</body>
+</html>

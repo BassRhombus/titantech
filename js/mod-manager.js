@@ -265,17 +265,39 @@ function generateConfig() {
     downloadConfig(configContent, 'GameUserSettings.ini');
 }
 
-function downloadConfig(content, filename) {
+async function downloadConfig(content, filename) {
+    // Count the number of selected mods
+    const modCount = document.querySelectorAll('.mod-checkbox:checked').length;
+
+    // Send webhook notification
+    try {
+        await fetch('/api/webhook/game-ini-generated', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fileType: 'GameUserSettings.ini',
+                changedSettingsCount: modCount,
+                timestamp: new Date().toISOString()
+            })
+        });
+    } catch (error) {
+        console.error('Failed to send webhook notification:', error);
+        // Don't block the download if webhook fails
+    }
+
+    // Download the file
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const element = document.createElement('a');
     element.href = url;
     element.download = filename;
     element.style.display = 'none';
-    
+
     document.body.appendChild(element);
     element.click();
-    
+
     setTimeout(() => {
         document.body.removeChild(element);
         URL.revokeObjectURL(url);
