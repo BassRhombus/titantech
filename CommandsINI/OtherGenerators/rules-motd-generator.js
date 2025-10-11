@@ -38,6 +38,7 @@ function setupEventListeners() {
     document.getElementById('resetBtn').addEventListener('click', resetCurrent);
     document.getElementById('uploadBtn').addEventListener('click', () => document.getElementById('fileInput').click());
     document.getElementById('fileInput').addEventListener('change', uploadFile);
+    document.getElementById('autoFixBtn').addEventListener('click', autoFixErrors);
 
     // Template buttons
     document.getElementById('rulesTemplateBtn').addEventListener('click', () => loadTemplate('rules'));
@@ -253,19 +254,16 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function validateFormatting(text, type) {
-    const warning = document.getElementById(`${type}Warning`);
-    const warningText = document.getElementById(`${type}WarningText`);
-    const issues = [];
-
-    // Check for mixing size and color tags
+function getValidationErrors(text, type) {
+    const errors = [];
     const lines = text.split('\n');
+
     lines.forEach((line, index) => {
         const sizeMatches = line.match(/<(title|large|small)>/g);
         const colorMatches = line.match(/<(red|orange|yellow|green|blue|purple|white)>/g);
 
         if (sizeMatches && colorMatches) {
-            issues.push(`Line ${index + 1}: Cannot mix size and color tags`);
+            errors.push(`Line ${index + 1}: Cannot mix size and color tags`);
         }
 
         // Check for unclosed tags
@@ -273,12 +271,52 @@ function validateFormatting(text, type) {
         const closeTags = (line.match(/<\/>/g) || []).length;
 
         if (openTags !== closeTags) {
-            issues.push(`Line ${index + 1}: Mismatched tags (${openTags} open, ${closeTags} close)`);
+            errors.push(`Line ${index + 1}: Mismatched tags (${openTags} open, ${closeTags} close)`);
+        }
+
+        // Check for nested tags
+        let depth = 0;
+        for (let i = 0; i < line.length; i++) {
+            if (line[i] === '<') {
+                const closeIndex = line.indexOf('>', i);
+                if (closeIndex !== -1) {
+                    const tag = line.substring(i + 1, closeIndex);
+                    if (tag !== '/') {
+                        depth++;
+                        if (depth > 1) {
+                            errors.push(`Line ${index + 1}: Nested tags are not allowed`);
+                            break;
+                        }
+                    } else {
+                        depth--;
+                    }
+                }
+            }
+        }
+
+        // Check for malformed tags
+        const invalidTags = line.match(/<[^>]*>/g);
+        if (invalidTags) {
+            invalidTags.forEach(tag => {
+                const tagName = tag.slice(1, -1).toLowerCase();
+                const validTags = ['title', 'large', 'small', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white', '/'];
+                if (!validTags.includes(tagName) && tag !== '</>') {
+                    errors.push(`Line ${index + 1}: Invalid tag "${tag}"`);
+                }
+            });
         }
     });
 
-    if (issues.length > 0) {
-        warningText.textContent = issues.join('; ');
+    return errors;
+}
+
+function validateFormatting(text, type) {
+    const warning = document.getElementById(`${type}Warning`);
+    const warningText = document.getElementById(`${type}WarningText`);
+    const errors = getValidationErrors(text, type);
+
+    if (errors.length > 0) {
+        warningText.textContent = errors.join('; ');
         warning.classList.add('active');
     } else {
         warning.classList.remove('active');
@@ -337,6 +375,23 @@ async function downloadFile() {
     if (!content.trim()) {
         alert('Nothing to download! Please add some content first.');
         return;
+    }
+
+    // Validate before download
+    const validationErrors = getValidationErrors(content, currentTab);
+    if (validationErrors.length > 0) {
+        const errorMsg = 'Cannot download file with errors:\n\n' + validationErrors.join('\n');
+        alert(errorMsg);
+        return;
+    }
+
+    // Check character limit
+    const textContent = getTextContentWithoutTags(content);
+    if (textContent.length > 1024) {
+        const overLimit = textContent.length - 1024;
+        if (!confirm(`Warning: Your content exceeds the 1024 character limit by ${overLimit} characters. The file may not work properly in-game.\n\nDownload anyway?`)) {
+            return;
+        }
     }
 
     const filename = currentTab === 'rules' ? 'Rules.txt' : 'MOTD.txt';
@@ -429,4 +484,100 @@ function uploadFile(event) {
 
     reader.readAsText(file);
     event.target.value = ''; // Reset file input
+}
+
+function autoFixErrors() {
+    const editor = document.getElementById(`${currentTab}Editor`);
+    const content = editor.value;
+
+    if (!content.trim()) {
+        alert('Nothing to fix! Please add some content first.');
+        return;
+    }
+
+    let fixedContent = content;
+    let fixCount = 0;
+
+    const lines = fixedContent.split('\n');
+    const fixedLines = lines.map((line, index) => {
+        let fixedLine = line;
+
+        // Fix unclosed tags by adding missing close tags
+        const openTags = (line.match(/<(title|large|small|red|orange|yellow|green|blue|purple|white)>/g) || []).length;
+        const closeTags = (line.match(/<\/>/g) || []).length;
+
+        if (openTags > closeTags) {
+            const missing = openTags - closeTags;
+            fixedLine += ' </>' .repeat(missing);
+            fixCount++;
+        } else if (closeTags > openTags) {
+            // Remove extra close tags
+            let removeCount = closeTags - openTags;
+            fixedLine = fixedLine.replace(/<\/>/g, (match) => {
+                if (removeCount > 0) {
+                    removeCount--;
+                    return '';
+                }
+                return match;
+            });
+            fixCount++;
+        }
+
+        // Remove nested tags (keep the outer one)
+        let depth = 0;
+        let result = '';
+        let i = 0;
+        let skipNext = false;
+
+        while (i < fixedLine.length) {
+            if (fixedLine[i] === '<' && !skipNext) {
+                const closeIndex = fixedLine.indexOf('>', i);
+                if (closeIndex !== -1) {
+                    const tag = fixedLine.substring(i + 1, closeIndex);
+                    if (tag === '/') {
+                        depth--;
+                        result += fixedLine.substring(i, closeIndex + 1);
+                        i = closeIndex + 1;
+                        continue;
+                    } else if (['title', 'large', 'small', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white'].includes(tag)) {
+                        if (depth === 0) {
+                            depth++;
+                            result += fixedLine.substring(i, closeIndex + 1);
+                        } else {
+                            // Skip nested tag
+                            fixCount++;
+                        }
+                        i = closeIndex + 1;
+                        continue;
+                    }
+                }
+            }
+            result += fixedLine[i];
+            i++;
+        }
+
+        if (result !== fixedLine) {
+            fixedLine = result;
+        }
+
+        return fixedLine;
+    });
+
+    fixedContent = fixedLines.join('\n');
+
+    // Check if there were any mixed tags and show warning
+    const remainingErrors = getValidationErrors(fixedContent, currentTab);
+    const mixedTagErrors = remainingErrors.filter(e => e.includes('Cannot mix size and color tags'));
+
+    if (mixedTagErrors.length > 0) {
+        alert(`Auto-fix complete! Fixed ${fixCount} issues.\n\nNote: Lines with mixed size and color tags cannot be auto-fixed. Please manually separate them.`);
+    } else if (fixCount > 0) {
+        alert(`Auto-fix complete! Fixed ${fixCount} issues.`);
+    } else {
+        alert('No issues found to fix!');
+    }
+
+    editor.value = fixedContent;
+    updatePreview(currentTab);
+    updateLineCount(currentTab);
 }

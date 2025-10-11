@@ -18,7 +18,9 @@ const configData = {
     IGameSession: {
         "General Server Settings": [
             { name: "ServerName", type: "text", default: "My_Server", description: "Specifies the public name of the server. Note: To have a space in your server name, you must use underscores _ as spaces." },
+            { name: "ServerMap", type: "text", default: "Island", description: "Specifies the map to load for the server." },
             { name: "ServerPassword", type: "text", default: "", description: "Sets a password to enter the server." },
+            { name: "ServerAdmins", type: "multiline", default: "", description: "Specifies the Admin IDs for the server. Enter one ID per line. Each will generate as a separate ServerAdmin= line. This is only recommended for Server Owners and trusted admins (gives access to all commands) use Commands.ini for all other roles" },
             { name: "MaxPlayers", type: "number", default: "100", description: "Sets the max number of players on a server." },
             { name: "ReservedSlots", type: "number", default: "20", description: "Specifies the number of reserved slots allowed on your server." },
             { name: "bServerNameTags", type: "boolean", default: "false", description: "Enables or disables the ability for ALL players on the server to see player nametags. Defaults to false." },
@@ -1076,8 +1078,8 @@ function parseAndLoadIni(content) {
                 value = value.slice(1, -1);
             }
 
-            // Handle multiline entries (AllowedCharacter, DisallowedCharacter, etc.)
-            if (key.endsWith('Character') || key.endsWith('Critter')) {
+            // Handle multiline entries (AllowedCharacter, DisallowedCharacter, ServerAdmin, etc.)
+            if (key.endsWith('Character') || key.endsWith('Critter') || key === 'ServerAdmin') {
                 const pluralKey = key + 's';
                 if (!multilineValues[pluralKey]) {
                     multilineValues[pluralKey] = [];
