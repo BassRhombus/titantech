@@ -788,9 +788,10 @@ function generateConfig() {
                     // Handle multiline fields (AllowedCharacters, DisallowedCharacters, etc.)
                     if (item.type === 'multiline' && currentValue.trim() !== '') {
                         const lines = currentValue.split('\n').filter(line => line.trim() !== '');
-                        const singularName = item.name.endsWith('s') ? item.name.slice(0, -1) : item.name;
+                        // Special case: ServerAdmins keeps the 's' at the end
+                        const outputName = item.name === 'ServerAdmins' ? item.name : (item.name.endsWith('s') ? item.name.slice(0, -1) : item.name);
                         lines.forEach(line => {
-                            changedSettings.IGameSession.push(`${singularName}=${line.trim()}`);
+                            changedSettings.IGameSession.push(`${outputName}=${line.trim()}`);
                         });
                     } else if (item.type !== 'multiline') {
                         changedSettings.IGameSession.push(`${item.name}=${currentValue}`);
@@ -831,9 +832,10 @@ function generateConfig() {
                     // Handle multiline fields
                     if (item.type === 'multiline' && currentValue.trim() !== '') {
                         const lines = currentValue.split('\n').filter(line => line.trim() !== '');
-                        const singularName = item.name.endsWith('s') ? item.name.slice(0, -1) : item.name;
+                        // Special case: ServerAdmins keeps the 's' at the end
+                        const outputName = item.name === 'ServerAdmins' ? item.name : (item.name.endsWith('s') ? item.name.slice(0, -1) : item.name);
                         lines.forEach(line => {
-                            changedSettings.IGameMode.push(`${singularName}=${line.trim()}`);
+                            changedSettings.IGameMode.push(`${outputName}=${line.trim()}`);
                         });
                     } else if (item.type !== 'multiline') {
                         changedSettings.IGameMode.push(`${item.name}=${currentValue}`);
@@ -1078,9 +1080,10 @@ function parseAndLoadIni(content) {
                 value = value.slice(1, -1);
             }
 
-            // Handle multiline entries (AllowedCharacter, DisallowedCharacter, ServerAdmin, etc.)
-            if (key.endsWith('Character') || key.endsWith('Critter') || key === 'ServerAdmin') {
-                const pluralKey = key + 's';
+            // Handle multiline entries (AllowedCharacter, DisallowedCharacter, ServerAdmin/ServerAdmins, etc.)
+            if (key.endsWith('Character') || key.endsWith('Critter') || key === 'ServerAdmin' || key === 'ServerAdmins') {
+                // For ServerAdmins, use as-is; for ServerAdmin, convert to ServerAdmins
+                const pluralKey = key === 'ServerAdmins' ? 'ServerAdmins' : (key + 's');
                 if (!multilineValues[pluralKey]) {
                     multilineValues[pluralKey] = [];
                 }
