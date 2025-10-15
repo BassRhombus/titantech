@@ -565,7 +565,7 @@
                 <li><a href="game-ini-generator.html">Game.ini Generator</a></li>
                 <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li>
                 <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
-                <li><a href="community.html">Community</a></li>
+                <li><a href="community.html" class="active">Community</a></li>
                 <li><span style="text-decoration: line-through; color: #666;">Game Servers</span></li>
                 <li><a href="bots.html">Bots/Scripts</a></li>
                 <li><a href="showcase.html">Showcase</a></li>
@@ -588,8 +588,8 @@
 
         <!-- Tab Navigation -->
         <div class="tabs-container">
-            <button class="tab-btn active" onclick="switchTab('featured')">Featured Servers</button>
-            <button class="tab-btn" onclick="switchTab('browser')">Server Browser</button>
+            <button class="tab-btn active" id="featured-tab-btn">Featured Servers</button>
+            <button class="tab-btn" id="browser-tab-btn">Server Browser</button>
         </div>
 
         <!-- Featured Servers Tab -->
@@ -925,7 +925,7 @@
 
                         ${modDefinitions.length > 0 ? `
                         <div class="server-mods">
-                            <button class="show-mods-btn" onclick="toggleMods(${index})">
+                            <button class="show-mods-btn" data-server-index="${index}">
                                 <i class="fas fa-chevron-down"></i>
                                 Show Mods (${modCount})
                             </button>
@@ -939,20 +939,29 @@
             }).join('');
         }
 
-        // Toggle mods visibility
-        function toggleMods(index) {
-            const modsList = document.getElementById(`mods-list-${index}`);
-            const btn = event.currentTarget;
+        // Toggle mods visibility using event delegation
+        function setupModsToggle() {
+            const serverGrid = document.getElementById('server-grid');
+            serverGrid.addEventListener('click', function(event) {
+                const btn = event.target.closest('.show-mods-btn');
+                if (!btn) return;
 
-            if (modsList.classList.contains('expanded')) {
-                modsList.classList.remove('expanded');
-                btn.classList.remove('expanded');
-                btn.innerHTML = `<i class="fas fa-chevron-down"></i> Show Mods (${filteredServers[index].mods.count})`;
-            } else {
-                modsList.classList.add('expanded');
-                btn.classList.add('expanded');
-                btn.innerHTML = `<i class="fas fa-chevron-up"></i> Hide Mods`;
-            }
+                const index = parseInt(btn.getAttribute('data-server-index'));
+                if (isNaN(index)) return;
+
+                const modsList = document.getElementById(`mods-list-${index}`);
+                if (!modsList) return;
+
+                if (modsList.classList.contains('expanded')) {
+                    modsList.classList.remove('expanded');
+                    btn.classList.remove('expanded');
+                    btn.innerHTML = `<i class="fas fa-chevron-down"></i> Show Mods (${filteredServers[index].mods.count})`;
+                } else {
+                    modsList.classList.add('expanded');
+                    btn.classList.add('expanded');
+                    btn.innerHTML = `<i class="fas fa-chevron-up"></i> Hide Mods`;
+                }
+            });
         }
 
         // Escape HTML to prevent XSS
@@ -1134,6 +1143,26 @@
             // Setup auto-refresh
             setupAutoRefresh();
         }
+
+        // Setup tab buttons event listeners
+        function setupTabButtons() {
+            const featuredTabBtn = document.getElementById('featured-tab-btn');
+            const browserTabBtn = document.getElementById('browser-tab-btn');
+
+            if (featuredTabBtn) {
+                featuredTabBtn.addEventListener('click', () => switchTab('featured'));
+            }
+
+            if (browserTabBtn) {
+                browserTabBtn.addEventListener('click', () => switchTab('browser'));
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setupTabButtons();
+            setupModsToggle();
+        });
 
         // Cleanup on page unload
         window.addEventListener('beforeunload', () => {

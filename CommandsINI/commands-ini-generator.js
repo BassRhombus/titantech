@@ -27,9 +27,20 @@ function setupEventListeners() {
     document.getElementById('cancelRoleBtn').addEventListener('click', closeRoleModal);
     document.getElementById('saveRoleBtn').addEventListener('click', saveRole);
 
-    // Color picker inputs
-    ['r', 'g', 'b', 'a'].forEach(channel => {
-        document.getElementById(`color-${channel}`).addEventListener('input', updateColorPreview);
+    // Color picker inputs (alpha is hidden and always 1)
+    ['r', 'g', 'b'].forEach(channel => {
+        document.getElementById(`color-${channel}`).addEventListener('input', () => {
+            updateColorPreview();
+            updateColorPickerFromRGB();
+        });
+    });
+
+    // Color picker wheel
+    document.getElementById('colorPicker').addEventListener('input', updateRGBFromColorPicker);
+
+    // Make color preview box clickable
+    document.getElementById('colorPreview').addEventListener('click', () => {
+        document.getElementById('colorPicker').click();
     });
 
     // Search permissions
@@ -79,7 +90,7 @@ function loadRoleIntoForm(role) {
     document.getElementById('color-r').value = role.chatColor.r;
     document.getElementById('color-g').value = role.chatColor.g;
     document.getElementById('color-b').value = role.chatColor.b;
-    document.getElementById('color-a').value = role.chatColor.a;
+    document.getElementById('color-a').value = 1; // Always force to 1 (fully opaque)
     document.getElementById('overrideAdminChatColor').checked = role.overrideAdminChatColor;
     document.getElementById('reservedSlot').checked = role.reservedSlot;
     document.getElementById('hierarchy').value = role.hierarchy;
@@ -94,7 +105,7 @@ function resetRoleForm() {
     document.getElementById('color-r').value = 255;
     document.getElementById('color-g').value = 255;
     document.getElementById('color-b').value = 255;
-    document.getElementById('color-a').value = 1;
+    document.getElementById('color-a').value = 1; // Always 1 (fully opaque)
     document.getElementById('overrideAdminChatColor').checked = true;
     document.getElementById('reservedSlot').checked = false;
     document.getElementById('hierarchy').value = 0;
@@ -111,7 +122,7 @@ function updateColorPreview() {
     const r = document.getElementById('color-r').value;
     const g = document.getElementById('color-g').value;
     const b = document.getElementById('color-b').value;
-    const a = document.getElementById('color-a').value;
+    const a = 1; // Always use 1 (fully opaque)
 
     // Update labels
     document.getElementById('color-r-value').textContent = r;
@@ -119,9 +130,50 @@ function updateColorPreview() {
     document.getElementById('color-b-value').textContent = b;
     document.getElementById('color-a-value').textContent = a;
 
-    // Update preview
+    // Update preview (alpha always 1)
     const preview = document.getElementById('colorPreview');
     preview.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+// Helper function: Convert RGB to Hex
+function rgbToHex(r, g, b) {
+    const toHex = (n) => {
+        const hex = parseInt(n).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    };
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+// Helper function: Convert Hex to RGB
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+// Update color picker from RGB sliders
+function updateColorPickerFromRGB() {
+    const r = document.getElementById('color-r').value;
+    const g = document.getElementById('color-g').value;
+    const b = document.getElementById('color-b').value;
+    const hex = rgbToHex(r, g, b);
+    document.getElementById('colorPicker').value = hex;
+}
+
+// Update RGB sliders from color picker
+function updateRGBFromColorPicker() {
+    const hex = document.getElementById('colorPicker').value;
+    const rgb = hexToRgb(hex);
+
+    if (rgb) {
+        document.getElementById('color-r').value = rgb.r;
+        document.getElementById('color-g').value = rgb.g;
+        document.getElementById('color-b').value = rgb.b;
+        updateColorPreview();
+    }
 }
 
 function renderPermissionsCheckboxes(filter = '') {
@@ -292,7 +344,7 @@ function saveRole() {
             r: parseInt(document.getElementById('color-r').value),
             g: parseInt(document.getElementById('color-g').value),
             b: parseInt(document.getElementById('color-b').value),
-            a: parseFloat(document.getElementById('color-a').value)
+            a: 1 // Always set to 1 (fully opaque)
         },
         overrideAdminChatColor: document.getElementById('overrideAdminChatColor').checked,
         reservedSlot: document.getElementById('reservedSlot').checked,
@@ -559,14 +611,14 @@ function parseCommandsINI(content) {
 
         if (!currentRole) return;
 
-        // Parse ChatColor
+        // Parse ChatColor (alpha always forced to 1)
         const colorMatch = line.match(/ChatColor=\(R=(\d+),G=(\d+),B=(\d+),A=([\d.]+)\)/);
         if (colorMatch) {
             currentRole.chatColor = {
                 r: parseInt(colorMatch[1]),
                 g: parseInt(colorMatch[2]),
                 b: parseInt(colorMatch[3]),
-                a: parseFloat(colorMatch[4])
+                a: 1 // Always force alpha to 1 (fully opaque), ignore uploaded value
             };
             return;
         }

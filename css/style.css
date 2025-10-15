@@ -73,7 +73,7 @@ header {
 }
 
 .nav-links li {
-    margin-left: 1.5rem;
+    margin-left: 0.8rem;
     white-space: nowrap;
 }
 
@@ -82,12 +82,12 @@ header {
     color: var(--light-color);
     font-weight: 600;
     font-family: 'Rajdhani', sans-serif;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     transition: all 0.3s ease;
     position: relative;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 0.5rem 0;
+    letter-spacing: 0.3px;
+    padding: 0.5rem 0.3rem;
 }
 
 .nav-links a:hover {
@@ -113,16 +113,17 @@ header {
 
 .login-btn {
     background: linear-gradient(45deg, var(--neon-magenta), var(--neon-blue));
-    padding: 0.7rem 1.5rem;
-    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
     color: white !important;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     font-family: 'Rajdhani', sans-serif;
     font-weight: 600;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     box-shadow: 0 0 20px rgba(217, 79, 203, 0.4);
     transition: all 0.3s ease;
 }

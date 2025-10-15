@@ -1,52 +1,62 @@
+// =============================================================================
+// TitanTech Hub Server - Production-Grade Security Baseline
+// =============================================================================
+
+// Core dependencies
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const app = express();
-const PORT = process.env.PORT || 25011;
 const http = require('http');
 const fs = require('fs');
-const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+
+// Load environment variables
+require('dotenv').config();
+
+// Security modules
+const { getSessionConfig, createUserSession, destroyUserSession } = require('./security/baseline/serverAuth');
+const { requireAuth, requireAdmin, optionalAuth } = require('./security/baseline/requireAuth');
+const { validate, commissionSubmissionSchema, commissionStatusUpdateSchema, showcaseSubmissionSchema, showcaseStatusUpdateSchema, serverSubmissionSchema, webhookGameIniSchema } = require('./security/baseline/validation');
+const { standardRateLimit, authRateLimit, uploadRateLimit, webhookRateLimit } = require('./security/baseline/rateLimit');
+const { applySecurityHeaders, additionalSecurityHeaders, correlationId } = require('./security/baseline/securityHeaders');
+const { applyCors, strictCors, publicCors } = require('./security/baseline/cors');
+const { requireHmacWebhook } = require('./security/baseline/webhookVerify');
+const { globalErrorHandler, notFoundHandler, asyncHandler } = require('./security/baseline/error');
+const { createShowcaseUpload, validateUploadedFile } = require('./security/baseline/uploads');
+
+const app = express();
+
+// Environment configuration with validation
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = parseInt(process.env.PORT, 10) || 25011;
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
+// Validate critical environment variables
+if (!SESSION_SECRET) {
+  console.error('FATAL: SESSION_SECRET environment variable is not set!');
+  console.error('Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
+  process.exit(1);
+}
+
+if (SESSION_SECRET.length < 32) {
+  console.error('FATAL: SESSION_SECRET must be at least 32 characters long!');
+  process.exit(1);
+}
 
 // Setup local JSON storage
 const dataDir = path.join(__dirname, 'data');
 const commissionsFile = path.join(dataDir, 'commissions.json');
 const showcaseFile = path.join(dataDir, 'showcase.json');
 
-// Discord Webhook Configuration
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1425194901422866452/yyABjwin9JqpfqlyQ0958mmiRekcBmiMwCnqk-vpPCJVKxc58mw9_JXLuIpibS7nFD2B';
+// Configuration from environment variables
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const GSH_API_TOKEN = process.env.GSH_API_TOKEN;
+const GSH_API_HOST = process.env.GSH_API_HOST || 'pot-api.gsh-servers.com';
+const isProduction = NODE_ENV === 'production';
+const isDevelopment = NODE_ENV === 'development';
 
-// Set up multer storage for image uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, 'uploads', 'showcase');
-    // Create the directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueId = uuidv4();
-    const ext = path.extname(file.originalname);
-    cb(null, `showcase_${uniqueId}${ext}`);
-  }
-});
-
-// Create upload middleware with file size and type restrictions
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 20 * 1024 * 1024, // 20MB limit initially so we can handle resizing on server if needed
-  },
-  fileFilter: function (req, file, cb) {
-    // Accept only image files
-    if (!file.mimetype.startsWith('image/')) {
-      return cb(new Error('Only image files are allowed'));
-    }
-    cb(null, true);
-  }
-});
+// Create secure upload middleware (replaces old multer config)
+const upload = createShowcaseUpload();
 
 // Create data directory if it doesn't exist
 if (!fs.existsSync(dataDir)) {
@@ -126,106 +136,114 @@ loadCommissions();
 loadShowcaseItems();
 
 // Simple in-memory user store (replace with database in production)
+// SECURITY NOTE: These are temporary users. In production, use a proper database with hashed passwords.
 const users = [
-  { id: '1', username: 'admin', password: 'admin123', admin: true },
-  { id: '2', username: 'user', password: 'user123', admin: false }
+  {
+    id: '1',
+    username: process.env.DEFAULT_ADMIN_USERNAME || 'admin',
+    password: process.env.DEFAULT_ADMIN_PASSWORD || 'CHANGE_ME_IMMEDIATELY',
+    admin: true
+  }
 ];
 
-// Trust proxy for secure cookies in production
-if (process.env.NODE_ENV === 'production') {
+// Trust proxy for secure cookies when behind reverse proxy
+if (isProduction || process.env.TRUST_PROXY === 'true') {
   app.set('trust proxy', 1);
+  console.log('Trust proxy enabled');
 }
 
-// Configure session middleware
-app.use(session({
-  secret: 'titantech_secret_key',
-  resave: true,
-  saveUninitialized: true,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production', 
-    maxAge: 604800000, // 7 days
-    sameSite: 'lax'
-  }
-}));
+// =============================================================================
+// SECURITY MIDDLEWARE - Apply these BEFORE route handlers
+// =============================================================================
 
-// Add body parser middleware for form data
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
-app.use(express.json({ limit: '20mb' }));
+// 1. Correlation ID for request tracing
+app.use(correlationId);
 
-// Add API request logging middleware
+// 2. Security Headers (Helmet + custom headers)
+app.use(applySecurityHeaders(isProduction));
+app.use(additionalSecurityHeaders);
+
+// 3. CORS Configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+app.use(applyCors(allowedOrigins, isDevelopment));
+
+// 4. Configure secure session middleware
+app.use(session(getSessionConfig(SESSION_SECRET, isProduction)));
+
+// 5. Body parser middleware with size limits
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
+
+// 6. API request logging middleware (non-verbose in production)
 app.use('/api/*', (req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
-  if (req.method === 'POST' || req.method === 'PUT') {
-    console.log('Request body:', JSON.stringify(req.body));
+  if (isDevelopment || process.env.VERBOSE_LOGS === 'true') {
+    console.log(`[${new Date().toISOString()}] [${req.correlationId}] ${req.method} ${req.originalUrl}`);
+    if (req.method === 'POST' || req.method === 'PUT') {
+      // Don't log sensitive data like passwords
+      const sanitizedBody = { ...req.body };
+      if (sanitizedBody.password) sanitizedBody.password = '[REDACTED]';
+      console.log('Request body:', JSON.stringify(sanitizedBody));
+    }
   }
-  
-  // Save original response methods
-  const originalSend = res.send;
-  const originalJson = res.json;
-  
-  // Override send
-  res.send = function(body) {
-    console.log(`[${new Date().toISOString()}] Response to ${req.method} ${req.originalUrl}:`, 
-      body.length > 500 ? body.substring(0, 500) + '...' : body);
-    return originalSend.call(this, body);
-  };
-  
-  // Override json
-  res.json = function(body) {
-    console.log(`[${new Date().toISOString()}] JSON response to ${req.method} ${req.originalUrl}:`, 
-      JSON.stringify(body).length > 500 ? JSON.stringify(body).substring(0, 500) + '...' : JSON.stringify(body));
-    return originalJson.call(this, body);
-  };
-  
   next();
 });
 
-// Middleware to check if user is authenticated
-function isAuthenticated(req, res, next) {
-  if (req.session.user) {
-    return next();
-  }
-  res.redirect('/login.html');
-}
+// =============================================================================
+// LEGACY MIDDLEWARE - Replaced by security baseline modules
+// Keeping for reference, but new code should use requireAuth and requireAdmin
+// =============================================================================
 
-// Middleware to check if user is admin
-function isAdmin(req, res, next) {
-  if (req.session.user && req.session.user.admin) {
-    return next();
-  }
-  res.status(403).send('Access denied');
-}
+// =============================================================================
+// AUTHENTICATION ROUTES
+// =============================================================================
 
 // Basic login route - handle both /login and login paths
-app.post(['/login', 'login'], (req, res) => {
+// Protected with rate limiting to prevent brute force attacks
+app.post(['/login', 'login'], authRateLimit, asyncHandler(async (req, res) => {
   const { username, password } = req.body;
+
+  // Find user (in production, this should query a database with hashed passwords)
   const user = users.find(u => u.username === username && u.password === password);
-  
+
   if (user) {
-    // Store user in session (exclude password)
-    req.session.user = {
+    // Create secure session
+    await createUserSession(req, {
       id: user.id,
       username: user.username,
       admin: user.admin
-    };
+    });
+
+    console.log(`[${req.correlationId}] User logged in: ${username}`);
     res.redirect('dashboard.html');
   } else {
+    console.warn(`[${req.correlationId}] Failed login attempt for username: ${username}`);
     res.redirect('login.html?error=1');
   }
-});
+}));
 
 // Logout route - handle both /logout and logout paths
-app.get(['/logout', 'logout'], (req, res) => {
-  req.session.destroy();
+app.get(['/logout', 'logout'], asyncHandler(async (req, res) => {
+  const username = req.session.user ? req.session.user.username : 'unknown';
+  await destroyUserSession(req);
+  console.log(`[${req.correlationId}] User logged out: ${username}`);
   res.redirect('/');
-});
+}));
 
-// API routes
-app.get('/api/user', (req, res) => {
-  if (req.session.user) {
+// =============================================================================
+// API ROUTES
+// =============================================================================
+
+// User info endpoint - optionally authenticated
+// IMPORTANT: This is protected against tampering because user info comes from server-side session
+app.get('/api/user', optionalAuth, (req, res) => {
+  if (req.user) {
     res.json({
       loggedIn: true,
-      user: req.session.user
+      user: {
+        id: req.user.id,
+        username: req.user.username,
+        admin: req.user.admin // This comes from SERVER session, not client!
+      }
     });
   } else {
     res.json({
@@ -245,42 +263,22 @@ app.get('/api/refresh-mods', async (req, res) => {
   }
 });
 
-// Function to fetch mods from API and save them
+// Function to fetch mods from internal API and save them
 async function fetchModsFromAPI() {
   return new Promise((resolve, reject) => {
-    // Use --dev flag to determine API host
+    // Use internal API host - check for --dev flag
     let API_HOSTNAME;
     if (process.argv.includes('--dev')) {
-      API_HOSTNAME = '104.243.37.159';
+      API_HOSTNAME = process.env.DEV_API_HOST || '172.93.102.240';
+      console.log('Running in DEV mode');
     } else {
-      API_HOSTNAME = '848da576-521b-4606-a37f-cd7512c5a67e';
+      API_HOSTNAME = process.env.INTERNAL_API_HOST || '848da576-521b-4606-a37f-cd7512c5a67e';
     }
-    const API_PORT = 25010;
+    const API_PORT = parseInt(process.env.API_PORT, 10) || 25010;
     const API_PATH = '/api/mods';
     const JSON_FILE_PATH = path.join(__dirname, 'ModINI', 'public', 'mods_details.json');
-    
-    console.log(`[${new Date().toISOString()}] Fetching mods data from API host: ${API_HOSTNAME}`);
-    
-    // First read existing file to preserve creator info
-    let existingMods = [];
-    try {
-      if (fs.existsSync(JSON_FILE_PATH)) {
-        const existingData = fs.readFileSync(JSON_FILE_PATH, 'utf8');
-        existingMods = JSON.parse(existingData);
-        console.log(`Read ${existingMods.length} existing mods for creator preservation`);
-      }
-    } catch (error) {
-      console.warn(`Warning: Could not read existing mods file: ${error.message}`);
-      // Continue anyway as we'll get fresh data from API
-    }
 
-    // Create a map of existing mods by SKU for quick lookup
-    const existingModMap = {};
-    existingMods.forEach(mod => {
-      if (mod.sku) {
-        existingModMap[mod.sku] = mod;
-      }
-    });
+    console.log(`[${new Date().toISOString()}] Fetching mods data from internal API host: ${API_HOSTNAME}:${API_PORT}`);
 
     const req = http.request({
       hostname: API_HOSTNAME,
@@ -297,12 +295,16 @@ async function fetchModsFromAPI() {
         if (res.statusCode === 200 && data.length > 0) {
           try {
             const apiResponse = JSON.parse(data);
+
             // Support both array and object-with-mods formats
             const modsData = Array.isArray(apiResponse) ? apiResponse : apiResponse.mods;
             if (!Array.isArray(modsData)) {
               throw new Error('API response does not contain a mods array');
             }
+
+            console.log(`Total mods received from internal API: ${modsData.length}`);
             console.log('First mod object from API:', JSON.stringify(modsData[0], null, 2));
+
             // Transform API data to our format using correct API field names
             const transformedMods = modsData.map(apiMod => ({
               sku: apiMod.sku,
@@ -311,21 +313,35 @@ async function fetchModsFromAPI() {
               icon: apiMod.icon || '',
               creator: apiMod.creator || 'Unknown Creator'
             }));
+
+            // Log any mods without SKU
+            const modsWithoutSku = transformedMods.filter(mod => !mod.sku);
+            if (modsWithoutSku.length > 0) {
+              console.log(`Warning: ${modsWithoutSku.length} mods have no SKU:`, modsWithoutSku);
+            }
+
             // Deduplicate by SKU (in case API has duplicates)
             const uniqueModsMap = new Map();
             transformedMods.forEach(mod => {
               if (mod.sku) {
                 uniqueModsMap.set(mod.sku, mod);
+              } else {
+                console.log('Skipping mod without SKU:', mod);
               }
             });
+
+            console.log(`Unique mods after deduplication: ${uniqueModsMap.size}`);
+
             // Convert back to array and sort alphabetically
             const sortedMods = Array.from(uniqueModsMap.values());
             sortedMods.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
             // Make sure directory exists
             const dirPath = path.dirname(JSON_FILE_PATH);
             if (!fs.existsSync(dirPath)) {
               fs.mkdirSync(dirPath, { recursive: true });
             }
+
             // Write the file
             fs.writeFile(JSON_FILE_PATH, JSON.stringify(sortedMods, null, 2), 'utf8', (err) => {
               if (err) {
@@ -334,6 +350,15 @@ async function fetchModsFromAPI() {
                 return;
               }
               console.log(`Updated mods data file with ${sortedMods.length} mods`);
+
+              // Check if Pandora mod is present
+              const pandora = sortedMods.find(m => m.sku && m.sku.includes('Y25EG85EVZ'));
+              if (pandora) {
+                console.log('✓ Pandora mod is present:', pandora.name);
+              } else {
+                console.log('✗ Pandora mod is missing from API response');
+              }
+
               resolve({ count: sortedMods.length });
             });
           } catch (error) {
@@ -346,35 +371,42 @@ async function fetchModsFromAPI() {
         }
       });
     });
+
     req.on('error', (error) => {
       console.error(`API request error: ${error.message}`);
       reject(error);
     });
+
     req.on('timeout', () => {
       console.error(`API request timed out`);
       req.destroy();
       reject(new Error('Request timed out'));
     });
+
     req.end();
   });
 }
 
-// Community server submission (placeholder)
-app.post('/api/submit-server', express.json(), isAuthenticated, (req, res) => {
-  // In a real app, store this in a database
-  console.log('Server submission received:', req.body);
+// Community server submission - requires authentication and validation
+app.post('/api/submit-server', requireAuth, validate(serverSubmissionSchema), asyncHandler(async (req, res) => {
+  // In production, store this in a database
+  console.log(`[${req.correlationId}] Server submission from user ${req.user.id}:`, req.body);
   res.json({ success: true, message: 'Server submitted for approval' });
-});
+}));
+
+// =============================================================================
+// ADMIN API ROUTES - All require authentication AND admin privileges
+// =============================================================================
 
 // Admin endpoint to get pending submissions
-app.get('/api/admin/pending-servers', isAuthenticated, isAdmin, (req, res) => {
-  // In a real app, fetch these from database
+app.get('/api/admin/pending-servers', requireAuth, requireAdmin, (req, res) => {
+  // In production, fetch these from database
   const mockPendingServers = [];
   res.json(mockPendingServers);
 });
 
 // Server management API endpoints
-app.get('/api/admin/servers', isAuthenticated, isAdmin, (req, res) => {
+app.get('/api/admin/servers', requireAuth, requireAdmin, (req, res) => {
   // In a real app, fetch from database
   const mockServers = [
     {
@@ -406,89 +438,55 @@ app.get('/api/admin/servers', isAuthenticated, isAdmin, (req, res) => {
   res.json(mockServers);
 });
 
-// Commission form endpoint
-app.post('/api/commission', async (req, res) => {
-  try {
-    // Log the commission request data
-    console.log('New commission request received:');
-    console.log(req.body);
-    
-    // Create a new commission
-    const timestamp = new Date();
-    const newCommission = {
-      id: generateId(),
-      discordUsername: req.body.discordUsername,
-      email: req.body.email || '',
-      botType: req.body.botType,
-      botDescription: req.body.botDescription,
-      budget: req.body.budget ? Number(req.body.budget) : undefined,
-      timeframe: req.body.timeframe,
-      tosAgreement: req.body.tosAgreement === true,
-      submittedAt: timestamp,
-      status: 'pending'
-    };
-    
-    // Add to commissions array
-    commissions.push(newCommission);
-    
-    // Save to JSON file
-    if (saveCommissions()) {
-      res.json({
-        success: true,
-        message: 'Commission request received successfully'
-      });
-    } else {
-      throw new Error('Failed to save commission to disk');
-    }
-  } catch (error) {
-    console.error('Error saving commission request:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to process commission request',
-      error: error.message
+// Commission form endpoint - with rate limiting and validation
+app.post('/api/commission', uploadRateLimit, validate(commissionSubmissionSchema), asyncHandler(async (req, res) => {
+  // Log the commission request data
+  console.log(`[${req.correlationId}] New commission request received`);
+
+  // Create a new commission
+  const timestamp = new Date();
+  const newCommission = {
+    id: generateId(),
+    discordUsername: req.body.discordUsername,
+    email: req.body.email || '',
+    botType: req.body.botType,
+    botDescription: req.body.botDescription,
+    budget: req.body.budget ? Number(req.body.budget) : undefined,
+    timeframe: req.body.timeframe,
+    tosAgreement: req.body.tosAgreement,
+    submittedAt: timestamp,
+    status: 'pending'
+  };
+
+  // Add to commissions array
+  commissions.push(newCommission);
+
+  // Save to JSON file
+  if (saveCommissions()) {
+    res.json({
+      success: true,
+      message: 'Commission request received successfully'
     });
+  } else {
+    throw new Error('Failed to save commission to disk');
   }
-});
+}));
 
 // Add an admin endpoint to view commission requests
-app.get('/api/admin/commissions', isAuthenticated, isAdmin, async (req, res) => {
-  try {
-    console.log(`Returning ${commissions.length} commissions from JSON file`);
-    res.json(commissions);
-  } catch (error) {
-    console.error('Error fetching commission requests:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch commission requests',
-      error: error.message
-    });
-  }
-});
+app.get('/api/admin/commissions', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  console.log(`[${req.correlationId}] Admin ${req.user.username} fetching commissions`);
+  res.json(commissions);
+}));
 
-// Add an endpoint to update commission status
-app.put('/api/admin/commissions/:id', isAuthenticated, isAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    
-    console.log(`Attempting to update commission ${id} to status: ${status}`);
-    console.log(`Current commissions: ${commissions.length} total`);
-    
-    // Debug: List all commission IDs to check if the requested one exists
-    const commissionIds = commissions.map(c => c.id);
-    console.log(`Available commission IDs: ${JSON.stringify(commissionIds)}`);
-    
-    // Validate status
-    const validStatuses = ['pending', 'in-progress', 'completed', 'rejected'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid status value' 
-      });
-    }
-    
-    // Find the commission by id - handle both direct match and MongoDB ObjectId string formats
-    let index = commissions.findIndex(c => c.id === id);
+// Add an endpoint to update commission status - with validation
+app.put('/api/admin/commissions/:id', requireAuth, requireAdmin, validate(commissionStatusUpdateSchema), asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  console.log(`[${req.correlationId}] Admin ${req.user.username} updating commission ${id} to status: ${status}`);
+
+  // Find the commission by id - handle both direct match and MongoDB ObjectId string formats
+  let index = commissions.findIndex(c => c.id === id);
     
     // If not found, try matching just the timestamp part of the ID (for backward compatibility)
     if (index === -1 && id.includes('_')) {
@@ -566,47 +564,30 @@ app.put('/api/admin/commissions/:id', isAuthenticated, isAdmin, async (req, res)
     } else {
       throw new Error('Failed to save updated commission to disk');
     }
-  } catch (error) {
-    console.error('Error updating commission status:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update commission status',
-      error: error.message
+}));
+
+// Add an endpoint to upload showcase items (deprecated - use /api/showcase/submit)
+app.post('/api/showcase', requireAuth, upload.single('image'), validateUploadedFile, asyncHandler(async (req, res) => {
+  const newShowcaseItem = {
+    id: uuidv4(),
+    title: req.body.title,
+    description: req.body.description,
+    imagePath: req.file.path,
+    uploadedAt: new Date()
+  };
+
+  showcaseItems.push(newShowcaseItem);
+
+  if (saveShowcaseItems()) {
+    res.json({
+      success: true,
+      message: 'Showcase item uploaded successfully',
+      item: newShowcaseItem
     });
+  } else {
+    throw new Error('Failed to save showcase item to disk');
   }
-});
-
-// Add an endpoint to upload showcase items
-app.post('/api/showcase', isAuthenticated, upload.single('image'), async (req, res) => {
-  try {
-    const newShowcaseItem = {
-      id: uuidv4(),
-      title: req.body.title,
-      description: req.body.description,
-      imagePath: req.file.path,
-      uploadedAt: new Date()
-    };
-
-    showcaseItems.push(newShowcaseItem);
-
-    if (saveShowcaseItems()) {
-      res.json({
-        success: true,
-        message: 'Showcase item uploaded successfully',
-        item: newShowcaseItem
-      });
-    } else {
-      throw new Error('Failed to save showcase item to disk');
-    }
-  } catch (error) {
-    console.error('Error uploading showcase item:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to upload showcase item',
-      error: error.message
-    });
-  }
-});
+}));
 
 // Showcase API endpoints
 
@@ -626,188 +607,147 @@ app.get('/api/showcase', (req, res) => {
   }
 });
 
-// Endpoint to submit a new showcase item
-app.post('/api/showcase/submit', upload.single('imageFile'), (req, res) => {
-  try {
-    // Validate required fields
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'No image file provided'
-      });
-    }
-
-    if (!req.body.imageTitle || !req.body.authorName) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields'
-      });
-    }
-
-    // Create a new showcase item
-    const timestamp = new Date();
-    const newShowcaseItem = {
-      id: uuidv4(),
-      imageTitle: req.body.imageTitle,
-      imageDescription: req.body.imageDescription || '',
-      imagePath: '/uploads/showcase/' + req.file.filename, // Store path relative to public directory
-      authorName: req.body.authorName,
-      submittedAt: timestamp,
-      status: 'pending', // All submissions start with pending status
-      likes: 0
-    };
-    
-    // Add to showcase items array
-    showcaseItems.push(newShowcaseItem);
-    
-    // Save to JSON file
-    if (saveShowcaseItems()) {
-      res.json({
-        success: true,
-        message: 'Your submission has been received and is pending approval by our team.'
-      });
-    } else {
-      throw new Error('Failed to save showcase item to disk');
-    }
-  } catch (error) {
-    console.error('Error submitting showcase item:', error);
-    res.status(500).json({
+// Endpoint to submit a new showcase item - with rate limiting and validation
+app.post('/api/showcase/submit', uploadRateLimit, upload.single('imageFile'), validateUploadedFile, validate(showcaseSubmissionSchema), asyncHandler(async (req, res) => {
+  // Validate required fields
+  if (!req.file) {
+    return res.status(400).json({
       success: false,
-      message: 'Failed to process showcase submission',
-      error: error.message
+      message: 'No image file provided'
     });
   }
-});
+
+  if (!req.body.imageTitle || !req.body.authorName) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields'
+    });
+  }
+
+  // Create a new showcase item
+  const timestamp = new Date();
+  const newShowcaseItem = {
+    id: uuidv4(),
+    imageTitle: req.body.imageTitle,
+    imageDescription: req.body.imageDescription || '',
+    imagePath: '/uploads/showcase/' + req.file.filename, // Store path relative to public directory
+    authorName: req.body.authorName,
+    submittedAt: timestamp,
+    status: 'pending', // All submissions start with pending status
+    likes: 0
+  };
+
+  // Add to showcase items array
+  showcaseItems.push(newShowcaseItem);
+
+  // Save to JSON file
+  if (saveShowcaseItems()) {
+    res.json({
+      success: true,
+      message: 'Your submission has been received and is pending approval by our team.'
+    });
+  } else {
+    throw new Error('Failed to save showcase item to disk');
+  }
+}));
 
 // Admin endpoint to get all showcase items (for management)
-app.get('/api/admin/showcase', isAuthenticated, isAdmin, (req, res) => {
-  try {
-    res.json(showcaseItems);
-  } catch (error) {
-    console.error('Error fetching showcase items for admin:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch showcase items',
-      error: error.message
-    });
-  }
-});
+app.get('/api/admin/showcase', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  res.json(showcaseItems);
+}));
 
-// Admin endpoint to update showcase item status
-app.put('/api/admin/showcase/:id', isAuthenticated, isAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status, reason } = req.body;
-    
-    // Validate status
-    const validStatuses = ['pending', 'approved', 'rejected'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid status value' 
-      });
-    }
-    
-    // Find the item by id
-    const index = showcaseItems.findIndex(item => item.id === id);
-    
-    if (index === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'Showcase item not found'
-      });
-    }
-    
-    // Update the status
-    showcaseItems[index].status = status;
-    
-    // Add reason if provided (for rejections)
-    if (reason) {
-      showcaseItems[index].rejectionReason = reason;
-    }
-    
-    // Add timestamp for the status change
-    if (status === 'approved') {
-      showcaseItems[index].approvedAt = new Date();
-    } else if (status === 'rejected') {
-      showcaseItems[index].rejectedAt = new Date();
-    }
-    
-    // Save to JSON file
-    if (saveShowcaseItems()) {
-      return res.json({
-        success: true,
-        message: 'Showcase item status updated',
-        item: showcaseItems[index]
-      });
-    } else {
-      throw new Error('Failed to save updated showcase item to disk');
-    }
-  } catch (error) {
-    console.error('Error updating showcase item status:', error);
-    res.status(500).json({
+// Admin endpoint to update showcase item status - with validation
+app.put('/api/admin/showcase/:id', requireAuth, requireAdmin, validate(showcaseStatusUpdateSchema), asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status, reason } = req.body;
+
+  // Find the item by id
+  const index = showcaseItems.findIndex(item => item.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({
       success: false,
-      message: 'Failed to update showcase item status',
-      error: error.message
+      message: 'Showcase item not found'
     });
   }
-});
+
+  // Update the status
+  showcaseItems[index].status = status;
+
+  // Add reason if provided (for rejections)
+  if (reason) {
+    showcaseItems[index].rejectionReason = reason;
+  }
+
+  // Add timestamp for the status change
+  if (status === 'approved') {
+    showcaseItems[index].approvedAt = new Date();
+  } else if (status === 'rejected') {
+    showcaseItems[index].rejectedAt = new Date();
+  }
+
+  // Save to JSON file
+  if (saveShowcaseItems()) {
+    return res.json({
+      success: true,
+      message: 'Showcase item status updated',
+      item: showcaseItems[index]
+    });
+  } else {
+    throw new Error('Failed to save updated showcase item to disk');
+  }
+}));
 
 // Admin endpoint to delete a showcase item
-app.delete('/api/admin/showcase/:id', isAuthenticated, isAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    // Find the item by id
-    const index = showcaseItems.findIndex(item => item.id === id);
-    
-    if (index === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'Showcase item not found'
-      });
-    }
-    
-    // Get the image path for deletion
-    const imagePath = showcaseItems[index].imagePath;
-    
-    // Remove from array
-    showcaseItems.splice(index, 1);
-    
-    // Save to JSON file
-    if (saveShowcaseItems()) {
-      // Try to delete the image file (but don't fail if we can't)
-      if (imagePath) {
-        const fullImagePath = path.join(__dirname, imagePath);
-        if (fs.existsSync(fullImagePath)) {
-          try {
-            fs.unlinkSync(fullImagePath);
-            console.log(`Deleted showcase image file: ${fullImagePath}`);
-          } catch (err) {
-            console.error(`Warning: Could not delete showcase image file ${fullImagePath}:`, err);
-          }
-        }
-      }
-      
-      return res.json({
-        success: true,
-        message: 'Showcase item deleted successfully'
-      });
-    } else {
-      throw new Error('Failed to save showcase items to disk after deletion');
-    }
-  } catch (error) {
-    console.error('Error deleting showcase item:', error);
-    res.status(500).json({
+app.delete('/api/admin/showcase/:id', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Find the item by id
+  const index = showcaseItems.findIndex(item => item.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({
       success: false,
-      message: 'Failed to delete showcase item',
-      error: error.message
+      message: 'Showcase item not found'
     });
   }
-});
+
+  // Get the image path for deletion
+  const imagePath = showcaseItems[index].imagePath;
+
+  // Remove from array
+  showcaseItems.splice(index, 1);
+
+  // Save to JSON file
+  if (saveShowcaseItems()) {
+    // Try to delete the image file (but don't fail if we can't)
+    if (imagePath) {
+      const fullImagePath = path.join(__dirname, imagePath);
+      if (fs.existsSync(fullImagePath)) {
+        try {
+          fs.unlinkSync(fullImagePath);
+          console.log(`Deleted showcase image file: ${fullImagePath}`);
+        } catch (err) {
+          console.error(`Warning: Could not delete showcase image file ${fullImagePath}:`, err);
+        }
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: 'Showcase item deleted successfully'
+    });
+  } else {
+    throw new Error('Failed to save showcase items to disk after deletion');
+  }
+}));
+
+// =============================================================================
+// PROTECTED HTML ROUTES - Require authentication
+// =============================================================================
 
 // Admin route for showcase management page
-app.get('/admin-showcase.html', isAuthenticated, isAdmin, (req, res) => {
+app.get('/admin-showcase.html', requireAuth, requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-showcase.html'));
 });
 
@@ -848,16 +788,16 @@ app.get('/login.html', (req, res) => {
 });
 
 // Protected routes
-app.get('/dashboard.html', isAuthenticated, (req, res) => {
+app.get('/dashboard.html', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
-app.get('/admin.html', isAuthenticated, isAdmin, (req, res) => {
+app.get('/admin.html', requireAuth, requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 // Admin commissions page route
-app.get('/admin-commissions.html', isAuthenticated, isAdmin, (req, res) => {
+app.get('/admin-commissions.html', requireAuth, requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-commissions.html'));
 });
 
@@ -924,7 +864,7 @@ async function fetchAndCacheMods() {
         path: `/api/v1/mods?offset=${offset}&limit=${limit}`,
         method: 'GET',
         headers: {
-          'Authorization': 'Bearer gsh_2280ca130d6a1a5b627418dd431198baef053cab88b03bafb19eea5b320a0b0d',
+          'Authorization': `Bearer ${GSH_API_TOKEN}`,
           'Accept': 'application/json'
         }
       };
@@ -999,7 +939,7 @@ async function fetchAndCacheServers() {
         path: `/api/v1/servers?offset=${offset}&limit=${limit}`,
         method: 'GET',
         headers: {
-          'Authorization': 'Bearer gsh_2280ca130d6a1a5b627418dd431198baef053cab88b03bafb19eea5b320a0b0d',
+          'Authorization': `Bearer ${GSH_API_TOKEN}`,
           'Accept': 'application/json'
         }
       };
@@ -1105,13 +1045,13 @@ fetchAndCacheMods().then(() => {
 });
 
 // Discord webhook endpoint for Game.ini generation notifications
-app.post('/api/webhook/game-ini-generated', express.json(), async (req, res) => {
-  try {
-    // Skip if no webhook URL is configured
-    if (!DISCORD_WEBHOOK_URL) {
-      console.log('No Discord webhook URL configured, skipping notification');
-      return res.json({ success: true, message: 'No webhook configured' });
-    }
+// With rate limiting and optional validation
+app.post('/api/webhook/game-ini-generated', webhookRateLimit, validate(webhookGameIniSchema), asyncHandler(async (req, res) => {
+  // Skip if no webhook URL is configured
+  if (!DISCORD_WEBHOOK_URL) {
+    console.log('No Discord webhook URL configured, skipping notification');
+    return res.json({ success: true, message: 'No webhook configured' });
+  }
 
     const { fileType, changedSettingsCount, timestamp } = req.body;
 
@@ -1212,14 +1152,9 @@ app.post('/api/webhook/game-ini-generated', express.json(), async (req, res) => 
       res.status(500).json({ success: false, message: 'Webhook error', error: error.message });
     });
 
-    webhookReq.write(postData);
-    webhookReq.end();
-
-  } catch (error) {
-    console.error('Error in webhook endpoint:', error);
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
-  }
-});
+  webhookReq.write(postData);
+  webhookReq.end();
+}));
 
 // Auto-refresh caches periodically
 setInterval(() => {
@@ -1247,7 +1182,27 @@ app.get('/:page.html', (req, res) => {
   }
 });
 
-// Revert to original app.listen
+// =============================================================================
+// ERROR HANDLERS - Must be last, after all other routes
+// =============================================================================
+
+// 404 handler
+app.use(notFoundHandler);
+
+// Global error handler
+app.use(globalErrorHandler);
+
+// =============================================================================
+// START SERVER
+// =============================================================================
+
 app.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n${'='.repeat(70)}`);
+  console.log(`TitanTech Hub Server`);
+  console.log(`${'='.repeat(70)}`);
+  console.log(`Environment: ${NODE_ENV}`);
   console.log(`Server running at http://0.0.0.0:${PORT}/`);
+  console.log(`Security baseline: ENABLED`);
+  console.log(`Session secret: ${SESSION_SECRET.length} characters`);
+  console.log(`${'='.repeat(70)}\n`);
 });

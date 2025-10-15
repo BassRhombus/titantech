@@ -571,12 +571,12 @@
         <div class="action-buttons">
             <div class="upload-btn-wrapper">
                 Upload Game.ini
-                <input type="file" id="uploadFile" accept=".ini" onchange="uploadConfig(event)">
+                <input type="file" id="uploadFile" accept=".ini">
             </div>
-            <button class="generate-btn" onclick="generateConfig()">Generate Game.ini</button>
-            <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
-            <button class="download-btn" onclick="downloadConfig()">Download Game.ini</button>
-            <button class="reset-btn" onclick="resetForm()">Reset All</button>
+            <button class="generate-btn" id="generateBtn">Generate Game.ini</button>
+            <button class="copy-btn" id="copyBtn">Copy to Clipboard</button>
+            <button class="download-btn" id="downloadBtn">Download Game.ini</button>
+            <button class="reset-btn" id="resetBtn">Reset All</button>
         </div>
 
         <div id="configForm"></div>
@@ -611,8 +611,8 @@
                 <p>By continuing, you acknowledge that this tool is in active development and may contain bugs or inaccuracies.</p>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn modal-btn-cancel" onclick="handleBetaCancel()">Go Back</button>
-                <button class="modal-btn modal-btn-accept" onclick="handleBetaAccept()">I Understand, Continue</button>
+                <button class="modal-btn modal-btn-cancel" id="betaCancelBtn">Go Back</button>
+                <button class="modal-btn modal-btn-accept" id="betaAcceptBtn">I Understand, Continue</button>
             </div>
         </div>
     </div>
@@ -639,8 +639,49 @@
             window.location.href = 'index.html';
         }
 
-        // Show modal on page load
-        window.addEventListener('DOMContentLoaded', showBetaWarning);
+        // Show modal on page load and attach event listeners
+        window.addEventListener('DOMContentLoaded', function() {
+            showBetaWarning();
+
+            // Attach event listeners to modal buttons
+            const acceptBtn = document.getElementById('betaAcceptBtn');
+            const cancelBtn = document.getElementById('betaCancelBtn');
+
+            if (acceptBtn) {
+                acceptBtn.addEventListener('click', handleBetaAccept);
+            }
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', handleBetaCancel);
+            }
+
+            // Attach event listeners to action buttons
+            const uploadFile = document.getElementById('uploadFile');
+            const generateBtn = document.getElementById('generateBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            if (uploadFile) {
+                uploadFile.addEventListener('change', uploadConfig);
+            }
+
+            if (generateBtn) {
+                generateBtn.addEventListener('click', generateConfig);
+            }
+
+            if (copyBtn) {
+                copyBtn.addEventListener('click', copyToClipboard);
+            }
+
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', downloadConfig);
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', resetForm);
+            }
+        });
     </script>
 </body>
 </html>

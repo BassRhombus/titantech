@@ -194,6 +194,9 @@ function displayMods(mods) {
             <div class="mod-creator ${creatorClass}">
                 <strong>Creator:</strong> <span>${creatorDisplay}</span>
             </div>
+            <div class="mod-id">
+                <strong>ID:</strong> <code>${mod.sku}</code>
+            </div>
             <p>${mod.description}</p>
             <label class="checkbox-container">
                 <span>Select this mod</span>
@@ -214,12 +217,13 @@ function displayMods(mods) {
 function filterMods() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     if (!window.modsData) return;
-    
-    const filteredMods = window.modsData.filter(mod => 
-        mod.name.toLowerCase().includes(searchTerm) || 
-        mod.description.toLowerCase().includes(searchTerm)
+
+    const filteredMods = window.modsData.filter(mod =>
+        mod.name.toLowerCase().includes(searchTerm) ||
+        mod.description.toLowerCase().includes(searchTerm) ||
+        mod.sku.toLowerCase().includes(searchTerm)
     );
-    
+
     displayMods(filteredMods);
 }
 
@@ -418,13 +422,222 @@ document.getElementById('iniFileInput').addEventListener('change', function(even
 // Helper to extract mod IDs from INI file
 function extractModIdsFromIni(iniContent) {
     // Look for lines like EnabledMods=MODID
+    // Ignore comments that start with # (either on their own line or after the mod ID)
     const modIds = [];
     const lines = iniContent.split(/\r?\n/);
     for (const line of lines) {
-        const match = line.match(/^EnabledMods=(.+)$/);
+        // Skip lines that start with # (comment lines)
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('#')) {
+            continue;
+        }
+
+        // Match EnabledMods=MODID, but stop at # if there's an inline comment
+        const match = line.match(/^EnabledMods=([^#]+)/);
         if (match) {
-            modIds.push(match[1].trim());
+            // Trim whitespace from the mod ID
+            const modId = match[1].trim();
+            if (modId) {
+                modIds.push(modId);
+            }
         }
     }
     return modIds;
+}
+
+// Check INI button event listener
+document.getElementById('checkIniBtn').addEventListener('click', function() {
+    document.getElementById('checkIniFileInput').click();
+});
+
+document.getElementById('checkIniFileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        validateIniFile(content);
+    };
+    reader.readAsText(file);
+
+    // Reset the input so the same file can be selected again
+    event.target.value = '';
+});
+
+// Close modal button
+document.getElementById('closeValidationModal').addEventListener('click', function() {
+    document.getElementById('validationModal').style.display = 'none';
+});
+
+// Close modal when clicking outside
+document.getElementById('validationModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
+    }
+});
+
+/**
+ * Validate INI file and show results
+ */
+async function validateIniFile(iniContent) {
+    // Ensure mods data is loaded
+    if (!window.modsData) {
+        await loadModsData();
+    }
+
+    const modIds = extractModIdsFromIni(iniContent);
+
+    if (modIds.length === 0) {
+        showValidationResults({
+            totalMods: 0,
+            validMods: 0,
+            issues: [{
+                type: 'error',
+                message: 'No mods found in the INI file. Make sure your file contains lines like "EnabledMods=MOD_ID"'
+            }]
+        });
+        return;
+    }
+
+    // Create a map of valid mod IDs for quick lookup
+    const validModsMap = new Map();
+    window.modsData.forEach(mod => {
+        validModsMap.set(mod.sku.toLowerCase(), mod);
+    });
+
+    const issues = [];
+    let validCount = 0;
+
+    modIds.forEach((modId, index) => {
+        const lineNumber = index + 1;
+
+        // Check for uppercase O instead of zero
+        if (/[O]/.test(modId) && /UGC_M_/.test(modId)) {
+            issues.push({
+                type: 'error',
+                modId: modId,
+                modName: 'Invalid ID Format',
+                message: `This mod ID contains the letter 'O' instead of the number '0'. Mod IDs should only contain zeros (0), not the letter O.`,
+                lineNumber: lineNumber
+            });
+            return;
+        }
+
+        // Check if mod exists in current database
+        const modLower = modId.toLowerCase();
+        const validMod = validModsMap.get(modLower);
+
+        if (!validMod) {
+            // Check if it's just wrong case
+            const correctCaseMod = window.modsData.find(m =>
+                m.sku.toLowerCase() === modLower
+            );
+
+            if (correctCaseMod) {
+                issues.push({
+                    type: 'warning',
+                    modId: modId,
+                    modName: correctCaseMod.name,
+                    message: `Mod ID has incorrect casing. Should be: ${correctCaseMod.sku}`,
+                    lineNumber: lineNumber,
+                    correctId: correctCaseMod.sku
+                });
+                validCount++;
+            } else {
+                issues.push({
+                    type: 'error',
+                    modId: modId,
+                    modName: 'Unknown Mod',
+                    message: 'This mod ID does not exist in the current mod database. It may have been removed, renamed, or is incorrectly formatted.',
+                    lineNumber: lineNumber
+                });
+            }
+        } else {
+            validCount++;
+        }
+    });
+
+    showValidationResults({
+        totalMods: modIds.length,
+        validMods: validCount,
+        issues: issues
+    });
+}
+
+/**
+ * Display validation results in modal
+ */
+function showValidationResults(results) {
+    const modal = document.getElementById('validationModal');
+    const resultsContainer = document.getElementById('validationResults');
+
+    let html = '';
+
+    // Summary section
+    html += `
+        <div class="validation-summary">
+            <h4>Summary</h4>
+            <p><strong>Total Mods:</strong> ${results.totalMods}</p>
+            <p><strong>Valid Mods:</strong> ${results.validMods}</p>
+            <p><strong>Issues Found:</strong> ${results.issues.length}</p>
+        </div>
+    `;
+
+    if (results.issues.length === 0) {
+        html += `
+            <div class="no-issues">
+                <i class="fas fa-check-circle"></i>
+                <p>All mods are valid! No issues found.</p>
+            </div>
+        `;
+    } else {
+        // Group issues by type
+        const errors = results.issues.filter(i => i.type === 'error');
+        const warnings = results.issues.filter(i => i.type === 'warning');
+
+        if (errors.length > 0) {
+            html += `
+                <div class="validation-section">
+                    <h4><i class="fas fa-exclamation-circle"></i> Errors (${errors.length})</h4>
+            `;
+
+            errors.forEach(issue => {
+                html += `
+                    <div class="validation-issue error">
+                        <div class="issue-type error">ERROR</div>
+                        <div class="issue-mod-name">${issue.modName}</div>
+                        <div class="issue-mod-id">ID: ${issue.modId}</div>
+                        <div class="issue-description">${issue.message}</div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+        }
+
+        if (warnings.length > 0) {
+            html += `
+                <div class="validation-section">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Warnings (${warnings.length})</h4>
+            `;
+
+            warnings.forEach(issue => {
+                html += `
+                    <div class="validation-issue warning">
+                        <div class="issue-type warning">WARNING</div>
+                        <div class="issue-mod-name">${issue.modName}</div>
+                        <div class="issue-mod-id">ID: ${issue.modId}</div>
+                        <div class="issue-description">${issue.message}</div>
+                        ${issue.correctId ? `<div class="issue-description" style="margin-top: 0.5rem;"><strong>Correct ID:</strong> <code>${issue.correctId}</code></div>` : ''}
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+        }
+    }
+
+    resultsContainer.innerHTML = html;
+    modal.style.display = 'flex';
 }

@@ -298,7 +298,15 @@ function createTabs() {
         const button = document.createElement('button');
         button.className = 'tab-button';
         button.textContent = tab.label;
-        button.onclick = () => switchTab(tab.id, tab.categories);
+
+        // Grey out Curve Overrides tab
+        if (tab.id === 'curveOverrides') {
+            button.style.opacity = '0.4';
+            button.style.cursor = 'not-allowed';
+            button.style.pointerEvents = 'none';
+        } else {
+            button.onclick = () => switchTab(tab.id, tab.categories);
+        }
 
         if (index === 0) {
             button.classList.add('active');
@@ -803,15 +811,9 @@ function generateConfig() {
 
     // Add curve overrides to IGameSession
     curveOverrides.forEach(override => {
-        const curvePath = `/Game/Dinosaurs/${override.dinosaur}.${override.curve}`;
-        const keys = [
-            `(Time=0.0,Value=${override.values[0]})`,
-            `(Time=0.25,Value=${override.values[1]})`,
-            `(Time=0.5,Value=${override.values[2]})`,
-            `(Time=0.75,Value=${override.values[3]})`,
-            `(Time=1.0,Value=${override.values[4]})`
-        ].join(',');
-        changedSettings.IGameSession.push(`CurveOverrides=(Curve="${curvePath}",Keys=(${keys}))`);
+        const curveName = `${override.dinosaur}.Core.${override.curve}`;
+        const values = override.values.map(v => v.toFixed(5)).join(',');
+        changedSettings.IGameSession.push(`CurveOverrides=(CurveName="${curveName}",Values=(${values}))`);
     });
 
     // Check IGameMode settings
