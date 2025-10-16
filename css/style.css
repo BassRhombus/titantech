@@ -52,6 +52,7 @@ header {
 .logo-container h1 {
     font-family: 'Orbitron', 'Exo', sans-serif;
     font-weight: 700;
+    font-size: 1.5rem;
     margin-left: 15px;
     background: linear-gradient(45deg, var(--neon-blue), var(--neon-magenta));
     -webkit-background-clip: text;
