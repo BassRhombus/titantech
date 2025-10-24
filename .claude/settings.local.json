@@ -10,7 +10,9 @@
       "Bash(npm audit)",
       "Bash(npm audit fix:*)",
       "Bash(node -e \"console.log(require(''crypto'').randomBytes(64).toString(''hex''))\")",
-      "Bash(timeout 10 node:*)"
+      "Bash(timeout 10 node:*)",
+      "Bash(move:*)",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []

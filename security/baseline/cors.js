@@ -40,11 +40,18 @@ function getCorsConfig(allowedOrigins = [], isDevelopment = false) {
         return callback(null, true);
       }
 
+      // In development mode, allow all origins
+      if (isDevelopment) {
+        console.log(`CORS: Allowing development request from origin: ${origin}`);
+        return callback(null, true);
+      }
+
       // Check if origin is in allowlist
       if (origins.includes(origin)) {
         callback(null, true);
       } else {
         console.warn(`CORS: Blocked request from origin: ${origin}`);
+        console.warn(`CORS: Allowed origins:`, origins);
         callback(new Error('Not allowed by CORS'));
       }
     },

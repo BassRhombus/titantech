@@ -9,6 +9,8 @@ const session = require('express-session');
 const http = require('http');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const passport = require('passport');
+const DiscordStrategy = require('passport-discord').Strategy;
 
 // Load environment variables
 require('dotenv').config();
@@ -47,9 +49,16 @@ if (SESSION_SECRET.length < 32) {
 const dataDir = path.join(__dirname, 'data');
 const commissionsFile = path.join(dataDir, 'commissions.json');
 const showcaseFile = path.join(dataDir, 'showcase.json');
+const suggestionsFile = path.join(dataDir, 'suggestions.json');
 
 // Configuration from environment variables
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const DISCORD_SUGGESTIONS_WEBHOOK_URL = process.env.DISCORD_SUGGESTIONS_WEBHOOK_URL;
+const DISCORD_ADMIN_TOKEN = process.env.DISCORD_ADMIN_TOKEN;
+const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
+const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL;
+const DISCORD_MODERATORS = process.env.DISCORD_MODERATORS ? process.env.DISCORD_MODERATORS.split(',') : [];
 const GSH_API_TOKEN = process.env.GSH_API_TOKEN;
 const GSH_API_HOST = process.env.GSH_API_HOST || 'pot-api.gsh-servers.com';
 const isProduction = NODE_ENV === 'production';
@@ -67,6 +76,7 @@ if (!fs.existsSync(dataDir)) {
 // Initialize storage
 let commissions = [];
 let showcaseItems = [];
+let suggestions = [];
 
 // Load existing commissions from JSON file
 function loadCommissions() {
@@ -126,14 +136,44 @@ function saveShowcaseItems() {
   }
 }
 
+// Load existing suggestions from JSON file
+function loadSuggestions() {
+  try {
+    if (fs.existsSync(suggestionsFile)) {
+      const data = fs.readFileSync(suggestionsFile, 'utf8');
+      suggestions = JSON.parse(data);
+      console.log(`Loaded ${suggestions.length} suggestions from ${suggestionsFile}`);
+    } else {
+      console.log(`No suggestions file found at ${suggestionsFile}, starting with empty array`);
+      saveSuggestions(); // Create the initial empty file
+    }
+  } catch (err) {
+    console.error(`Error loading suggestions from ${suggestionsFile}:`, err);
+    suggestions = []; // Start with empty array in case of error
+  }
+}
+
+// Save suggestions to JSON file
+function saveSuggestions() {
+  try {
+    fs.writeFileSync(suggestionsFile, JSON.stringify(suggestions, null, 2), 'utf8');
+    console.log(`Saved ${suggestions.length} suggestions to ${suggestionsFile}`);
+    return true;
+  } catch (err) {
+    console.error(`Error saving suggestions to ${suggestionsFile}:`, err);
+    return false;
+  }
+}
+
 // Generate a unique ID for commissions
 function generateId() {
   return 'commission_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
-// Load commissions and showcase items at startup
+// Load commissions, showcase items, and suggestions at startup
 loadCommissions();
 loadShowcaseItems();
+loadSuggestions();
 
 // Simple in-memory user store (replace with database in production)
 // SECURITY NOTE: These are temporary users. In production, use a proper database with hashed passwords.
@@ -170,6 +210,45 @@ app.use(applyCors(allowedOrigins, isDevelopment));
 // 4. Configure secure session middleware
 app.use(session(getSessionConfig(SESSION_SECRET, isProduction)));
 
+// 4.5. Configure Passport for Discord OAuth
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
+});
+
+// Configure Discord Strategy
+if (DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET) {
+  passport.use(new DiscordStrategy({
+    clientID: DISCORD_CLIENT_ID,
+    clientSecret: DISCORD_CLIENT_SECRET,
+    callbackURL: DISCORD_CALLBACK_URL,
+    scope: ['identify']
+  }, (accessToken, refreshToken, profile, done) => {
+    // Check if user is a moderator
+    const isModerator = DISCORD_MODERATORS.includes(profile.id);
+
+    const user = {
+      id: profile.id,
+      username: profile.username,
+      discriminator: profile.discriminator,
+      avatar: profile.avatar,
+      isModerator: isModerator
+    };
+
+    return done(null, user);
+  }));
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  console.log('Discord OAuth2 configured');
+} else {
+  console.log('Discord OAuth2 not configured - missing CLIENT_ID or CLIENT_SECRET');
+}
+
 // 5. Body parser middleware with size limits
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json({ limit: '10mb' }));
@@ -192,6 +271,31 @@ app.use('/api/*', (req, res, next) => {
 // LEGACY MIDDLEWARE - Replaced by security baseline modules
 // Keeping for reference, but new code should use requireAuth and requireAdmin
 // =============================================================================
+
+// Custom middleware for Discord webhook token authentication
+function requireAdminOrToken(req, res, next) {
+  // Check for token in query parameter
+  const token = req.query.token;
+
+  if (isDevelopment) {
+    console.log('[Token Auth] Token provided:', token ? 'yes' : 'no');
+    console.log('[Token Auth] DISCORD_ADMIN_TOKEN configured:', DISCORD_ADMIN_TOKEN ? 'yes' : 'no');
+    console.log('[Token Auth] Token match:', token === DISCORD_ADMIN_TOKEN);
+  }
+
+  if (token && DISCORD_ADMIN_TOKEN && token === DISCORD_ADMIN_TOKEN) {
+    // Valid token, proceed
+    console.log('[Token Auth] Token validated successfully');
+    return next();
+  }
+
+  // Fall back to session-based authentication
+  console.log('[Token Auth] Falling back to session authentication');
+  requireAuth(req, res, (err) => {
+    if (err) return next(err);
+    requireAdmin(req, res, next);
+  });
+}
 
 // =============================================================================
 // AUTHENTICATION ROUTES
@@ -225,9 +329,50 @@ app.post(['/login', 'login'], authRateLimit, asyncHandler(async (req, res) => {
 app.get(['/logout', 'logout'], asyncHandler(async (req, res) => {
   const username = req.session.user ? req.session.user.username : 'unknown';
   await destroyUserSession(req);
-  console.log(`[${req.correlationId}] User logged out: ${username}`);
-  res.redirect('/');
+  req.logout(() => {
+    console.log(`[${req.correlationId}] User logged out: ${username}`);
+    res.redirect('/');
+  });
 }));
+
+// =============================================================================
+// DISCORD OAUTH ROUTES
+// =============================================================================
+
+// Discord login initiation
+app.get('/auth/discord', passport.authenticate('discord'));
+
+// Discord callback
+app.get('/auth/discord/callback',
+  passport.authenticate('discord', { failureRedirect: '/suggestions.html?error=discord_auth_failed' }),
+  (req, res) => {
+    // Successful authentication
+    console.log(`[${req.correlationId}] Discord user logged in: ${req.user.username} (${req.user.id}), Moderator: ${req.user.isModerator}`);
+    res.redirect('/suggestions.html?auth=success');
+  }
+);
+
+// Discord logout
+app.get('/auth/discord/logout', (req, res) => {
+  req.logout(() => {
+    res.redirect('/suggestions.html');
+  });
+});
+
+// Get current Discord user info
+app.get('/api/discord/user', (req, res) => {
+  if (req.user) {
+    res.json({
+      success: true,
+      user: req.user
+    });
+  } else {
+    res.json({
+      success: false,
+      user: null
+    });
+  }
+});
 
 // =============================================================================
 // API ROUTES
@@ -765,6 +910,377 @@ setInterval(async () => {
 fetchModsFromAPI().catch(error => {
   console.error('Error during initial mods fetch:', error);
 });
+
+// =============================================================================
+// Suggestions API Endpoints
+// =============================================================================
+
+// Comment rate limiter storage (IP -> timestamp of last comment)
+const commentRateLimiter = new Map();
+
+// Check if user can post a comment (30 second cooldown)
+function canPostComment(identifier) {
+  const now = Date.now();
+  const lastCommentTime = commentRateLimiter.get(identifier);
+
+  if (!lastCommentTime) {
+    return true;
+  }
+
+  const timeSinceLastComment = now - lastCommentTime;
+  return timeSinceLastComment >= 30000; // 30 seconds
+}
+
+// Update comment timestamp
+function updateCommentTime(identifier) {
+  commentRateLimiter.set(identifier, Date.now());
+}
+
+// Get remaining cooldown in seconds
+function getRemainingCooldown(identifier) {
+  const now = Date.now();
+  const lastCommentTime = commentRateLimiter.get(identifier);
+
+  if (!lastCommentTime) {
+    return 0;
+  }
+
+  const timeSinceLastComment = now - lastCommentTime;
+  const remainingMs = 30000 - timeSinceLastComment;
+
+  return Math.max(0, Math.ceil(remainingMs / 1000));
+}
+
+// =============================================================================
+// Suggestions API Endpoints
+// =============================================================================
+
+// Get all suggestions
+app.get('/api/suggestions', (req, res) => {
+  try {
+    // Return all suggestions sorted by date (newest first)
+    const sortedSuggestions = [...suggestions].sort((a, b) =>
+      new Date(b.createdAt) - new Date(a.createdAt)
+    );
+    res.json(sortedSuggestions);
+  } catch (error) {
+    console.error('Error fetching suggestions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// Submit a new suggestion
+app.post('/api/suggestions', uploadRateLimit, asyncHandler(async (req, res) => {
+  const { title, category, description, author } = req.body;
+
+  // Validate required fields
+  if (!title || !category || !description) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields: title, category, and description are required'
+    });
+  }
+
+  // Validate title length
+  if (title.length > 100) {
+    return res.status(400).json({
+      success: false,
+      message: 'Title must be 100 characters or less'
+    });
+  }
+
+  // Validate description length
+  if (description.length > 1000) {
+    return res.status(400).json({
+      success: false,
+      message: 'Description must be 1000 characters or less'
+    });
+  }
+
+  // Validate category
+  const validCategories = ['features', 'map-changes', 'bugs', 'other'];
+  if (!validCategories.includes(category)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid category'
+    });
+  }
+
+  // Create new suggestion
+  const newSuggestion = {
+    id: uuidv4(),
+    title: title.trim(),
+    category,
+    description: description.trim(),
+    author: author ? author.trim() : 'Anonymous',
+    votes: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  // Add to suggestions array
+  suggestions.push(newSuggestion);
+
+  // Save to file
+  if (!saveSuggestions()) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to save suggestion'
+    });
+  }
+
+  res.status(201).json({
+    success: true,
+    message: 'Suggestion submitted successfully',
+    suggestion: newSuggestion
+  });
+}));
+
+// Vote on a suggestion
+app.post('/api/suggestions/:id/vote', standardRateLimit, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Find the suggestion
+  const suggestion = suggestions.find(s => s.id === id);
+
+  if (!suggestion) {
+    return res.status(404).json({
+      success: false,
+      message: 'Suggestion not found'
+    });
+  }
+
+  // Increment votes
+  suggestion.votes = (suggestion.votes || 0) + 1;
+
+  // Save to file
+  if (!saveSuggestions()) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to save vote'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'Vote recorded',
+    votes: suggestion.votes
+  });
+}));
+
+// Add a comment to a suggestion
+app.post('/api/suggestions/:id/comments', uploadRateLimit, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { text, author } = req.body;
+
+  // Rate limiting check (30 seconds per IP)
+  const userIdentifier = req.ip || req.connection.remoteAddress;
+
+  if (!canPostComment(userIdentifier)) {
+    const remainingSeconds = getRemainingCooldown(userIdentifier);
+    return res.status(429).json({
+      success: false,
+      message: `Please wait ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''} before posting another comment`,
+      cooldown: remainingSeconds
+    });
+  }
+
+  // Validate required fields
+  if (!text) {
+    return res.status(400).json({
+      success: false,
+      message: 'Comment text is required'
+    });
+  }
+
+  // Validate comment length
+  if (text.length > 500) {
+    return res.status(400).json({
+      success: false,
+      message: 'Comment must be 500 characters or less'
+    });
+  }
+
+  // Find the suggestion
+  const suggestion = suggestions.find(s => s.id === id);
+
+  if (!suggestion) {
+    return res.status(404).json({
+      success: false,
+      message: 'Suggestion not found'
+    });
+  }
+
+  // Initialize comments array if it doesn't exist
+  if (!suggestion.comments) {
+    suggestion.comments = [];
+  }
+
+  // Create new comment
+  const newComment = {
+    id: uuidv4(),
+    text: text.trim(),
+    author: author ? author.trim() : 'Anonymous',
+    likes: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  // Add comment to suggestion
+  suggestion.comments.push(newComment);
+
+  // Save to file
+  if (!saveSuggestions()) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to save comment'
+    });
+  }
+
+  // Update rate limiter
+  updateCommentTime(userIdentifier);
+
+  res.status(201).json({
+    success: true,
+    message: 'Comment added successfully',
+    comment: newComment
+  });
+}));
+
+// Like a comment
+app.post('/api/suggestions/:suggestionId/comments/:commentId/like', standardRateLimit, asyncHandler(async (req, res) => {
+  const { suggestionId, commentId } = req.params;
+
+  // Find the suggestion
+  const suggestion = suggestions.find(s => s.id === suggestionId);
+
+  if (!suggestion) {
+    return res.status(404).json({
+      success: false,
+      message: 'Suggestion not found'
+    });
+  }
+
+  // Find the comment
+  const comment = suggestion.comments?.find(c => c.id === commentId);
+
+  if (!comment) {
+    return res.status(404).json({
+      success: false,
+      message: 'Comment not found'
+    });
+  }
+
+  // Increment likes
+  comment.likes = (comment.likes || 0) + 1;
+
+  // Save to file
+  if (!saveSuggestions()) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to save like'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'Like recorded',
+    likes: comment.likes
+  });
+}));
+
+// =============================================================================
+// Moderator Delete Endpoints (Discord OAuth)
+// =============================================================================
+
+// Middleware to check if user is a Discord moderator
+function requireModerator(req, res, next) {
+  if (!req.user || !req.user.isModerator) {
+    return res.status(403).json({
+      success: false,
+      message: 'Moderator access required'
+    });
+  }
+  next();
+}
+
+// Delete a suggestion (moderators only)
+app.delete('/api/suggestions/:id', requireModerator, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const index = suggestions.findIndex(s => s.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'Suggestion not found'
+    });
+  }
+
+  suggestions.splice(index, 1);
+
+  if (!saveSuggestions()) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete suggestion'
+    });
+  }
+
+  console.log(`[Moderator ${req.user.username}] Deleted suggestion ${id}`);
+
+  res.json({
+    success: true,
+    message: 'Suggestion deleted successfully'
+  });
+}));
+
+// Delete a comment (moderators only)
+app.delete('/api/suggestions/:suggestionId/comments/:commentId', requireModerator, asyncHandler(async (req, res) => {
+  const { suggestionId, commentId } = req.params;
+
+  const suggestion = suggestions.find(s => s.id === suggestionId);
+
+  if (!suggestion) {
+    return res.status(404).json({
+      success: false,
+      message: 'Suggestion not found'
+    });
+  }
+
+  if (!suggestion.comments) {
+    return res.status(404).json({
+      success: false,
+      message: 'Comment not found'
+    });
+  }
+
+  const commentIndex = suggestion.comments.findIndex(c => c.id === commentId);
+
+  if (commentIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'Comment not found'
+    });
+  }
+
+  suggestion.comments.splice(commentIndex, 1);
+
+  if (!saveSuggestions()) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete comment'
+    });
+  }
+
+  console.log(`[Moderator ${req.user.username}] Deleted comment ${commentId} from suggestion ${suggestionId}`);
+
+  res.json({
+    success: true,
+    message: 'Comment deleted successfully'
+  });
+}));
 
 // Serve static files
 app.use(express.static(__dirname));
