@@ -524,6 +524,18 @@
             .tab-button {
                 width: 100%;
                 border-radius: 8px;
+                opacity: 1 !important;
+            }
+
+            .tab-button:not(.active) {
+                background: rgba(26, 26, 43, 0.6) !important;
+                color: #e0e0e0 !important;
+            }
+
+            .tab-button.active {
+                background: linear-gradient(45deg, rgba(217, 79, 203, 0.2), rgba(0, 207, 255, 0.2)) !important;
+                color: #00CFFF !important;
+                opacity: 1 !important;
             }
         }
     </style>
@@ -642,7 +654,7 @@
         </div>
     </div>
 
-    <script src="GameINI/game-ini-generator.js?v=1.3"></script>
+    <script src="GameINI/game-ini-generator.js?v=1.4"></script>
     <script src="js/main.js"></script>
     <script>
         // Beta warning modal functionality
