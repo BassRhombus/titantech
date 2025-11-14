@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(done)",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(for file in about.html bots.html commands-ini-generator.html commission.html community.html dashboard.html game-ini-generator.html login.html mod-manager.html rules-motd-generator.html showcase.html showcase-submit.html suggestions.html tos-commission.html)",
+      "Bash(do sed -i 's/css\\/style\\.css?v=1\\.3/css\\/style.css?v=1.4/g' \"$file\")"
     ],
     "deny": [],
     "ask": []

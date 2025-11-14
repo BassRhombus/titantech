@@ -157,8 +157,9 @@ header {
     top: 100%;
     left: 0;
     right: 0;
-    height: 1rem;
-    z-index: 999;
+    height: 20px;
+    z-index: 1001;
+    pointer-events: none;
 }
 
 .dropdown-toggle {
@@ -191,20 +192,18 @@ header {
     opacity: 0;
     visibility: hidden;
     display: none;
-    transform: translateX(-50%) translateY(-10px);
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
     z-index: 1000;
     list-style: none;
     padding: 0.5rem 0;
     margin-top: 0;
-    padding-top: 1rem;
+    padding-top: 20px;
 }
 
 .dropdown:hover .dropdown-menu {
     opacity: 1;
     visibility: visible;
     display: block;
-    transform: translateX(-50%) translateY(0);
 }
 
 /* Ensure active class doesn't interfere on desktop */
