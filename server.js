@@ -891,10 +891,7 @@ app.delete('/api/admin/showcase/:id', requireAuth, requireAdmin, asyncHandler(as
 // PROTECTED HTML ROUTES - Require authentication
 // =============================================================================
 
-// Admin route for showcase management page
-app.get('/admin-showcase.html', requireAuth, requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin-showcase.html'));
-});
+// Admin route for showcase management page - REMOVED
 
 // Set up automatic refresh of mods data every 5 minutes
 setInterval(async () => {
@@ -1308,20 +1305,15 @@ app.get('/dashboard.html', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
-app.get('/admin.html', requireAuth, requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-// Admin commissions page route
-app.get('/admin-commissions.html', requireAuth, requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin-commissions.html'));
-});
+// Admin routes removed
 
 // Cache for servers and mods
 let serversCache = { data: null, timestamp: 0 };
 let modsCache = { data: null, timestamp: 0 };
+let curveOverridesCache = { data: null, timestamp: 0 };
 const SERVERS_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
 const MODS_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const CURVE_OVERRIDES_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
 // Helper function to make HTTPS requests
 function makeHttpsRequest(options) {
@@ -1500,6 +1492,45 @@ async function fetchAndCacheServers() {
   }
 }
 
+// Fetch and cache curve overrides categories
+async function fetchAndCacheCurveOverrides() {
+  const now = Date.now();
+
+  // Return cached data if still valid
+  if (curveOverridesCache.data && (now - curveOverridesCache.timestamp) < CURVE_OVERRIDES_CACHE_DURATION) {
+    console.log('Returning cached curve overrides categories data');
+    return curveOverridesCache.data;
+  }
+
+  console.log('Fetching fresh curve overrides categories data from API');
+
+  try {
+    const options = {
+      hostname: 'pot-api.gsh-servers.com',
+      path: `/api/v1/co`,
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${GSH_API_TOKEN}`,
+        'Accept': 'application/json'
+      }
+    };
+
+    const data = await makeHttpsRequest(options);
+
+    curveOverridesCache = {
+      data: data,
+      timestamp: now
+    };
+
+    console.log(`Successfully cached curve overrides categories:`, data.categories);
+    return data;
+  } catch (error) {
+    console.error('Error fetching curve overrides categories:', error);
+    // Return existing cache if available, even if expired
+    return curveOverridesCache.data || { categories: [] };
+  }
+}
+
 // GSH servers endpoint
 app.get('/api/gsh-servers', (req, res) => {
   try {
@@ -1553,11 +1584,97 @@ app.get('/api/community-mods', async (req, res) => {
   }
 });
 
+// Get curve overrides categories endpoint with caching
+app.get('/api/v1/co', async (req, res) => {
+  try {
+    const data = await fetchAndCacheCurveOverrides();
+    res.json(data);
+  } catch (error) {
+    console.error('Error in curve overrides categories endpoint:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// Get curve overrides for specific category (creatures list)
+app.get('/api/v1/co/:category', async (req, res) => {
+  try {
+    const category = req.params.category;
+    const options = {
+      hostname: 'pot-api.gsh-servers.com',
+      path: `/api/v1/co/${category}`,
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${GSH_API_TOKEN}`,
+        'Accept': 'application/json'
+      }
+    };
+
+    const data = await makeHttpsRequest(options);
+    res.json(data);
+  } catch (error) {
+    console.error(`Error in curve overrides endpoint for category ${req.params.category}:`, error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// Get all curve overrides for specific category/creature (all sections)
+// This handles both 2-param (category/creature) and 3-param (category/author/creature) patterns
+app.get('/api/v1/co/:category/:param2/:param3?', async (req, res) => {
+  try {
+    const { category, param2, param3 } = req.params;
+
+    // Determine if this is a 2-param or 3-param request
+    let apiPath;
+    if (param3) {
+      // 3 params: category/author/creature (for Mod category)
+      apiPath = `/api/v1/co/${category}/${param2}/${param3}`;
+    } else {
+      // 2 params: category/creature (for Alderon/Critters categories)
+      apiPath = `/api/v1/co/${category}/${param2}`;
+    }
+
+    const options = {
+      hostname: 'pot-api.gsh-servers.com',
+      path: apiPath,
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${GSH_API_TOKEN}`,
+        'Accept': 'application/json'
+      }
+    };
+
+    const data = await makeHttpsRequest(options);
+    res.json(data);
+  } catch (error) {
+    console.error(`Error in curve overrides endpoint:`, error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
 // Pre-cache mods on server startup
 fetchAndCacheMods().then(() => {
   console.log('Initial mods cache loaded');
 }).catch(error => {
   console.error('Failed to load initial mods cache:', error);
+});
+
+// Pre-cache curve overrides on server startup
+fetchAndCacheCurveOverrides().then(() => {
+  console.log('Initial curve overrides cache loaded');
+}).catch(error => {
+  console.error('Failed to load initial curve overrides cache:', error);
 });
 
 // Discord webhook endpoint for Game.ini generation notifications

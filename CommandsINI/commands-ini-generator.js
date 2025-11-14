@@ -27,21 +27,8 @@ function setupEventListeners() {
     document.getElementById('cancelRoleBtn').addEventListener('click', closeRoleModal);
     document.getElementById('saveRoleBtn').addEventListener('click', saveRole);
 
-    // Color picker inputs (alpha is hidden and always 1)
-    ['r', 'g', 'b'].forEach(channel => {
-        document.getElementById(`color-${channel}`).addEventListener('input', () => {
-            updateColorPreview();
-            updateColorPickerFromRGB();
-        });
-    });
-
-    // Color picker wheel
+    // Color picker input
     document.getElementById('colorPicker').addEventListener('input', updateRGBFromColorPicker);
-
-    // Make color preview box clickable
-    document.getElementById('colorPreview').addEventListener('click', () => {
-        document.getElementById('colorPicker').click();
-    });
 
     // Search permissions
     document.getElementById('permissionSearch').addEventListener('input', filterPermissions);
@@ -62,7 +49,8 @@ function setupEventListeners() {
     document.getElementById('savePlayerBtn').addEventListener('click', savePlayer);
 }
 
-function openRoleModal(index = null) {
+// Make function globally accessible for onclick handlers
+window.openRoleModal = function(index = null) {
     editingRoleIndex = index;
     const modal = document.getElementById('roleModal');
     modal.classList.add('active');
@@ -97,7 +85,7 @@ function loadRoleIntoForm(role) {
     document.getElementById('creatorModeAccess').checked = role.creatorModeAccess;
     document.getElementById('allowSpectatorAccess').checked = role.allowSpectatorAccess;
 
-    updateColorPreview();
+    updateColorPickerFromRGB();
 }
 
 function resetRoleForm() {
@@ -108,31 +96,37 @@ function resetRoleForm() {
     document.getElementById('color-a').value = 1; // Always 1 (fully opaque)
     document.getElementById('overrideAdminChatColor').checked = true;
     document.getElementById('reservedSlot').checked = false;
-    document.getElementById('hierarchy').value = 0;
+
+    // Auto-calculate next hierarchy value for new roles
+    // Start from 1 and increment by 1 for each new role
+    let nextHierarchy = 1;
+    if (roles.length > 0) {
+        // Find the highest hierarchy and add 1
+        const highestHierarchy = Math.max(...roles.map(r => r.hierarchy));
+        nextHierarchy = highestHierarchy + 1;
+    }
+    document.getElementById('hierarchy').value = nextHierarchy;
+
     document.getElementById('creatorModeAccess').checked = false;
     document.getElementById('allowSpectatorAccess').checked = false;
 
     // Uncheck all permissions
     document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = false);
 
-    updateColorPreview();
+    updateColorPickerFromRGB();
 }
 
 function updateColorPreview() {
     const r = document.getElementById('color-r').value;
     const g = document.getElementById('color-g').value;
     const b = document.getElementById('color-b').value;
-    const a = 1; // Always use 1 (fully opaque)
 
-    // Update labels
-    document.getElementById('color-r-value').textContent = r;
-    document.getElementById('color-g-value').textContent = g;
-    document.getElementById('color-b-value').textContent = b;
-    document.getElementById('color-a-value').textContent = a;
+    // Update RGB value display
+    document.getElementById('colorRGBValue').textContent = `${r}, ${g}, ${b}`;
 
-    // Update preview (alpha always 1)
+    // Update preview box
     const preview = document.getElementById('colorPreview');
-    preview.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+    preview.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
 // Helper function: Convert RGB to Hex
@@ -154,16 +148,17 @@ function hexToRgb(hex) {
     } : null;
 }
 
-// Update color picker from RGB sliders
+// Update color picker from RGB values
 function updateColorPickerFromRGB() {
     const r = document.getElementById('color-r').value;
     const g = document.getElementById('color-g').value;
     const b = document.getElementById('color-b').value;
     const hex = rgbToHex(r, g, b);
     document.getElementById('colorPicker').value = hex;
+    updateColorPreview();
 }
 
-// Update RGB sliders from color picker
+// Update RGB values from color picker
 function updateRGBFromColorPicker() {
     const hex = document.getElementById('colorPicker').value;
     const rgb = hexToRgb(hex);
@@ -172,6 +167,7 @@ function updateRGBFromColorPicker() {
         document.getElementById('color-r').value = rgb.r;
         document.getElementById('color-g').value = rgb.g;
         document.getElementById('color-b').value = rgb.b;
+        document.getElementById('color-a').value = 1; // Always fully opaque
         updateColorPreview();
     }
 }
@@ -338,6 +334,11 @@ function saveRole() {
         return;
     }
 
+    let hierarchy = parseInt(document.getElementById('hierarchy').value);
+
+    // Ensure hierarchy is at least 1
+    hierarchy = Math.max(1, hierarchy);
+
     const role = {
         name: name,
         chatColor: {
@@ -348,7 +349,7 @@ function saveRole() {
         },
         overrideAdminChatColor: document.getElementById('overrideAdminChatColor').checked,
         reservedSlot: document.getElementById('reservedSlot').checked,
-        hierarchy: parseInt(document.getElementById('hierarchy').value),
+        hierarchy: hierarchy,
         creatorModeAccess: document.getElementById('creatorModeAccess').checked,
         allowSpectatorAccess: document.getElementById('allowSpectatorAccess').checked,
         permissions: []
@@ -380,22 +381,23 @@ function renderRolesList() {
         return;
     }
 
-    container.innerHTML = roles.map((role, index) => `
-        <div class="role-card">
+    // Sort roles by hierarchy (descending - highest at top)
+    const sortedRoles = roles.map((role, index) => ({ role, originalIndex: index }))
+        .sort((a, b) => b.role.hierarchy - a.role.hierarchy);
+
+    container.innerHTML = sortedRoles.map(({ role, originalIndex }, displayIndex) => `
+        <div class="role-card" draggable="true" data-index="${originalIndex}">
             <div class="role-header">
                 <div class="role-title-group">
+                    <i class="fas fa-grip-vertical drag-handle"></i>
                     <div class="role-color-preview" style="background-color: rgba(${role.chatColor.r}, ${role.chatColor.g}, ${role.chatColor.b}, ${role.chatColor.a})"></div>
                     <h3>${role.name}</h3>
-                    <span class="hierarchy-badge">Hierarchy: ${role.hierarchy}</span>
                 </div>
                 <div class="role-actions">
-                    <button class="btn-icon" onclick="openRoleModal(${index})" title="Edit Role">
+                    <button class="btn-icon btn-edit" data-role-index="${originalIndex}" title="Edit Role">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon" onclick="duplicateRole(${index})" title="Duplicate Role">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                    <button class="btn-icon btn-delete" onclick="deleteRole(${index})" title="Delete Role">
+                    <button class="btn-icon btn-delete" data-role-index="${originalIndex}" title="Delete Role">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -413,23 +415,35 @@ function renderRolesList() {
             </div>
         </div>
     `).join('');
+
+    // Setup drag and drop event listeners and button handlers
+    setupDragAndDrop();
+    setupRoleButtons();
 }
 
-function deleteRole(index) {
-    if (confirm(`Are you sure you want to delete the role "${roles[index].name}"?`)) {
-        roles.splice(index, 1);
-        renderRolesList();
-        generatePreview();
-    }
-}
+// Setup button event listeners (not inline to avoid CSP issues)
+function setupRoleButtons() {
+    // Edit buttons
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const index = parseInt(this.dataset.roleIndex);
+            openRoleModal(index);
+        });
+    });
 
-function duplicateRole(index) {
-    const originalRole = roles[index];
-    const newRole = JSON.parse(JSON.stringify(originalRole)); // Deep clone
-    newRole.name = `${originalRole.name} (Copy)`;
-    roles.push(newRole);
-    renderRolesList();
-    generatePreview();
+    // Delete buttons
+    document.querySelectorAll('.role-card .btn-delete').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const index = parseInt(this.dataset.roleIndex);
+            if (confirm(`Are you sure you want to delete the role "${roles[index].name}"?`)) {
+                roles.splice(index, 1);
+                renderRolesList();
+                generatePreview();
+            }
+        });
+    });
 }
 
 function generatePreview() {
@@ -654,6 +668,13 @@ function parseCommandsINI(content) {
 function loadTemplate(type) {
     let templateRole = null;
 
+    // Calculate next hierarchy for template
+    let nextHierarchy = 1;
+    if (roles.length > 0) {
+        const highestHierarchy = Math.max(...roles.map(r => r.hierarchy));
+        nextHierarchy = highestHierarchy + 1;
+    }
+
     switch(type) {
         case 'admin':
             templateRole = {
@@ -661,7 +682,7 @@ function loadTemplate(type) {
                 chatColor: { r: 255, g: 0, b: 0, a: 1 },
                 overrideAdminChatColor: true,
                 reservedSlot: true,
-                hierarchy: 9,
+                hierarchy: nextHierarchy,
                 creatorModeAccess: true,
                 allowSpectatorAccess: true,
                 permissions: allPermissionIds
@@ -673,7 +694,7 @@ function loadTemplate(type) {
                 chatColor: { r: 0, g: 150, b: 255, a: 1 },
                 overrideAdminChatColor: true,
                 reservedSlot: true,
-                hierarchy: 7,
+                hierarchy: nextHierarchy,
                 creatorModeAccess: false,
                 allowSpectatorAccess: true,
                 permissions: ['announce', 'ban', 'kick', 'servermute', 'serverunmute', 'playerinfo', 'heal', 'teleport', 'clearbodies']
@@ -685,7 +706,7 @@ function loadTemplate(type) {
                 chatColor: { r: 255, g: 215, b: 0, a: 1 },
                 overrideAdminChatColor: true,
                 reservedSlot: true,
-                hierarchy: 0,
+                hierarchy: nextHierarchy,
                 creatorModeAccess: false,
                 allowSpectatorAccess: false,
                 permissions: []
@@ -706,7 +727,8 @@ function loadTemplate(type) {
 }
 
 // Player Assignment Functions
-function openPlayerModal(index = null) {
+// Make function globally accessible for onclick handlers
+window.openPlayerModal = function(index = null) {
     editingPlayerIndex = index;
     const modal = document.getElementById('playerModal');
     modal.classList.add('active');
@@ -791,21 +813,115 @@ function renderPlayersList() {
                 <div class="player-role-name">Role: ${player.role}</div>
             </div>
             <div class="player-actions">
-                <button class="btn-icon" onclick="openPlayerModal(${index})" title="Edit Player">
+                <button class="btn-icon btn-edit-player" data-player-index="${index}" title="Edit Player">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn-icon btn-delete" onclick="deletePlayer(${index})" title="Delete Player">
+                <button class="btn-icon btn-delete btn-delete-player" data-player-index="${index}" title="Delete Player">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
     `).join('');
+
+    // Setup player button event listeners
+    setupPlayerButtons();
 }
 
-function deletePlayer(index) {
-    if (confirm('Are you sure you want to remove this player assignment?')) {
-        playerRoles.splice(index, 1);
-        renderPlayersList();
+// Setup player button event listeners (not inline to avoid CSP issues)
+function setupPlayerButtons() {
+    // Edit buttons
+    document.querySelectorAll('.btn-edit-player').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const index = parseInt(this.dataset.playerIndex);
+            openPlayerModal(index);
+        });
+    });
+
+    // Delete buttons
+    document.querySelectorAll('.btn-delete-player').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const index = parseInt(this.dataset.playerIndex);
+            if (confirm('Are you sure you want to remove this player assignment?')) {
+                playerRoles.splice(index, 1);
+                renderPlayersList();
+                generatePreview();
+            }
+        });
+    });
+}
+
+// Drag and Drop functionality
+let draggedElement = null;
+let draggedIndex = null;
+
+function setupDragAndDrop() {
+    const roleCards = document.querySelectorAll('.role-card');
+
+    roleCards.forEach(card => {
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragend', handleDragEnd);
+        card.addEventListener('dragover', handleDragOver);
+        card.addEventListener('drop', handleDrop);
+        card.addEventListener('dragleave', handleDragLeave);
+    });
+}
+
+function handleDragStart(e) {
+    draggedElement = this;
+    draggedIndex = parseInt(this.dataset.index);
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+
+    // Remove drag-over class from all cards
+    document.querySelectorAll('.role-card').forEach(card => {
+        card.classList.remove('drag-over');
+    });
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+
+    e.dataTransfer.dropEffect = 'move';
+
+    if (this !== draggedElement) {
+        this.classList.add('drag-over');
+    }
+
+    return false;
+}
+
+function handleDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+
+    if (draggedElement !== this) {
+        const targetIndex = parseInt(this.dataset.index);
+        const draggedRole = roles[draggedIndex];
+        const targetRole = roles[targetIndex];
+
+        // Swap hierarchy values
+        const tempHierarchy = draggedRole.hierarchy;
+        draggedRole.hierarchy = targetRole.hierarchy;
+        targetRole.hierarchy = tempHierarchy;
+
+        // Re-render the list
+        renderRolesList();
         generatePreview();
     }
+
+    return false;
 }

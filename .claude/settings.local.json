@@ -1,18 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(curl -s -H \"Authorization: Bearer gsh_2280ca130d6a1a5b627418dd431198baef053cab88b03bafb19eea5b320a0b0d\" https://pot-api.gsh-servers.com/api/v1/mods)",
-      "Bash(curl -s -H \"Authorization: Bearer gsh_2280ca130d6a1a5b627418dd431198baef053cab88b03bafb19eea5b320a0b0d\" \"https://pot-api.gsh-servers.com/api/v1/mods?offset=0&limit=5\")",
-      "Bash(dir:*)",
-      "Bash(findstr:*)",
-      "Bash(mkdir:*)",
-      "Bash(npm install:*)",
-      "Bash(npm audit)",
-      "Bash(npm audit fix:*)",
-      "Bash(node -e \"console.log(require(''crypto'').randomBytes(64).toString(''hex''))\")",
-      "Bash(timeout 10 node:*)",
-      "Bash(move:*)",
-      "Bash(git mv:*)"
+      "Bash(done)",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

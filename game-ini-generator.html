@@ -8,6 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.1">
     <link rel="stylesheet" href="ModINI/public/styles.css">
     <style>
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
         .section {
             background: linear-gradient(135deg, rgba(26, 26, 43, 0.8) 0%, rgba(13, 13, 20, 0.8) 100%);
             border-radius: 12px;
@@ -525,10 +537,15 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="mod-manager.html">Mod Manager</a></li>
-                <li><a href="game-ini-generator.html" class="active">Game.ini Generator</a></li>
-                <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li>
-                <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
+                <li class="dropdown">
+                    <a href="#" class="active dropdown-toggle">Tools <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="game-ini-generator.html">Game.ini Generator</a></li>
+                        <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li>
+                        <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
+                        <li><a href="mod-manager.html">Mod Manager</a></li>
+                    </ul>
+                </li>
                 <li><a href="community.html">Community</a></li>
                 <li><a href="suggestions.html">Mod Map Suggestions</a></li>
                 <li><a href="bots.html">Bots/Scripts</a></li>
@@ -545,8 +562,8 @@
     </header>
 
     <main>
-        <section class="mod-manager-intro" style="text-align: center; padding: 2rem 0;">
-            <h2>Path of Titans Game.ini Generator</h2>
+        <section class="generator-intro">
+            <h2>Game.ini Generator</h2>
             <p>Configure your server settings - only changed values will be included in the output</p>
         </section>
 

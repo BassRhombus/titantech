@@ -7,20 +7,6 @@
     <link rel="stylesheet" href="css/style.css?v=1.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.1">
     <style>
-        .commands-intro {
-            padding: 3rem 5%;
-            text-align: center;
-            background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('images/community-bg.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .commands-intro h2 {
-            color: var(--primary-color);
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
         .container {
             max-width: 1400px;
             margin: 2rem auto;
@@ -116,12 +102,23 @@
             padding: 1.5rem;
             margin-bottom: 1rem;
             transition: all 0.3s ease;
+            cursor: move;
         }
 
         .role-card:hover {
             border-color: var(--primary-color);
             box-shadow: 0 0 20px rgba(0, 207, 255, 0.3);
             transform: translateY(-2px);
+        }
+
+        .role-card.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .role-card.drag-over {
+            border-color: #4CAF50;
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.5);
         }
 
         .role-header {
@@ -137,6 +134,17 @@
             gap: 1rem;
         }
 
+        .drag-handle {
+            color: rgba(0, 207, 255, 0.5);
+            font-size: 1.2rem;
+            cursor: move;
+            transition: color 0.3s;
+        }
+
+        .drag-handle:hover {
+            color: var(--primary-color);
+        }
+
         .role-color-preview {
             width: 40px;
             height: 40px;
@@ -149,14 +157,6 @@
             margin: 0;
         }
 
-        .hierarchy-badge {
-            background: rgba(0, 207, 255, 0.2);
-            color: var(--primary-color);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
 
         .role-actions {
             display: flex;
@@ -357,36 +357,81 @@
             box-shadow: 0 0 8px rgba(0, 207, 255, 0.3);
         }
 
-        .color-picker-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
         }
 
-        .color-channel {
+        .color-picker-wrapper {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
         }
 
-        .color-channel label {
-            display: flex;
-            justify-content: space-between;
+        .color-picker-wrapper label {
             color: #e0e0e0;
             font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        .color-channel input[type="range"] {
-            width: 100%;
+        .color-picker-wrapper input[type="color"] {
+            width: 120px;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-picker-wrapper input[type="color"]:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 12px rgba(0, 207, 255, 0.4);
+        }
+
+        .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker-wrapper input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 6px;
+        }
+
+        .color-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         .color-preview-box {
-            width: 100%;
-            height: 60px;
+            width: 80px;
+            height: 50px;
             border-radius: 8px;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-values {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .color-value-label {
+            color: #a0a0a0;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #colorRGBValue {
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            font-weight: 600;
         }
 
         /* Toggle Switch Styles */
@@ -591,10 +636,15 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="mod-manager.html">Mod Manager</a></li>
-                <li><a href="game-ini-generator.html">Game.ini Generator</a></li>
-                <li><a href="commands-ini-generator.html" class="active">Commands.ini Generator</a></li>
-                <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
+                <li class="dropdown">
+                    <a href="#" class="active dropdown-toggle">Tools <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="game-ini-generator.html">Game.ini Generator</a></li>
+                        <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li>
+                        <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
+                        <li><a href="mod-manager.html">Mod Manager</a></li>
+                    </ul>
+                </li>
                 <li><a href="community.html">Community</a></li>
                 <li><a href="suggestions.html">Mod Map Suggestions</a></li>
                 <li><a href="bots.html">Bots/Scripts</a></li>
@@ -611,8 +661,8 @@
     </header>
 
     <main>
-        <section class="commands-intro">
-            <h2>Commands.ini Role Generator</h2>
+        <section class="generator-intro">
+            <h2>Commands.ini Generator</h2>
             <p>Create and manage server roles with custom permissions and chat colors</p>
         </section>
 
@@ -716,41 +766,24 @@
 
             <div class="form-section">
                 <h3>Chat Color</h3>
-                <div class="color-picker-group">
-                    <div class="color-channel">
-                        <label>
-                            <span>Red (R)</span>
-                            <span id="color-r-value">255</span>
-                        </label>
-                        <input type="range" id="color-r" min="0" max="255" value="255">
+                <div class="color-picker-container">
+                    <div class="color-picker-wrapper">
+                        <label for="colorPicker">Select Color</label>
+                        <input type="color" id="colorPicker" value="#ffffff">
                     </div>
-                    <div class="color-channel">
-                        <label>
-                            <span>Green (G)</span>
-                            <span id="color-g-value">255</span>
-                        </label>
-                        <input type="range" id="color-g" min="0" max="255" value="255">
-                    </div>
-                    <div class="color-channel">
-                        <label>
-                            <span>Blue (B)</span>
-                            <span id="color-b-value">255</span>
-                        </label>
-                        <input type="range" id="color-b" min="0" max="255" value="255">
-                    </div>
-                    <!-- Alpha channel hidden - always set to 1 (fully opaque) -->
-                    <div class="color-channel" style="display: none;">
-                        <label>
-                            <span>Alpha (A)</span>
-                            <span id="color-a-value">1</span>
-                        </label>
-                        <input type="range" id="color-a" min="0" max="1" step="0.01" value="1">
+                    <div class="color-info">
+                        <div id="colorPreview" class="color-preview-box"></div>
+                        <div class="color-values">
+                            <span class="color-value-label">RGB:</span>
+                            <span id="colorRGBValue">255, 255, 255</span>
+                        </div>
                     </div>
                 </div>
-                <!-- Color Picker (hidden input) -->
-                <input type="color" id="colorPicker" style="display: none;" value="#ffffff">
-                <!-- Clickable color preview box -->
-                <div id="colorPreview" class="color-preview-box" title="Click to choose color" style="cursor: pointer;"></div>
+                <!-- Hidden inputs to store RGB values for compatibility -->
+                <input type="hidden" id="color-r" value="255">
+                <input type="hidden" id="color-g" value="255">
+                <input type="hidden" id="color-b" value="255">
+                <input type="hidden" id="color-a" value="1">
             </div>
 
             <div class="form-section">
@@ -769,10 +802,8 @@
                     </label>
                     <span class="switch-label">Reserved Slot</span>
                 </div>
-                <div class="form-group">
-                    <label for="hierarchy">Hierarchy (0-9)</label>
-                    <input type="number" id="hierarchy" min="0" max="9" value="0">
-                </div>
+                <!-- Hidden hierarchy field - auto-calculated based on position -->
+                <input type="hidden" id="hierarchy" value="1">
                 <div class="switch-wrapper">
                     <label class="switch">
                         <input type="checkbox" id="creatorModeAccess">
@@ -860,6 +891,6 @@
 
     <script src="js/main.js"></script>
     <script src="CommandsINI/permissions-list.js?v=1.1"></script>
-    <script src="CommandsINI/commands-ini-generator.js?v=1.1"></script>
+    <script src="CommandsINI/commands-ini-generator.js?v=1.2"></script>
 </body>
 </html>

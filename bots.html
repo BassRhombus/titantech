@@ -21,10 +21,15 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="mod-manager.html">Mod Manager</a></li>
-                <li><a href="game-ini-generator.html">Game.ini Generator</a></li>
-                <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li>
-                <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Tools <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="game-ini-generator.html">Game.ini Generator</a></li>
+                        <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li>
+                        <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
+                        <li><a href="mod-manager.html">Mod Manager</a></li>
+                    </ul>
+                </li>
                 <li><a href="community.html">Community</a></li>
                 <li><a href="suggestions.html">Mod Map Suggestions</a></li>
                 <li><a href="bots.html" class="active">Bots/Scripts</a></li>
@@ -46,79 +51,30 @@
             <p>Enhance your server experience with powerful automation tools and custom scripts</p>
         </section>
 
-        <section class="bots-grid-section">
-            <h2>Featured Bots</h2>
-            <div class="bots-grid">
-                <!-- Bot Card 1 -->
-                <div class="bot-card">
-                    <div class="bot-banner">
-                        <img src="images/bot1-banner.jpg" alt="Admin Bot">
-                        <div class="bot-type">PoT Query</div>
-                    </div>
-                    <div class="bot-info">
-                        <h3>QueryBot</h3>
-                        <p>A Bot to show player counts in your Discord server. Shows line graph with up to 24 hour history.</p>
-                        <div class="bot-features">
-                            <span><i class="fas fa-shield-alt"></i>Player Count</span>
-                            <span><i class="fas fa-user-shield"></i>Easy Setup</span>
-                            <span><i class="fas fa-cog"></i> Auto Setup</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Bot Card 2 -->
-                <div class="bot-card">
-                    <div class="bot-banner">
-                        <img src="images/bot2-banner.jpg" alt="Event Bot">
-                        <div class="bot-type">RCON</div>
-                    </div>
-                    <div class="bot-info">
-                        <h3>PoTRCONBot</h3>
-                        <p>Set up custom spawns and in game chat commands such as $heal and $tp</p>
-                        <div class="bot-features">
-                            <span><i class="fas fa-calendar-alt"></i>Spawns</span>
-                            <span><i class="fas fa-bell"></i>Commands</span>
-                            <span><i class="fas fa-users"></i>Simple Setup</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Bot Card 3 -->
-                <div class="bot-card">
-                    <div class="bot-banner">
-                        <img src="images/bot3-banner.jpg" alt="Statistics Bot">
-                        <div class="bot-type">Statistics</div>
-                    </div>
-                    <div class="bot-info">
-                        <h3>DinoMetrics (Example Bot)</h3>
-                        <p>Track server statistics, player activity, and generate detailed reports for your community.</p>
-                        <div class="bot-features">
-                            <span><i class="fas fa-chart-line"></i> Analytics</span>
-                            <span><i class="fas fa-user-clock"></i> Player Stats</span>
-                            <span><i class="fas fa-file-alt"></i> Reports</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <section class="license-system-section">
+            <h2>TitanTech Bot Licensing</h2>
+            <p>Choose from our selection of professional Discord bots designed for Path of Titans servers. Pay securely and get instant access to your bot licenses.</p>
 
-        <section class="custom-bot-section">
-            <h2>Need a Custom Bot?</h2>
-            <p>We offer custom bot development services tailored to your specific server needs.</p>
-            
-            <div class="custom-bot-container">
-                <div class="custom-bot-info">
-                    <h3>Our Custom Bot Services</h3>
+            <div class="license-container">
+                <div class="license-info">
+                    <h3>Available Features</h3>
                     <ul>
-                        <li><i class="fas fa-check"></i> Tailored to your specific requirements</li>
-                        <li><i class="fas fa-check"></i> Integration with your existing systems</li>
-                        <li><i class="fas fa-check"></i> Ongoing support and maintenance</li>
-                        <li><i class="fas fa-check"></i> Regular updates and feature additions</li>
+                        <li><i class="fas fa-robot"></i> Query Bots - Show live player counts with history graphs</li>
+                        <li><i class="fas fa-terminal"></i> RCON Bots - Custom spawns and in-game commands</li>
+                        <li><i class="fas fa-shield-alt"></i> Admin Tools - Powerful server management</li>
+                        <li><i class="fas fa-cog"></i> Easy Setup - Automated configuration process</li>
+                        <li><i class="fas fa-headset"></i> Support - Ongoing updates and assistance</li>
                     </ul>
-                    <a href="ModINI/public/commission.html" class="cta-primary">Request a Quote</a>
+                    <a href="https://license.titantech.party/" class="cta-primary" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Visit License Portal
+                    </a>
                 </div>
-                <div class="custom-bot-image">
-                    <img src="images/custom-bot.jpg" alt="Custom Bot Development">
+                <div class="license-image">
+                    <div class="license-preview">
+                        <i class="fas fa-robot license-icon"></i>
+                        <h4>Professional Bot Solutions</h4>
+                        <p>Secure payment processing and instant bot deployment</p>
+                    </div>
                 </div>
             </div>
         </section>

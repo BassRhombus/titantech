@@ -408,13 +408,27 @@ document.getElementById('iniFileInput').addEventListener('change', function(even
             alert('No mods found in the uploaded GameUserSettings.ini.');
             return;
         }
+
+        // Clear search to show all mods
+        document.getElementById('searchInput').value = '';
+
         // Update selectedModIds and checkboxes
         selectedModIds = new Set(modIds);
+
         // Re-render mods to update checked state
-        if (window.modsData) displayMods(window.modsData);
-        else loadModsData();
-        updateConfigPreview(); // Update preview after loading INI
-        alert('Detected and selected ' + modIds.length + ' mods from your INI file!');
+        if (window.modsData) {
+            displayMods(window.modsData);
+        } else {
+            loadModsData();
+        }
+
+        // Update preview and counts after a brief delay to ensure DOM is ready
+        setTimeout(() => {
+            updateConfigPreview();
+            updateSelectedCount();
+        }, 100);
+
+        alert('Successfully loaded ' + modIds.length + ' mods from your INI file!');
     };
     reader.readAsText(file);
 });

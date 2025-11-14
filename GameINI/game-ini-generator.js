@@ -97,7 +97,7 @@ const configData = {
             { name: "ServerMapIconPopularLocationPlayerCount", type: "number", default: "10", description: "Allows you to set the number of users required in an area before it's highlighted on the map. Defaults to 10." }
         ],
         "Whitelist & Permissions": [
-            { name: "bEnforceWhitelist", type: "boolean", default: "true", description: "Enables or disables the whitelist system. If enabled, only players on the whitelist can join the server." },
+            { name: "bEnforceWhitelist", type: "boolean", default: "false", description: "Enables or disables the whitelist system. If enabled, only players on the whitelist can join the server." },
             { name: "bServerPaidUsersOnly", type: "boolean", default: "false", description: "Specifies if the server allows free-to-play users to join." }
         ],
         "Growth & Survival": [
@@ -254,6 +254,8 @@ function initializeForm() {
 
     // Create sections for IGameSession
     Object.keys(configData.IGameSession).forEach(categoryName => {
+        // Skip Curve Overrides as it has its own custom section
+        if (categoryName === 'Curve Overrides') return;
         createCategory('IGameSession', categoryName, configData.IGameSession[categoryName]);
     });
 
@@ -291,6 +293,7 @@ function createTabs() {
         { id: 'weather', label: 'Weather', categories: ['Weather System'] },
         { id: 'IGameMode', label: 'Game Mode', categories: ['Game Mode Settings'] },
         { id: 'SourceRCON', label: 'SourceRCON', categories: ['SourceRCON Settings'] },
+        { id: 'webhooks', label: 'Webhooks', categories: ['Webhooks'] },
         { id: 'curveOverrides', label: 'Curve Overrides', categories: ['Curve Overrides'] }
     ];
 
@@ -299,14 +302,7 @@ function createTabs() {
         button.className = 'tab-button';
         button.textContent = tab.label;
 
-        // Grey out Curve Overrides tab
-        if (tab.id === 'curveOverrides') {
-            button.style.opacity = '0.4';
-            button.style.cursor = 'not-allowed';
-            button.style.pointerEvents = 'none';
-        } else {
-            button.onclick = () => switchTab(tab.id, tab.categories);
-        }
+        button.onclick = () => switchTab(tab.id, tab.categories);
 
         if (index === 0) {
             button.classList.add('active');
@@ -322,6 +318,177 @@ function createTabs() {
 function createCurveOverridesSection() {
     const form = document.getElementById('configForm');
 
+    // Create Webhooks section
+    const webhooksSection = document.createElement('div');
+    webhooksSection.className = 'section';
+    webhooksSection.dataset.category = 'Webhooks';
+    webhooksSection.style.display = 'none';
+
+    const webhooksHeading = document.createElement('h2');
+    webhooksHeading.textContent = 'Server Webhooks';
+    webhooksSection.appendChild(webhooksHeading);
+
+    const webhooksDescription = document.createElement('div');
+    webhooksDescription.className = 'description';
+    webhooksDescription.textContent = 'Configure webhook URLs for server events. Leave blank to disable specific webhooks.';
+    webhooksDescription.style.marginBottom = '20px';
+    webhooksSection.appendChild(webhooksDescription);
+
+    const webhooksForm = document.createElement('div');
+    webhooksForm.style.background = 'rgba(0, 0, 0, 0.3)';
+    webhooksForm.style.padding = '20px';
+    webhooksForm.style.borderRadius = '8px';
+    webhooksForm.style.marginBottom = '20px';
+
+    // Enabled toggle
+    const enabledGroup = document.createElement('div');
+    enabledGroup.style.marginBottom = '20px';
+    enabledGroup.style.padding = '15px';
+    enabledGroup.style.background = 'rgba(0, 207, 255, 0.05)';
+    enabledGroup.style.borderRadius = '6px';
+    enabledGroup.style.border = '1px solid rgba(0, 207, 255, 0.2)';
+
+    const enabledLabel = document.createElement('label');
+    enabledLabel.style.display = 'flex';
+    enabledLabel.style.alignItems = 'center';
+    enabledLabel.style.gap = '10px';
+    enabledLabel.style.cursor = 'pointer';
+
+    const enabledCheckbox = document.createElement('input');
+    enabledCheckbox.type = 'checkbox';
+    enabledCheckbox.id = 'webhookEnabled';
+    enabledCheckbox.style.width = '20px';
+    enabledCheckbox.style.height = '20px';
+    enabledCheckbox.style.cursor = 'pointer';
+
+    const enabledText = document.createElement('span');
+    enabledText.textContent = 'Enable Webhooks';
+    enabledText.style.color = '#e0e0e0';
+    enabledText.style.fontWeight = 'bold';
+
+    enabledLabel.appendChild(enabledCheckbox);
+    enabledLabel.appendChild(enabledText);
+    enabledGroup.appendChild(enabledLabel);
+    webhooksForm.appendChild(enabledGroup);
+
+    // Format selection
+    const formatGroup = document.createElement('div');
+    formatGroup.style.marginBottom = '20px';
+
+    const formatLabel = document.createElement('label');
+    formatLabel.textContent = 'Webhook Format';
+    formatLabel.style.display = 'block';
+    formatLabel.style.marginBottom = '8px';
+    formatLabel.style.color = '#00CFFF';
+    formatLabel.style.fontWeight = 'bold';
+    formatGroup.appendChild(formatLabel);
+
+    const formatDesc = document.createElement('div');
+    formatDesc.textContent = 'Select General or Discord format for webhook payloads';
+    formatDesc.style.fontSize = '0.85em';
+    formatDesc.style.color = '#999';
+    formatDesc.style.marginBottom = '8px';
+    formatGroup.appendChild(formatDesc);
+
+    const formatSelect = document.createElement('select');
+    formatSelect.id = 'webhookFormat';
+    formatSelect.style.width = '100%';
+    formatSelect.style.padding = '10px';
+    formatSelect.style.background = '#252525';
+    formatSelect.style.border = '1px solid #333';
+    formatSelect.style.color = '#e0e0e0';
+    formatSelect.style.borderRadius = '6px';
+
+    const generalOption = document.createElement('option');
+    generalOption.value = 'General';
+    generalOption.textContent = 'General';
+    formatSelect.appendChild(generalOption);
+
+    const discordOption = document.createElement('option');
+    discordOption.value = 'Discord';
+    discordOption.textContent = 'Discord';
+    formatSelect.appendChild(discordOption);
+
+    formatGroup.appendChild(formatSelect);
+    webhooksForm.appendChild(formatGroup);
+
+    // Webhook URL fields - complete list
+    const webhookFields = [
+        { id: 'PlayerReport', label: 'Player Report', description: 'Triggered when a player reports another player' },
+        { id: 'PlayerChat', label: 'Player Chat', description: 'Triggered when a player sends a chat message' },
+        { id: 'PlayerDamagedPlayer', label: 'Player Damaged Player', description: 'Triggered when a player damages another player' },
+        { id: 'PlayerHack', label: 'Player Hack', description: 'Triggered when a potential hack is detected' },
+        { id: 'PlayerJoinedGroup', label: 'Player Joined Group', description: 'Triggered when a player joins a group' },
+        { id: 'PlayerLeftGroup', label: 'Player Left Group', description: 'Triggered when a player leaves a group' },
+        { id: 'PlayerLogin', label: 'Player Login', description: 'Triggered when a player logs in' },
+        { id: 'PlayerLogout', label: 'Player Logout', description: 'Triggered when a player logs out' },
+        { id: 'PlayerLeave', label: 'Player Leave', description: 'Triggered when a player leaves the server' },
+        { id: 'PlayerKilled', label: 'Player Killed', description: 'Triggered when a player is killed' },
+        { id: 'PlayerQuestComplete', label: 'Player Quest Complete', description: 'Triggered when a player completes a quest' },
+        { id: 'PlayerQuestFailed', label: 'Player Quest Failed', description: 'Triggered when a player fails a quest' },
+        { id: 'PlayerRespawn', label: 'Player Respawn', description: 'Triggered when a player respawns' },
+        { id: 'PlayerWaystone', label: 'Player Waystone', description: 'Triggered when a player uses a waystone' },
+        { id: 'PlayerProfanity', label: 'Player Profanity', description: 'Triggered when profanity is detected' },
+        { id: 'ServerRestart', label: 'Server Restart', description: 'Triggered when the server restarts' },
+        { id: 'ServerRestartCountdown', label: 'Server Restart Countdown', description: 'Triggered during server restart countdown' },
+        { id: 'ServerModerate', label: 'Server Moderate', description: 'Triggered for server moderation events' },
+        { id: 'AdminCommand', label: 'Admin Command', description: 'Triggered when an admin command is executed' },
+        { id: 'AdminSpectate', label: 'Admin Spectate', description: 'Triggered when an admin spectates a player' },
+        { id: 'BadAverageTick', label: 'Bad Average Tick', description: 'Triggered when server tick rate is poor' },
+        { id: 'ServerError', label: 'Server Error', description: 'Triggered when a server error occurs' },
+        { id: 'PlayerPurchase', label: 'Player Purchase', description: 'Triggered when a player makes a purchase' },
+        { id: 'CreateNest', label: 'Create Nest', description: 'Triggered when a nest is created' },
+        { id: 'DestroyNest', label: 'Destroy Nest', description: 'Triggered when a nest is destroyed' },
+        { id: 'NestInvite', label: 'Nest Invite', description: 'Triggered when a player is invited to a nest' },
+        { id: 'PlayerJoinNest', label: 'Player Join Nest', description: 'Triggered when a player joins a nest' },
+        { id: 'UpdateNest', label: 'Update Nest', description: 'Triggered when a nest is updated' },
+        { id: 'ServerStart', label: 'Server Start', description: 'Triggered when the server starts' }
+    ];
+
+    webhookFields.forEach(field => {
+        const fieldGroup = document.createElement('div');
+        fieldGroup.style.marginBottom = '20px';
+
+        const fieldLabel = document.createElement('label');
+        fieldLabel.textContent = field.label;
+        fieldLabel.style.display = 'block';
+        fieldLabel.style.marginBottom = '5px';
+        fieldLabel.style.color = '#00CFFF';
+        fieldLabel.style.fontWeight = 'bold';
+        fieldGroup.appendChild(fieldLabel);
+
+        const fieldDesc = document.createElement('div');
+        fieldDesc.textContent = field.description;
+        fieldDesc.style.fontSize = '0.85em';
+        fieldDesc.style.color = '#999';
+        fieldDesc.style.marginBottom = '8px';
+        fieldGroup.appendChild(fieldDesc);
+
+        const fieldInput = document.createElement('input');
+        fieldInput.type = 'url';
+        fieldInput.id = `webhook${field.id}`;
+        fieldInput.placeholder = `https://webhook.example.com/${field.id.toLowerCase()}/...`;
+        fieldInput.style.width = '100%';
+        fieldInput.style.padding = '10px';
+        fieldInput.style.background = '#252525';
+        fieldInput.style.border = '1px solid #333';
+        fieldInput.style.color = '#e0e0e0';
+        fieldInput.style.borderRadius = '6px';
+        fieldInput.style.fontFamily = "'Courier New', monospace";
+        fieldInput.style.fontSize = '0.9em';
+        fieldInput.addEventListener('input', generateConfig);
+        fieldGroup.appendChild(fieldInput);
+
+        webhooksForm.appendChild(fieldGroup);
+    });
+
+    webhooksSection.appendChild(webhooksForm);
+    form.appendChild(webhooksSection);
+
+    // Add event listeners for webhook controls
+    enabledCheckbox.addEventListener('change', generateConfig);
+    formatSelect.addEventListener('change', generateConfig);
+
     const section = document.createElement('div');
     section.className = 'section';
     section.dataset.category = 'Curve Overrides';
@@ -333,113 +500,164 @@ function createCurveOverridesSection() {
 
     const description = document.createElement('div');
     description.className = 'description';
-    description.textContent = 'Add custom curve overrides to modify dinosaur stats and behaviors. Time values are fixed at 0.0, 0.25, 0.5, 0.75, and 1.0 representing growth stages.';
+    description.textContent = 'Browse and add curve overrides from the database to modify creature stats and behaviors.';
     description.style.marginBottom = '20px';
     section.appendChild(description);
 
-    // Add curve override form
-    const addForm = document.createElement('div');
-    addForm.className = 'curve-override-form';
-    addForm.style.background = 'rgba(0, 0, 0, 0.3)';
-    addForm.style.padding = '20px';
-    addForm.style.borderRadius = '8px';
-    addForm.style.marginBottom = '20px';
+    // Category selection
+    const categoryForm = document.createElement('div');
+    categoryForm.style.background = 'rgba(0, 0, 0, 0.3)';
+    categoryForm.style.padding = '20px';
+    categoryForm.style.borderRadius = '8px';
+    categoryForm.style.marginBottom = '20px';
 
-    // Dinosaur dropdown with search
-    const dinoLabel = document.createElement('label');
-    dinoLabel.textContent = 'Dinosaur Species';
-    dinoLabel.style.display = 'block';
-    dinoLabel.style.marginBottom = '8px';
-    dinoLabel.style.color = '#e0e0e0';
-    addForm.appendChild(dinoLabel);
+    const categoryLabel = document.createElement('label');
+    categoryLabel.textContent = 'Select Category';
+    categoryLabel.style.display = 'block';
+    categoryLabel.style.marginBottom = '8px';
+    categoryLabel.style.color = '#e0e0e0';
+    categoryForm.appendChild(categoryLabel);
 
-    const dinoSelect = document.createElement('select');
-    dinoSelect.id = 'curveOverrideDino';
-    dinoSelect.style.width = '100%';
-    dinoSelect.style.padding = '10px';
-    dinoSelect.style.marginBottom = '15px';
-    dinoSelect.style.background = '#252525';
-    dinoSelect.style.border = '1px solid #333';
-    dinoSelect.style.color = '#e0e0e0';
-    dinoSelect.style.borderRadius = '6px';
+    const categorySelect = document.createElement('select');
+    categorySelect.id = 'curveOverrideCategory';
+    categorySelect.style.width = '100%';
+    categorySelect.style.padding = '10px';
+    categorySelect.style.marginBottom = '15px';
+    categorySelect.style.background = '#252525';
+    categorySelect.style.border = '1px solid #333';
+    categorySelect.style.color = '#e0e0e0';
+    categorySelect.style.borderRadius = '6px';
 
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = 'Select a dinosaur...';
-    dinoSelect.appendChild(defaultOption);
+    const defaultCategoryOption = document.createElement('option');
+    defaultCategoryOption.value = '';
+    defaultCategoryOption.textContent = 'Loading categories...';
+    categorySelect.appendChild(defaultCategoryOption);
+    categoryForm.appendChild(categorySelect);
 
-    dinosaurSpecies.forEach(dino => {
-        const option = document.createElement('option');
-        option.value = dino;
-        option.textContent = dino;
-        dinoSelect.appendChild(option);
-    });
-    addForm.appendChild(dinoSelect);
+    // Author selection (only for Mod category)
+    const authorLabel = document.createElement('label');
+    authorLabel.textContent = 'Select Author';
+    authorLabel.id = 'curveOverrideAuthorLabel';
+    authorLabel.style.display = 'none';
+    authorLabel.style.marginBottom = '8px';
+    authorLabel.style.color = '#e0e0e0';
+    categoryForm.appendChild(authorLabel);
 
-    // Curve name input
+    const authorSelect = document.createElement('select');
+    authorSelect.id = 'curveOverrideAuthor';
+    authorSelect.style.width = '100%';
+    authorSelect.style.padding = '10px';
+    authorSelect.style.marginBottom = '15px';
+    authorSelect.style.background = '#252525';
+    authorSelect.style.border = '1px solid #333';
+    authorSelect.style.color = '#e0e0e0';
+    authorSelect.style.borderRadius = '6px';
+    authorSelect.style.display = 'none';
+    authorSelect.disabled = true;
+
+    const defaultAuthorOption = document.createElement('option');
+    defaultAuthorOption.value = '';
+    defaultAuthorOption.textContent = 'Select an author...';
+    authorSelect.appendChild(defaultAuthorOption);
+    categoryForm.appendChild(authorSelect);
+
+    // Creature selection
+    const creatureLabel = document.createElement('label');
+    creatureLabel.textContent = 'Select Creature';
+    creatureLabel.style.display = 'block';
+    creatureLabel.style.marginBottom = '8px';
+    creatureLabel.style.color = '#e0e0e0';
+    categoryForm.appendChild(creatureLabel);
+
+    const creatureSelect = document.createElement('select');
+    creatureSelect.id = 'curveOverrideCreature';
+    creatureSelect.style.width = '100%';
+    creatureSelect.style.padding = '10px';
+    creatureSelect.style.marginBottom = '15px';
+    creatureSelect.style.background = '#252525';
+    creatureSelect.style.border = '1px solid #333';
+    creatureSelect.style.color = '#e0e0e0';
+    creatureSelect.style.borderRadius = '6px';
+    creatureSelect.disabled = true;
+
+    const defaultCreatureOption = document.createElement('option');
+    defaultCreatureOption.value = '';
+    defaultCreatureOption.textContent = 'Select a category first...';
+    creatureSelect.appendChild(defaultCreatureOption);
+    categoryForm.appendChild(creatureSelect);
+
+    // Section selection
+    const sectionLabel = document.createElement('label');
+    sectionLabel.textContent = 'Select Section';
+    sectionLabel.style.display = 'block';
+    sectionLabel.style.marginBottom = '8px';
+    sectionLabel.style.color = '#e0e0e0';
+    categoryForm.appendChild(sectionLabel);
+
+    const sectionSelect = document.createElement('select');
+    sectionSelect.id = 'curveOverrideSection';
+    sectionSelect.style.width = '100%';
+    sectionSelect.style.padding = '10px';
+    sectionSelect.style.marginBottom = '15px';
+    sectionSelect.style.background = '#252525';
+    sectionSelect.style.border = '1px solid #333';
+    sectionSelect.style.color = '#e0e0e0';
+    sectionSelect.style.borderRadius = '6px';
+    sectionSelect.disabled = true;
+
+    const defaultSectionOption = document.createElement('option');
+    defaultSectionOption.value = '';
+    defaultSectionOption.textContent = 'Select a creature first...';
+    sectionSelect.appendChild(defaultSectionOption);
+    categoryForm.appendChild(sectionSelect);
+
+    // Curve selection
     const curveLabel = document.createElement('label');
-    curveLabel.textContent = 'Curve Name (e.g., GrowthRate, BiteDamage, StaminaDrain)';
+    curveLabel.textContent = 'Select Curve';
     curveLabel.style.display = 'block';
     curveLabel.style.marginBottom = '8px';
     curveLabel.style.color = '#e0e0e0';
-    addForm.appendChild(curveLabel);
+    categoryForm.appendChild(curveLabel);
 
-    const curveInput = document.createElement('input');
-    curveInput.type = 'text';
-    curveInput.id = 'curveOverrideName';
-    curveInput.placeholder = 'Enter curve name...';
-    curveInput.style.width = '100%';
-    curveInput.style.padding = '10px';
-    curveInput.style.marginBottom = '15px';
-    curveInput.style.background = '#252525';
-    curveInput.style.border = '1px solid #333';
-    curveInput.style.color = '#e0e0e0';
-    curveInput.style.borderRadius = '6px';
-    addForm.appendChild(curveInput);
+    const curveSelect = document.createElement('select');
+    curveSelect.id = 'curveOverrideCurve';
+    curveSelect.style.width = '100%';
+    curveSelect.style.padding = '10px';
+    curveSelect.style.marginBottom = '15px';
+    curveSelect.style.background = '#252525';
+    curveSelect.style.border = '1px solid #333';
+    curveSelect.style.color = '#e0e0e0';
+    curveSelect.style.borderRadius = '6px';
+    curveSelect.disabled = true;
 
-    // Value inputs container
-    const valuesLabel = document.createElement('label');
-    valuesLabel.textContent = 'Curve Values (Time: 0.0, 0.25, 0.5, 0.75, 1.0)';
-    valuesLabel.style.display = 'block';
-    valuesLabel.style.marginBottom = '8px';
-    valuesLabel.style.color = '#e0e0e0';
-    addForm.appendChild(valuesLabel);
+    const defaultCurveOption = document.createElement('option');
+    defaultCurveOption.value = '';
+    defaultCurveOption.textContent = 'Select a section first...';
+    curveSelect.appendChild(defaultCurveOption);
+    categoryForm.appendChild(curveSelect);
 
+    // Value display and edit
     const valuesContainer = document.createElement('div');
-    valuesContainer.style.display = 'grid';
-    valuesContainer.style.gridTemplateColumns = 'repeat(5, 1fr)';
-    valuesContainer.style.gap = '10px';
+    valuesContainer.id = 'curveValuesContainer';
     valuesContainer.style.marginBottom = '15px';
-
-    const timeValues = ['0.0', '0.25', '0.5', '0.75', '1.0'];
-    timeValues.forEach((time, index) => {
-        const valueInput = document.createElement('input');
-        valueInput.type = 'number';
-        valueInput.step = '0.01';
-        valueInput.id = `curveValue${index}`;
-        valueInput.placeholder = `Time ${time}`;
-        valueInput.style.padding = '10px';
-        valueInput.style.background = '#252525';
-        valueInput.style.border = '1px solid #333';
-        valueInput.style.color = '#e0e0e0';
-        valueInput.style.borderRadius = '6px';
-        valuesContainer.appendChild(valueInput);
-    });
-    addForm.appendChild(valuesContainer);
+    valuesContainer.style.display = 'none';
+    categoryForm.appendChild(valuesContainer);
 
     // Add button
     const addButton = document.createElement('button');
-    addButton.textContent = 'Add Curve Override';
+    addButton.id = 'addCurveOverrideBtn';
+    addButton.textContent = 'Add to Configuration';
     addButton.style.padding = '10px 20px';
     addButton.style.background = '#4CAF50';
     addButton.style.color = 'white';
     addButton.style.border = 'none';
     addButton.style.borderRadius = '6px';
     addButton.style.cursor = 'pointer';
-    addButton.onclick = addCurveOverride;
-    addForm.appendChild(addButton);
+    addButton.disabled = true;
+    addButton.onclick = addCurveOverrideFromAPI;
+    categoryForm.appendChild(addButton);
 
-    section.appendChild(addForm);
+    section.appendChild(categoryForm);
 
     // Container for added curve overrides
     const overridesContainer = document.createElement('div');
@@ -447,55 +665,422 @@ function createCurveOverridesSection() {
     section.appendChild(overridesContainer);
 
     form.appendChild(section);
+
+    // Load categories and set up event listeners
+    loadCurveOverrideCategories();
+    setupCurveOverrideListeners();
 }
 
-function addCurveOverride() {
-    const dino = document.getElementById('curveOverrideDino').value;
-    const curveName = document.getElementById('curveOverrideName').value.trim();
-    const values = [];
+// Store loaded curve override data
+let curveOverrideData = [];
+let selectedCurveData = null;
 
-    for (let i = 0; i < 5; i++) {
-        const value = document.getElementById(`curveValue${i}`).value;
-        if (value === '') {
-            alert('Please fill in all 5 curve values');
+// Load categories from API
+async function loadCurveOverrideCategories() {
+    try {
+        const response = await fetch('/api/v1/co');
+        const data = await response.json();
+
+        const categorySelect = document.getElementById('curveOverrideCategory');
+        categorySelect.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Select a category...';
+        categorySelect.appendChild(defaultOption);
+
+        if (data.categories && Array.isArray(data.categories)) {
+            data.categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name;
+                option.textContent = category.name;
+                categorySelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading curve override categories:', error);
+        alert('Failed to load categories. Please try again later.');
+    }
+}
+
+// Set up event listeners for curve override dropdowns
+function setupCurveOverrideListeners() {
+    const categorySelect = document.getElementById('curveOverrideCategory');
+    const authorLabel = document.getElementById('curveOverrideAuthorLabel');
+    const authorSelect = document.getElementById('curveOverrideAuthor');
+    const creatureSelect = document.getElementById('curveOverrideCreature');
+    const sectionSelect = document.getElementById('curveOverrideSection');
+    const curveSelect = document.getElementById('curveOverrideCurve');
+
+    categorySelect.addEventListener('change', async function() {
+        const category = this.value;
+
+        // Reset dependent dropdowns and clear author selection
+        window.selectedAuthor = null;
+        authorLabel.style.display = 'none';
+        authorSelect.style.display = 'none';
+        const defaultAuthorOpt = document.createElement('option');
+        defaultAuthorOpt.value = '';
+        defaultAuthorOpt.textContent = 'Select an author...';
+        authorSelect.innerHTML = '';
+        authorSelect.appendChild(defaultAuthorOpt);
+        authorSelect.disabled = true;
+
+        creatureSelect.innerHTML = '<option value="">Loading creatures...</option>';
+        creatureSelect.disabled = true;
+        sectionSelect.innerHTML = '<option value="">Select a creature first...</option>';
+        sectionSelect.disabled = true;
+        curveSelect.innerHTML = '<option value="">Select a section first...</option>';
+        curveSelect.disabled = true;
+        document.getElementById('curveValuesContainer').style.display = 'none';
+        document.getElementById('addCurveOverrideBtn').disabled = true;
+
+        if (!category) {
+            creatureSelect.innerHTML = '<option value="">Select a category first...</option>';
             return;
         }
-        values.push(parseFloat(value));
-    }
 
-    if (!dino) {
-        alert('Please select a dinosaur species');
+        try {
+            const categoryLower = category.toLowerCase();
+            const response = await fetch(`/api/v1/co/${categoryLower}`);
+            const data = await response.json();
+
+            // Store category for later use (lowercase for API calls)
+            window.selectedCategory = categoryLower;
+
+            // If category is "Mod", show author dropdown
+            if (category.toLowerCase() === 'mod' && data.creators) {
+                authorLabel.style.display = 'block';
+                authorSelect.style.display = 'block';
+                authorSelect.disabled = false;
+
+                data.creators.forEach(creator => {
+                    const option = document.createElement('option');
+                    option.value = creator.name;
+                    option.textContent = creator.name;
+                    authorSelect.appendChild(option);
+                });
+
+                creatureSelect.innerHTML = '<option value="">Select an author first...</option>';
+            } else {
+                // For non-Mod categories, load creatures directly
+                window.creaturesData = data.creatures || [];
+
+                creatureSelect.innerHTML = '';
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select a creature...';
+                creatureSelect.appendChild(defaultOption);
+
+                window.creaturesData.forEach(creature => {
+                    const option = document.createElement('option');
+                    option.value = creature.name;
+                    option.textContent = creature.name;
+                    option.dataset.creatureData = JSON.stringify(creature);
+                    creatureSelect.appendChild(option);
+                });
+
+                creatureSelect.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error loading creatures:', error);
+            alert('Failed to load creatures. Please try again.');
+            creatureSelect.innerHTML = '<option value="">Error loading creatures</option>';
+        }
+    });
+
+    // Author selection handler (for Mod category)
+    authorSelect.addEventListener('change', async function() {
+        const author = this.value;
+
+        // Reset dependent dropdowns
+        creatureSelect.innerHTML = '<option value="">Loading creatures...</option>';
+        creatureSelect.disabled = true;
+        sectionSelect.innerHTML = '<option value="">Select a creature first...</option>';
+        sectionSelect.disabled = true;
+        curveSelect.innerHTML = '<option value="">Select a section first...</option>';
+        curveSelect.disabled = true;
+        document.getElementById('curveValuesContainer').style.display = 'none';
+        document.getElementById('addCurveOverrideBtn').disabled = true;
+
+        if (!author) {
+            creatureSelect.innerHTML = '<option value="">Select an author first...</option>';
+            return;
+        }
+
+        try {
+            // Fetch creatures for the selected author
+            const response = await fetch(`/api/v1/co/${window.selectedCategory}/${author}`);
+            const data = await response.json();
+
+            window.creaturesData = data.creatures || [];
+            window.selectedAuthor = author;
+
+            creatureSelect.innerHTML = '';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select a creature...';
+            creatureSelect.appendChild(defaultOption);
+
+            window.creaturesData.forEach(creature => {
+                const option = document.createElement('option');
+                option.value = creature.name;
+                option.textContent = creature.name;
+                option.dataset.creatureData = JSON.stringify(creature);
+                creatureSelect.appendChild(option);
+            });
+
+            creatureSelect.disabled = false;
+        } catch (error) {
+            console.error('Error loading creatures for author:', error);
+            alert('Failed to load creatures. Please try again.');
+            creatureSelect.innerHTML = '<option value="">Error loading creatures</option>';
+        }
+    });
+
+    creatureSelect.addEventListener('change', function() {
+        const creature = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+
+        // Reset dependent dropdowns
+        sectionSelect.innerHTML = '<option value="">Select a section...</option>';
+        sectionSelect.disabled = true;
+        curveSelect.innerHTML = '<option value="">Select a section first...</option>';
+        curveSelect.disabled = true;
+        document.getElementById('curveValuesContainer').style.display = 'none';
+        document.getElementById('addCurveOverrideBtn').disabled = true;
+
+        if (!creature || !selectedOption.dataset.creatureData) {
+            sectionSelect.innerHTML = '<option value="">Select a creature first...</option>';
+            return;
+        }
+
+        const creatureData = JSON.parse(selectedOption.dataset.creatureData);
+        window.selectedCreature = creature;
+
+        sectionSelect.innerHTML = '';
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Select a section...';
+        sectionSelect.appendChild(defaultOption);
+
+        creatureData.sections.forEach(section => {
+            // Skip "Multiplier" section if category is "Critters"
+            if (window.selectedCategory === 'critters' && section === 'Multiplier') {
+                return;
+            }
+
+            const option = document.createElement('option');
+            option.value = section;
+            option.textContent = section;
+            sectionSelect.appendChild(option);
+        });
+
+        sectionSelect.disabled = false;
+    });
+
+    sectionSelect.addEventListener('change', async function() {
+        const section = this.value;
+
+        // Reset dependent dropdown
+        curveSelect.innerHTML = '<option value="">Loading curves...</option>';
+        curveSelect.disabled = true;
+        document.getElementById('curveValuesContainer').style.display = 'none';
+        document.getElementById('addCurveOverrideBtn').disabled = true;
+
+        if (!section) {
+            curveSelect.innerHTML = '<option value="">Select a section first...</option>';
+            return;
+        }
+
+        try {
+            // Fetch all curves for the selected category/creature
+            // For Mod category, include author in the path
+            let apiPath = `/api/v1/co/${window.selectedCategory}`;
+            if (window.selectedAuthor) {
+                apiPath += `/${window.selectedAuthor}`;
+            }
+            apiPath += `/${window.selectedCreature}`;
+
+            const response = await fetch(apiPath);
+            const data = await response.json();
+
+            // Get curves for the selected section
+            const sectionData = data.sections[section];
+            if (!sectionData) {
+                curveSelect.innerHTML = '<option value="">No curves found</option>';
+                return;
+            }
+
+            // Convert section data to array of curve objects
+            curveOverrideData = Object.entries(sectionData).map(([curveName, values]) => ({
+                curveName: curveName,
+                creature: data.name,
+                category: data.category,
+                section: section,
+                keys: values.map((value, index) => ({
+                    time: [0.0, 0.25, 0.5, 0.75, 1.0][index],
+                    value: value
+                })),
+                curvePath: `/Game/Dinosaurs/${data.name}.${curveName}`
+            }));
+
+            curveSelect.innerHTML = '';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select a curve...';
+            curveSelect.appendChild(defaultOption);
+
+            curveOverrideData.forEach((curveData, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = curveData.curveName;
+                option.dataset.curveData = JSON.stringify(curveData);
+                curveSelect.appendChild(option);
+            });
+
+            curveSelect.disabled = false;
+        } catch (error) {
+            console.error('Error loading curves:', error);
+            alert('Failed to load curves. Please try again.');
+            curveSelect.innerHTML = '<option value="">Error loading curves</option>';
+        }
+    });
+
+    curveSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+
+        if (!selectedOption.dataset.curveData) {
+            document.getElementById('curveValuesContainer').style.display = 'none';
+            document.getElementById('addCurveOverrideBtn').disabled = true;
+            return;
+        }
+
+        selectedCurveData = JSON.parse(selectedOption.dataset.curveData);
+        displayCurveValues(selectedCurveData);
+        document.getElementById('addCurveOverrideBtn').disabled = false;
+    });
+}
+
+// Display curve values
+function displayCurveValues(curveData) {
+    const container = document.getElementById('curveValuesContainer');
+    container.innerHTML = '';
+    container.style.display = 'block';
+
+    const label = document.createElement('label');
+    label.textContent = 'Curve Values';
+    label.style.display = 'block';
+    label.style.marginBottom = '8px';
+    label.style.color = '#e0e0e0';
+    container.appendChild(label);
+
+    const valuesGrid = document.createElement('div');
+    valuesGrid.style.display = 'grid';
+    valuesGrid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+    valuesGrid.style.gap = '10px';
+
+    const timeValues = ['0.0', '0.25', '0.5', '0.75', '1.0'];
+
+    curveData.keys.forEach((key, index) => {
+        const valueInput = document.createElement('input');
+        valueInput.type = 'number';
+        valueInput.step = '0.00001';
+        valueInput.id = `curveEditValue${index}`;
+        valueInput.value = key.value;
+        valueInput.placeholder = `Time ${timeValues[index]}`;
+        valueInput.style.padding = '10px';
+        valueInput.style.background = '#252525';
+        valueInput.style.border = '1px solid #333';
+        valueInput.style.color = '#e0e0e0';
+        valueInput.style.borderRadius = '6px';
+        valueInput.style.MozAppearance = 'textfield'; // Firefox
+        valueInput.style.appearance = 'textfield';
+        valuesGrid.appendChild(valueInput);
+    });
+
+    container.appendChild(valuesGrid);
+}
+
+// Add curve override from API
+function addCurveOverrideFromAPI() {
+    if (!selectedCurveData) {
+        alert('Please select a curve first');
         return;
     }
 
-    if (!curveName) {
-        alert('Please enter a curve name');
-        return;
+    const values = [];
+    for (let i = 0; i < 5; i++) {
+        const input = document.getElementById(`curveEditValue${i}`);
+        if (input) {
+            values.push(parseFloat(input.value));
+        }
     }
 
     const override = {
-        dinosaur: dino,
-        curve: curveName,
+        dinosaur: selectedCurveData.creature,
+        curve: selectedCurveData.curveName,
+        curvePath: selectedCurveData.curvePath,
         values: values
     };
 
     curveOverrides.push(override);
     renderCurveOverrides();
-
-    // Clear form
-    document.getElementById('curveOverrideDino').value = '';
-    document.getElementById('curveOverrideName').value = '';
-    for (let i = 0; i < 5; i++) {
-        document.getElementById(`curveValue${i}`).value = '';
-    }
-
     generateConfig();
+
+    // Show success message
+    alert(`Added ${selectedCurveData.creature} - ${selectedCurveData.curveName} to configuration!`);
 }
 
 function removeCurveOverride(index) {
-    curveOverrides.splice(index, 1);
-    renderCurveOverrides();
-    generateConfig();
+    const override = curveOverrides[index];
+    const confirmMessage = `Are you sure you want to remove this curve override?\n\n${override.dinosaur}.${override.curve}`;
+
+    if (confirm(confirmMessage)) {
+        curveOverrides.splice(index, 1);
+        renderCurveOverrides();
+        generateConfig();
+    }
+}
+
+function editCurveOverride(index) {
+    // Hide the values display and show the edit form
+    const valuesDisplay = document.getElementById(`curveValues_${index}`);
+    const editForm = document.getElementById(`editForm_${index}`);
+
+    if (valuesDisplay && editForm) {
+        valuesDisplay.style.display = 'none';
+        editForm.style.display = 'block';
+    }
+}
+
+function saveCurveOverride(index) {
+    // Get the new values from the input fields
+    const newValues = [];
+    for (let i = 0; i < 5; i++) {
+        const input = document.getElementById(`editValue_${index}_${i}`);
+        if (input) {
+            newValues.push(parseFloat(input.value));
+        }
+    }
+
+    // Update the curve override
+    if (curveOverrides[index]) {
+        curveOverrides[index].values = newValues;
+        renderCurveOverrides();
+        generateConfig();
+    }
+}
+
+function cancelEditCurveOverride(index) {
+    // Hide the edit form and show the values display
+    const valuesDisplay = document.getElementById(`curveValues_${index}`);
+    const editForm = document.getElementById(`editForm_${index}`);
+
+    if (valuesDisplay && editForm) {
+        editForm.style.display = 'none';
+        valuesDisplay.style.display = 'block';
+    }
 }
 
 function renderCurveOverrides() {
@@ -512,42 +1097,329 @@ function renderCurveOverrides() {
         return;
     }
 
+    // Group overrides by dinosaur/critter
+    const groupedOverrides = {};
     curveOverrides.forEach((override, index) => {
-        const overrideItem = document.createElement('div');
-        overrideItem.className = 'config-item changed';
-        overrideItem.style.marginBottom = '15px';
+        if (!groupedOverrides[override.dinosaur]) {
+            groupedOverrides[override.dinosaur] = [];
+        }
+        groupedOverrides[override.dinosaur].push({ ...override, originalIndex: index });
+    });
 
-        const title = document.createElement('div');
-        title.style.display = 'flex';
-        title.style.justifyContent = 'space-between';
-        title.style.alignItems = 'center';
-        title.style.marginBottom = '10px';
+    // Sort dinosaur names alphabetically
+    const sortedDinosaurs = Object.keys(groupedOverrides).sort();
 
-        const titleText = document.createElement('strong');
-        titleText.textContent = `${override.dinosaur} - ${override.curve}`;
-        titleText.style.color = '#00CFFF';
-        title.appendChild(titleText);
+    // Create collapsible sections for each dinosaur
+    sortedDinosaurs.forEach(dinosaur => {
+        const dinoSection = document.createElement('div');
+        dinoSection.style.marginBottom = '15px';
+        dinoSection.style.background = 'rgba(0, 0, 0, 0.3)';
+        dinoSection.style.borderRadius = '8px';
+        dinoSection.style.overflow = 'hidden';
+        dinoSection.style.border = '1px solid #333';
 
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = 'Remove';
-        removeBtn.style.padding = '5px 15px';
-        removeBtn.style.background = '#f44336';
-        removeBtn.style.color = 'white';
-        removeBtn.style.border = 'none';
-        removeBtn.style.borderRadius = '4px';
-        removeBtn.style.cursor = 'pointer';
-        removeBtn.onclick = () => removeCurveOverride(index);
-        title.appendChild(removeBtn);
+        // Header
+        const header = document.createElement('div');
+        header.style.padding = '12px 15px';
+        header.style.background = 'rgba(0, 207, 255, 0.1)';
+        header.style.cursor = 'pointer';
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.style.transition = 'background 0.2s';
 
-        overrideItem.appendChild(title);
+        header.onmouseenter = () => header.style.background = 'rgba(0, 207, 255, 0.2)';
+        header.onmouseleave = () => header.style.background = 'rgba(0, 207, 255, 0.1)';
 
-        const valuesText = document.createElement('div');
-        valuesText.textContent = `Values: ${override.values.join(', ')}`;
-        valuesText.style.color = '#e0e0e0';
-        valuesText.style.fontFamily = "'Courier New', monospace";
-        overrideItem.appendChild(valuesText);
+        const headerLeft = document.createElement('div');
+        headerLeft.style.display = 'flex';
+        headerLeft.style.alignItems = 'center';
+        headerLeft.style.gap = '10px';
 
-        container.appendChild(overrideItem);
+        const chevron = document.createElement('i');
+        chevron.className = 'fas fa-chevron-down';
+        chevron.style.color = '#00CFFF';
+        chevron.style.transition = 'transform 0.3s';
+        headerLeft.appendChild(chevron);
+
+        const headerTitle = document.createElement('strong');
+        headerTitle.textContent = dinosaur;
+        headerTitle.style.color = '#00CFFF';
+        headerLeft.appendChild(headerTitle);
+
+        const count = document.createElement('span');
+        count.textContent = `(${groupedOverrides[dinosaur].length} curves)`;
+        count.style.color = '#999';
+        count.style.fontSize = '0.9em';
+        count.style.marginLeft = '10px';
+        headerLeft.appendChild(count);
+
+        header.appendChild(headerLeft);
+
+        // Content (collapsible)
+        const content = document.createElement('div');
+        content.style.maxHeight = '0';
+        content.style.overflow = 'hidden';
+        content.style.transition = 'max-height 0.3s ease';
+
+        const contentInner = document.createElement('div');
+        contentInner.style.padding = '10px 15px';
+
+        // Group curves by category (Combat, Core, Multipliers)
+        const categorizedCurves = { Combat: [], Core: [], Multipliers: [] };
+        groupedOverrides[dinosaur].forEach(override => {
+            // Determine category based on curve name pattern
+            const curveParts = override.curve.split('.');
+            const firstPart = curveParts[0]?.toLowerCase() || '';
+
+            let category = 'Core'; // Default
+            if (firstPart === 'multiplier' || override.curve.toLowerCase().includes('multiplier')) {
+                category = 'Multipliers';
+            } else if (firstPart === 'combat' || override.curve.toLowerCase().includes('combat') ||
+                       override.curve.toLowerCase().includes('damage') || override.curve.toLowerCase().includes('attack')) {
+                category = 'Combat';
+            }
+
+            categorizedCurves[category].push(override);
+        });
+
+        // Order: Combat, Core, Multipliers
+        const sortedCategories = ['Combat', 'Core', 'Multipliers'].filter(cat => categorizedCurves[cat].length > 0);
+
+        sortedCategories.forEach(category => {
+            // Category sub-header (collapsible)
+            const categorySection = document.createElement('div');
+            categorySection.style.marginTop = '10px';
+            categorySection.style.marginBottom = '5px';
+
+            const categoryHeader = document.createElement('div');
+            categoryHeader.style.padding = '8px 10px';
+            categoryHeader.style.background = 'rgba(0, 207, 255, 0.05)';
+            categoryHeader.style.borderRadius = '4px';
+            categoryHeader.style.borderLeft = '3px solid #00CFFF';
+            categoryHeader.style.cursor = 'pointer';
+            categoryHeader.style.display = 'flex';
+            categoryHeader.style.alignItems = 'center';
+            categoryHeader.style.gap = '8px';
+            categoryHeader.style.transition = 'background 0.2s';
+
+            categoryHeader.onmouseenter = () => categoryHeader.style.background = 'rgba(0, 207, 255, 0.1)';
+            categoryHeader.onmouseleave = () => categoryHeader.style.background = 'rgba(0, 207, 255, 0.05)';
+
+            const categoryChevron = document.createElement('i');
+            categoryChevron.className = 'fas fa-chevron-right';
+            categoryChevron.style.color = '#00CFFF';
+            categoryChevron.style.fontSize = '0.8em';
+            categoryChevron.style.transition = 'transform 0.3s';
+
+            const categoryTitle = document.createElement('strong');
+            categoryTitle.textContent = `${category} (${categorizedCurves[category].length})`;
+            categoryTitle.style.color = '#00CFFF';
+            categoryTitle.style.fontSize = '0.9em';
+
+            categoryHeader.appendChild(categoryChevron);
+            categoryHeader.appendChild(categoryTitle);
+            categorySection.appendChild(categoryHeader);
+
+            // Category content (collapsible)
+            const categoryContent = document.createElement('div');
+            categoryContent.style.maxHeight = '0';
+            categoryContent.style.overflow = 'hidden';
+            categoryContent.style.transition = 'max-height 0.3s ease';
+
+            const categoryContentInner = document.createElement('div');
+            categoryContentInner.style.paddingTop = '5px';
+
+            // Curves in this category
+            categorizedCurves[category].forEach(override => {
+                const overrideItem = document.createElement('div');
+                overrideItem.style.marginBottom = '10px';
+                overrideItem.style.marginLeft = '10px';
+                overrideItem.style.padding = '10px';
+                overrideItem.style.background = 'rgba(0, 0, 0, 0.2)';
+                overrideItem.style.borderRadius = '6px';
+                overrideItem.style.border = '1px solid #444';
+
+                const curveHeader = document.createElement('div');
+                curveHeader.style.display = 'flex';
+                curveHeader.style.justifyContent = 'space-between';
+                curveHeader.style.alignItems = 'center';
+                curveHeader.style.marginBottom = '8px';
+
+                const curveName = document.createElement('div');
+                // Show only the part after the category
+                const curveNameParts = override.curve.split('.');
+                const displayName = curveNameParts.slice(1).join('.');
+                curveName.textContent = displayName || override.curve;
+                curveName.style.color = '#e0e0e0';
+                curveName.style.fontWeight = 'bold';
+                curveHeader.appendChild(curveName);
+
+                const buttonGroup = document.createElement('div');
+                buttonGroup.style.display = 'flex';
+                buttonGroup.style.gap = '8px';
+
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.style.padding = '5px 12px';
+                editBtn.style.background = '#2196F3';
+                editBtn.style.color = 'white';
+                editBtn.style.border = 'none';
+                editBtn.style.borderRadius = '4px';
+                editBtn.style.cursor = 'pointer';
+                editBtn.style.fontSize = '0.85em';
+                editBtn.onclick = () => editCurveOverride(override.originalIndex);
+                buttonGroup.appendChild(editBtn);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove';
+                removeBtn.style.padding = '5px 12px';
+                removeBtn.style.background = '#f44336';
+                removeBtn.style.color = 'white';
+                removeBtn.style.border = 'none';
+                removeBtn.style.borderRadius = '4px';
+                removeBtn.style.cursor = 'pointer';
+                removeBtn.style.fontSize = '0.85em';
+                removeBtn.onclick = () => removeCurveOverride(override.originalIndex);
+                buttonGroup.appendChild(removeBtn);
+
+                curveHeader.appendChild(buttonGroup);
+
+                overrideItem.appendChild(curveHeader);
+
+                const valuesText = document.createElement('div');
+                valuesText.id = `curveValues_${override.originalIndex}`;
+                valuesText.textContent = `Values: ${override.values.join(', ')}`;
+                valuesText.style.color = '#aaa';
+                valuesText.style.fontFamily = "'Courier New', monospace";
+                valuesText.style.fontSize = '0.9em';
+                overrideItem.appendChild(valuesText);
+
+                // Edit form (hidden by default)
+                const editForm = document.createElement('div');
+                editForm.id = `editForm_${override.originalIndex}`;
+                editForm.style.display = 'none';
+                editForm.style.marginTop = '10px';
+
+                const editLabel = document.createElement('label');
+                editLabel.textContent = 'Edit Values:';
+                editLabel.style.display = 'block';
+                editLabel.style.marginBottom = '8px';
+                editLabel.style.color = '#e0e0e0';
+                editLabel.style.fontSize = '0.9em';
+                editForm.appendChild(editLabel);
+
+                const editGrid = document.createElement('div');
+                editGrid.style.display = 'grid';
+                editGrid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+                editGrid.style.gap = '8px';
+                editGrid.style.marginBottom = '10px';
+
+                const timeValues = ['0.0', '0.25', '0.5', '0.75', '1.0'];
+                override.values.forEach((value, valueIndex) => {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.step = '0.00001';
+                    input.id = `editValue_${override.originalIndex}_${valueIndex}`;
+                    input.value = value;
+                    input.placeholder = `Time ${timeValues[valueIndex]}`;
+                    input.style.padding = '8px';
+                    input.style.background = '#252525';
+                    input.style.border = '1px solid #333';
+                    input.style.color = '#e0e0e0';
+                    input.style.borderRadius = '4px';
+                    input.style.fontSize = '0.85em';
+                    input.style.MozAppearance = 'textfield';
+                    input.style.appearance = 'textfield';
+                    editGrid.appendChild(input);
+                });
+
+                editForm.appendChild(editGrid);
+
+                const editButtonGroup = document.createElement('div');
+                editButtonGroup.style.display = 'flex';
+                editButtonGroup.style.gap = '8px';
+
+                const saveBtn = document.createElement('button');
+                saveBtn.textContent = 'Save';
+                saveBtn.style.padding = '5px 12px';
+                saveBtn.style.background = '#4CAF50';
+                saveBtn.style.color = 'white';
+                saveBtn.style.border = 'none';
+                saveBtn.style.borderRadius = '4px';
+                saveBtn.style.cursor = 'pointer';
+                saveBtn.style.fontSize = '0.85em';
+                saveBtn.onclick = () => saveCurveOverride(override.originalIndex);
+                editButtonGroup.appendChild(saveBtn);
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = 'Cancel';
+                cancelBtn.style.padding = '5px 12px';
+                cancelBtn.style.background = '#757575';
+                cancelBtn.style.color = 'white';
+                cancelBtn.style.border = 'none';
+                cancelBtn.style.borderRadius = '4px';
+                cancelBtn.style.cursor = 'pointer';
+                cancelBtn.style.fontSize = '0.85em';
+                cancelBtn.onclick = () => cancelEditCurveOverride(override.originalIndex);
+                editButtonGroup.appendChild(cancelBtn);
+
+                editForm.appendChild(editButtonGroup);
+                overrideItem.appendChild(editForm);
+
+                categoryContentInner.appendChild(overrideItem);
+            });
+
+            categoryContent.appendChild(categoryContentInner);
+
+            // Toggle functionality for category
+            let isCategoryExpanded = false;
+            categoryHeader.onclick = (e) => {
+                e.stopPropagation(); // Prevent triggering parent dinosaur collapse
+                isCategoryExpanded = !isCategoryExpanded;
+                if (isCategoryExpanded) {
+                    categoryContent.style.maxHeight = '5000px'; // Large enough for any content
+                    categoryChevron.style.transform = 'rotate(90deg)';
+                    // Update parent container height to accommodate expanded content
+                    setTimeout(() => {
+                        if (content.style.maxHeight !== '0' && content.style.maxHeight !== '') {
+                            content.style.maxHeight = '10000px'; // Large enough for all categories
+                        }
+                    }, 10);
+                } else {
+                    categoryContent.style.maxHeight = '0';
+                    categoryChevron.style.transform = 'rotate(0deg)';
+                    // Update parent container height
+                    setTimeout(() => {
+                        if (content.style.maxHeight !== '0' && content.style.maxHeight !== '') {
+                            content.style.maxHeight = '10000px';
+                        }
+                    }, 10);
+                }
+            };
+
+            categorySection.appendChild(categoryContent);
+            contentInner.appendChild(categorySection);
+        });
+
+        content.appendChild(contentInner);
+
+        // Toggle functionality
+        let isExpanded = false;
+        header.onclick = () => {
+            isExpanded = !isExpanded;
+            if (isExpanded) {
+                content.style.maxHeight = '10000px'; // Large enough for all content
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.maxHeight = '0';
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        };
+
+        dinoSection.appendChild(header);
+        dinoSection.appendChild(content);
+        container.appendChild(dinoSection);
     });
 }
 
@@ -595,6 +1467,7 @@ function getTabLabel(tabId) {
         'weather': 'Weather',
         'IGameMode': 'Game Mode',
         'SourceRCON': 'SourceRCON',
+        'webhooks': 'Webhooks',
         'curveOverrides': 'Curve Overrides'
     };
     return labels[tabId] || tabId;
@@ -791,8 +1664,14 @@ function generateConfig() {
                     currentValue = element.value;
                 }
 
+                // Special case: bEnforceWhitelist only appears when set to true
+                if (item.name === 'bEnforceWhitelist') {
+                    if (currentValue === 'true') {
+                        changedSettings.IGameSession.push(`${item.name}=${currentValue}`);
+                    }
+                }
                 // Only add if value changed from default
-                if (currentValue !== item.default) {
+                else if (currentValue !== item.default) {
                     // Handle multiline fields (AllowedCharacters, DisallowedCharacters, etc.)
                     if (item.type === 'multiline' && currentValue.trim() !== '') {
                         const lines = currentValue.split('\n').filter(line => line.trim() !== '');
@@ -811,9 +1690,14 @@ function generateConfig() {
 
     // Add curve overrides to IGameSession
     curveOverrides.forEach(override => {
-        const curveName = `${override.dinosaur}.Core.${override.curve}`;
-        const values = override.values.map(v => v.toFixed(5)).join(',');
-        changedSettings.IGameSession.push(`CurveOverrides=(CurveName="${curveName}",Values=(${values}))`);
+        // Extract just the curve name without /Game/Dinosaurs/ prefix
+        // Format: PWDimetrodon.Multiplier.HealthRecovery.Standing
+        const curveName = override.curve;
+
+        // Format values as simple comma-separated list without trailing zeros
+        const values = override.values.map(value => parseFloat(value.toFixed(5)).toString()).join(',');
+
+        changedSettings.IGameSession.push(`CurveOverrides=(CurveName="${override.dinosaur}.${curveName}",Values=(${values}))`);
     });
 
     // Check IGameMode settings
@@ -906,6 +1790,40 @@ function generateConfig() {
     if (sourceRconEnabled && changedSettings.SourceRCON.length > 0) {
         output += '\n\n[SourceRCON]\n';
         output += changedSettings.SourceRCON.join('\n');
+    }
+
+    // Add ServerWebhooks section if enabled
+    const webhookEnabled = document.getElementById('webhookEnabled');
+    if (webhookEnabled && webhookEnabled.checked) {
+        const webhookFormat = document.getElementById('webhookFormat').value;
+
+        // Add metadata comment
+        output += '\n\n;METADATA=(Diff=true, UseCommands=true)\n';
+        output += '[ServerWebhooks]\n';
+        output += 'bEnabled=true\n';
+        output += `Format="${webhookFormat}"\n`;
+
+        // List of all webhook fields
+        const webhookFieldIds = [
+            'PlayerReport', 'PlayerChat', 'PlayerDamagedPlayer', 'PlayerHack',
+            'PlayerJoinedGroup', 'PlayerLeftGroup', 'PlayerLogin', 'PlayerLogout',
+            'PlayerLeave', 'PlayerKilled', 'PlayerQuestComplete', 'PlayerQuestFailed',
+            'PlayerRespawn', 'PlayerWaystone', 'PlayerProfanity', 'ServerRestart',
+            'ServerRestartCountdown', 'ServerModerate', 'AdminCommand', 'AdminSpectate',
+            'BadAverageTick', 'ServerError', 'PlayerPurchase', 'CreateNest',
+            'DestroyNest', 'NestInvite', 'PlayerJoinNest', 'UpdateNest', 'ServerStart'
+        ];
+
+        // Add webhook URLs
+        webhookFieldIds.forEach(fieldId => {
+            const input = document.getElementById(`webhook${fieldId}`);
+            if (input && input.value.trim()) {
+                let url = input.value.trim();
+                // Remove existing quotes if present, then add them back
+                url = url.replace(/^["']|["']$/g, '');
+                output += `${fieldId}="${url}"\n`;
+            }
+        });
     }
 
     document.getElementById('outputPreview').textContent = output;
@@ -1025,6 +1943,16 @@ function parseAndLoadIni(content) {
     // Reset curve overrides
     curveOverrides = [];
 
+    // Reset webhook fields
+    const webhookEnabledCheckbox = document.getElementById('webhookEnabled');
+    if (webhookEnabledCheckbox) {
+        webhookEnabledCheckbox.checked = false;
+    }
+    const webhookFormatSelect = document.getElementById('webhookFormat');
+    if (webhookFormatSelect) {
+        webhookFormatSelect.value = 'General';
+    }
+
     const lines = content.split('\n');
     let currentSection = null;
     const multilineValues = {}; // Track multiline values like AllowedCharacter
@@ -1032,8 +1960,8 @@ function parseAndLoadIni(content) {
     lines.forEach(line => {
         line = line.trim();
 
-        // Skip empty lines and comments
-        if (!line || line.startsWith(';')) return;
+        // Skip empty lines and comments (but not METADATA)
+        if (!line || (line.startsWith(';') && !line.includes('METADATA'))) return;
 
         // Check for section headers
         if (line.startsWith('[') && line.endsWith(']')) {
@@ -1047,23 +1975,44 @@ function parseAndLoadIni(content) {
             let key = match[1].trim();
             let value = match[2].trim();
 
+            // Handle ServerWebhooks section
+            if (currentSection === 'ServerWebhooks') {
+                if (key === 'bEnabled' && value.toLowerCase() === 'true') {
+                    const webhookEnabledCheckbox = document.getElementById('webhookEnabled');
+                    if (webhookEnabledCheckbox) {
+                        webhookEnabledCheckbox.checked = true;
+                    }
+                } else if (key === 'Format') {
+                    // Remove quotes if present
+                    const formatValue = value.replace(/['"]/g, '');
+                    const webhookFormatSelect = document.getElementById('webhookFormat');
+                    if (webhookFormatSelect) {
+                        webhookFormatSelect.value = formatValue;
+                    }
+                } else {
+                    // It's a webhook URL field
+                    const webhookInput = document.getElementById(`webhook${key}`);
+                    if (webhookInput) {
+                        // Remove quotes if present
+                        webhookInput.value = value.replace(/['"]/g, '');
+                    }
+                }
+                return;
+            }
+
             // Handle CurveOverrides
             if (key === 'CurveOverrides') {
-                // Parse: CurveOverrides=(Curve="/Game/Dinosaurs/Allosaurus.GrowthRate",Keys=((Time=0.0,Value=0.0),(Time=0.25,Value=0.3),...))
-                const curveMatch = value.match(/Curve="\/Game\/Dinosaurs\/([^.]+)\.([^"]+)"/);
-                const keysMatch = value.match(/Keys=\(\(([^)]+)\)\)/);
+                // Parse new format: CurveOverrides=(CurveName="PWDimetrodon.Multiplier.HealthRecovery.Standing",Values=(1,2,3,4,5))
+                const curveNameMatch = value.match(/CurveName="([^.]+)\.([^"]+)"/);
+                const valuesMatch = value.match(/Values=\(([^)]+)\)/);
 
-                if (curveMatch && keysMatch) {
-                    const dinosaur = curveMatch[1];
-                    const curve = curveMatch[2];
-                    const keysString = keysMatch[1];
+                if (curveNameMatch && valuesMatch) {
+                    const dinosaur = curveNameMatch[1];
+                    const curve = curveNameMatch[2];
+                    const valuesString = valuesMatch[1];
 
-                    // Extract values from the keys
-                    const valueMatches = keysString.matchAll(/Value=([\d.]+)/g);
-                    const values = [];
-                    for (const match of valueMatches) {
-                        values.push(parseFloat(match[1]));
-                    }
+                    // Parse comma-separated values
+                    const values = valuesString.split(',').map(v => parseFloat(v.trim()));
 
                     if (values.length === 5) {
                         curveOverrides.push({

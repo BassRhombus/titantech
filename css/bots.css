@@ -235,12 +235,140 @@
     margin-bottom: 1rem;
 }
 
+/* License System Section */
+.license-system-section {
+    padding: 3rem 5%;
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+}
+
+.license-system-section h2 {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.license-system-section > p {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    color: #cccccc;
+}
+
+.license-container {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.license-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.license-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.license-info ul {
+    list-style: none;
+    margin-bottom: 2rem;
+}
+
+.license-info ul li {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.05rem;
+    color: #e0e0e0;
+}
+
+.license-info ul li i {
+    color: var(--neon-blue);
+    font-size: 1.2rem;
+    min-width: 20px;
+}
+
+.license-image {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.license-preview {
+    background: linear-gradient(135deg, rgba(26, 26, 43, 0.8) 0%, rgba(13, 13, 20, 0.8) 100%);
+    border: 2px solid rgba(0, 207, 255, 0.3);
+    border-radius: 15px;
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 207, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.license-preview:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 207, 255, 0.3);
+}
+
+.license-icon {
+    font-size: 4rem;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.license-preview h4 {
+    color: var(--neon-blue);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.license-preview p {
+    color: #cccccc;
+    font-size: 1rem;
+}
+
 @media (max-width: 768px) {
     .custom-bot-container {
         flex-direction: column-reverse;
     }
-    
+
     .bot-info p {
         height: auto;
+    }
+
+    .license-container {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .license-info,
+    .license-image {
+        min-width: 100%;
+    }
+
+    .license-preview {
+        padding: 2rem 1.5rem;
+    }
+
+    .license-icon {
+        font-size: 3rem;
     }
 }

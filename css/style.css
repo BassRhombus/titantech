@@ -112,6 +112,132 @@ header {
     box-shadow: 0 0 10px var(--neon-magenta);
 }
 
+/* Generator Intro Section */
+.generator-intro {
+    padding: 3rem 5%;
+    text-align: center;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4)), url('../images/community-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.generator-intro h2 {
+    font-family: 'Orbitron', 'Exo', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(0, 207, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.generator-intro p {
+    font-size: 1.2rem;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 400;
+    color: #e0e0e0;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Dropdown Menu Styles */
+.nav-links .dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.dropdown-toggle i {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+}
+
+.dropdown:hover .dropdown-toggle i {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(13, 13, 20, 0.98) 0%, rgba(26, 26, 43, 0.98) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 207, 255, 0.3);
+    border-radius: 8px;
+    min-width: 220px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 207, 255, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    list-style: none;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.dropdown-menu li {
+    margin: 0;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 0.8rem 1.5rem;
+    color: var(--light-color);
+    text-decoration: none;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.dropdown-menu a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: linear-gradient(180deg, var(--neon-blue), var(--neon-magenta));
+    transition: height 0.3s ease;
+}
+
+.dropdown-menu a:hover {
+    background: rgba(0, 207, 255, 0.1);
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px var(--neon-blue);
+    padding-left: 2rem;
+}
+
+.dropdown-menu a:hover::before {
+    height: 70%;
+}
+
+.dropdown-menu a:hover::after {
+    display: none;
+}
+
 .login-btn {
     background: linear-gradient(45deg, var(--neon-magenta), var(--neon-blue));
     padding: 0.5rem 1rem;
@@ -714,7 +840,37 @@ footer {
     .nav-links li {
         margin: 1.5rem 0;
     }
-    
+
+    /* Mobile Dropdown Styles */
+    .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        background: rgba(0, 0, 0, 0.8);
+        box-shadow: none;
+        border: none;
+        border-top: 1px solid rgba(0, 207, 255, 0.2);
+        margin-top: 0.5rem;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .dropdown:hover .dropdown-menu,
+    .dropdown.active .dropdown-menu {
+        max-height: 300px;
+    }
+
+    .dropdown-menu a {
+        padding: 1rem 2rem;
+        font-size: 0.9rem;
+    }
+
+    .dropdown-toggle i {
+        margin-left: auto;
+    }
+
     .hamburger {
         display: block;
         cursor: pointer;

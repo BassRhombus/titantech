@@ -9,10 +9,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Tab switching
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-    });
+    // Dropdown switching
+    const generatorSelect = document.getElementById('generatorSelect');
+    if (generatorSelect) {
+        generatorSelect.addEventListener('change', (e) => switchTab(e.target.value));
+    }
 
     // Format buttons
     document.querySelectorAll('.format-btn').forEach(btn => {
@@ -48,10 +49,11 @@ function setupEventListeners() {
 function switchTab(tab) {
     currentTab = tab;
 
-    // Update tab buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tab);
-    });
+    // Update dropdown selection
+    const generatorSelect = document.getElementById('generatorSelect');
+    if (generatorSelect) {
+        generatorSelect.value = tab;
+    }
 
     // Update tab content
     document.querySelectorAll('.tab-content').forEach(content => {

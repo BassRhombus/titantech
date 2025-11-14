@@ -12,8 +12,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Close mobile menu when clicking a link
-    const navItems = document.querySelectorAll('.nav-links li a');
+    // Mobile dropdown toggle
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+    dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            // Only handle dropdown on mobile
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                const dropdown = this.closest('.dropdown');
+                dropdown.classList.toggle('active');
+            }
+        });
+    });
+
+    // Close mobile menu when clicking a link (except dropdown toggles)
+    const navItems = document.querySelectorAll('.nav-links li a:not(.dropdown-toggle)');
     navItems.forEach(item => {
         item.addEventListener('click', function() {
             if (navLinks.classList.contains('active')) {
