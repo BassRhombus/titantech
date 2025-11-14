@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Only handle dropdown on mobile
             if (window.innerWidth <= 768) {
                 e.preventDefault();
+                e.stopPropagation(); // Prevent event from bubbling to document click handler
                 const dropdown = this.closest('.dropdown');
                 dropdown.classList.toggle('active');
             }
@@ -36,14 +37,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Close dropdowns when clicking outside
+    // Close dropdowns when clicking outside (desktop only)
     document.addEventListener('click', function(e) {
-        const dropdowns = document.querySelectorAll('.dropdown');
-        dropdowns.forEach(dropdown => {
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
+        // Only run on desktop to avoid interfering with mobile menu
+        if (window.innerWidth > 768) {
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
     });
 
     // Ensure dropdowns are not stuck open on page load
