@@ -150,6 +150,17 @@ header {
     position: relative;
 }
 
+/* Add padding to dropdown area to prevent closing when moving mouse */
+.nav-links .dropdown::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 1rem;
+    z-index: 999;
+}
+
 .dropdown-toggle {
     display: flex;
     align-items: center;
@@ -185,7 +196,8 @@ header {
     z-index: 1000;
     list-style: none;
     padding: 0.5rem 0;
-    margin-top: 0.5rem;
+    margin-top: 0;
+    padding-top: 1rem;
 }
 
 .dropdown:hover .dropdown-menu {
