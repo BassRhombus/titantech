@@ -193,6 +193,19 @@ header {
     transform: translateX(-50%) translateY(0);
 }
 
+/* Ensure active class doesn't interfere on desktop */
+@media (min-width: 769px) {
+    .dropdown.active .dropdown-menu {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .dropdown:hover .dropdown-menu {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}
+
 .dropdown-menu li {
     margin: 0;
 }

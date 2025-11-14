@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
-    
+
     if (hamburger) {
         hamburger.addEventListener('click', function() {
             // Toggle both classes to ensure menu opens and hamburger animates
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hamburger.classList.toggle('active');
         });
     }
-    
+
     // Mobile dropdown toggle
     const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
     dropdownToggles.forEach(toggle => {
@@ -34,6 +34,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 hamburger.classList.remove('active');
             }
         });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        const dropdowns = document.querySelectorAll('.dropdown');
+        dropdowns.forEach(dropdown => {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+    });
+
+    // Ensure dropdowns are not stuck open on page load
+    const allDropdowns = document.querySelectorAll('.dropdown');
+    allDropdowns.forEach(dropdown => {
+        dropdown.classList.remove('active');
     });
     
     // Discord username copy functionality
