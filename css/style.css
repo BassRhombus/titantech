@@ -861,6 +861,7 @@ footer {
     /* Mobile Dropdown Styles */
     .dropdown-menu {
         position: static;
+        display: block;
         opacity: 1;
         visibility: visible;
         transform: none;
@@ -877,6 +878,7 @@ footer {
     .dropdown:hover .dropdown-menu,
     .dropdown.active .dropdown-menu {
         max-height: 300px;
+        display: block;
     }
 
     .dropdown-menu a {
