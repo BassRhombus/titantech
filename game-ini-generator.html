@@ -654,7 +654,7 @@
         </div>
     </div>
 
-    <script src="GameINI/game-ini-generator.js?v=1.4"></script>
+    <script src="GameINI/game-ini-generator.js?v=1.5"></script>
     <script src="js/main.js"></script>
     <script>
         // Beta warning modal functionality
@@ -690,33 +690,6 @@
 
             if (cancelBtn) {
                 cancelBtn.addEventListener('click', handleBetaCancel);
-            }
-
-            // Attach event listeners to action buttons
-            const uploadFile = document.getElementById('uploadFile');
-            const generateBtn = document.getElementById('generateBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const resetBtn = document.getElementById('resetBtn');
-
-            if (uploadFile) {
-                uploadFile.addEventListener('change', uploadConfig);
-            }
-
-            if (generateBtn) {
-                generateBtn.addEventListener('click', generateConfig);
-            }
-
-            if (copyBtn) {
-                copyBtn.addEventListener('click', copyToClipboard);
-            }
-
-            if (downloadBtn) {
-                downloadBtn.addEventListener('click', downloadConfig);
-            }
-
-            if (resetBtn) {
-                resetBtn.addEventListener('click', resetForm);
             }
         });
     </script>

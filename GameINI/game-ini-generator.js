@@ -1915,8 +1915,23 @@ function uploadConfig(event) {
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        const content = e.target.result;
-        parseAndLoadIni(content);
+        try {
+            const content = e.target.result;
+            parseAndLoadIni(content);
+            // Reset the file input so the same file can be uploaded again
+            event.target.value = '';
+        } catch (error) {
+            console.error('Error parsing uploaded file:', error);
+            alert('Error loading file: ' + error.message);
+            // Reset the file input on error too
+            event.target.value = '';
+        }
+    };
+    reader.onerror = function(e) {
+        console.error('Error reading file:', e);
+        alert('Failed to read the file. Please try again.');
+        // Reset the file input on error
+        event.target.value = '';
     };
     reader.readAsText(file);
 }
@@ -2149,4 +2164,31 @@ document.getElementById('searchInput').addEventListener('input', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     initializeForm();
     generateConfig();
+
+    // Attach event listeners to action buttons
+    const uploadFile = document.getElementById('uploadFile');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    if (uploadFile) {
+        uploadFile.addEventListener('change', uploadConfig);
+    }
+
+    if (generateBtn) {
+        generateBtn.addEventListener('click', generateConfig);
+    }
+
+    if (copyBtn) {
+        copyBtn.addEventListener('click', copyToClipboard);
+    }
+
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadConfig);
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetForm);
+    }
 });
