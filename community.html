@@ -151,6 +151,18 @@
             box-shadow: 0 0 20px rgba(0, 207, 255, 0.5);
         }
 
+        .tab-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #666;
+            color: #888;
+        }
+
+        .tab-btn.disabled:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: none;
+        }
+
         .tab-content {
             display: none;
         }
@@ -594,7 +606,7 @@
         <!-- Tab Navigation -->
         <div class="tabs-container">
             <button class="tab-btn active" id="featured-tab-btn">Featured Servers</button>
-            <button class="tab-btn" id="browser-tab-btn">Server Browser</button>
+            <button class="tab-btn disabled" id="browser-tab-btn">Server Browser - Under Maintenance</button>
         </div>
 
         <!-- Featured Servers Tab -->
@@ -1159,7 +1171,14 @@
             }
 
             if (browserTabBtn) {
-                browserTabBtn.addEventListener('click', () => switchTab('browser'));
+                browserTabBtn.addEventListener('click', (e) => {
+                    // Disabled - Under Maintenance
+                    if (browserTabBtn.classList.contains('disabled')) {
+                        e.preventDefault();
+                        return;
+                    }
+                    switchTab('browser');
+                });
             }
         }
 
