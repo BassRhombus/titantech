@@ -31,7 +31,7 @@ Comprehensive SEO and social media metadata has been added to all major pages of
 - `og:image:alt` - Alt text for accessibility
 - `og:url` - Canonical URL for each page
 - `og:type` - website
-- `og:site_name` - DinoMod Hub
+- `og:site_name` - TitanTech Hub
 - `og:locale` - en_US
 
 ### Twitter Card Tags
