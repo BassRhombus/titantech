@@ -3,7 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commands.ini Generator - TitanTech Hub</title>
+    <title>Commands.ini Generator - Path of Titans | TitanTech Hub</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Create custom Commands.ini files for your Path of Titans server. Configure admin commands, permissions, and server controls easily.">
+    <meta name="keywords" content="Commands.ini, Path of Titans, server commands, POT admin, server permissions, admin tool">
+    <meta name="author" content="TitanTech Hub">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Commands.ini Generator - Path of Titans Admin Tool">
+    <meta property="og:description" content="Create and manage Commands.ini files for your Path of Titans server with our intuitive generator">
+    <meta property="og:image" content="https://titantech.party/images/logo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="DinoMod Hub">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Commands.ini Generator - Path of Titans">
+    <meta name="twitter:description" content="Configure admin commands for your Path of Titans server">
+    <meta name="twitter:image" content="https://titantech.party/images/logo.png">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#00CFFF">
     <link rel="stylesheet" href="css/style.css?v=1.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.1">
     <style>
@@ -625,6 +647,272 @@
             display: flex;
             gap: 8px;
         }
+
+        /* Profile Section Styles */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(0, 207, 255, 0.1) 0%, rgba(217, 79, 203, 0.1) 100%);
+            border: 1px solid rgba(0, 207, 255, 0.3);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .discord-user {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .discord-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-blue);
+        }
+
+        .discord-username {
+            color: var(--light-color);
+            font-weight: 600;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        .profile-count {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-left: 4px;
+        }
+
+        .login-prompt {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed rgba(0, 207, 255, 0.3);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .discord-login-btn {
+            background: #5865F2 !important;
+            box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
+        }
+
+        .discord-login-btn:hover {
+            background: #4752C4 !important;
+            box-shadow: 0 0 25px rgba(88, 101, 242, 0.6);
+        }
+
+        .profile-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-modal-overlay.active {
+            display: flex;
+        }
+
+        .profile-modal {
+            background: linear-gradient(135deg, #1A1A2B 0%, #0D0D14 100%);
+            border: 2px solid var(--neon-blue);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 207, 255, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        .profile-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 207, 255, 0.3);
+        }
+
+        .profile-modal-header h3 {
+            color: var(--neon-blue);
+            margin: 0;
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .profile-modal-close {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            line-height: 1;
+        }
+
+        .profile-modal-close:hover {
+            color: var(--neon-magenta);
+        }
+
+        .profile-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-form-group label {
+            display: block;
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-form-group input {
+            width: 100%;
+            padding: 10px;
+            background-color: #252525;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .profile-form-group input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 8px rgba(0, 207, 255, 0.3);
+        }
+
+        .profile-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 207, 255, 0.3);
+        }
+
+        .profiles-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .no-profiles-message {
+            text-align: center;
+            color: #aaa;
+            padding: 2rem;
+        }
+
+        .profile-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 207, 255, 0.2);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .profile-item:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 207, 255, 0.2);
+        }
+
+        .profile-item-info {
+            flex: 1;
+        }
+
+        .profile-item-name {
+            display: block;
+            color: var(--light-color);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .profile-item-date {
+            display: block;
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .profile-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .profile-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 10002;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-notification.show {
+            transform: translateX(0);
+        }
+
+        .profile-notification.success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .profile-notification.error {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+        }
+
+        .profile-notification.info {
+            background: linear-gradient(135deg, #17a2b8, #00CFFF);
+        }
+
+        @media (max-width: 768px) {
+            .profile-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .profile-actions {
+                margin-left: 0;
+                justify-content: center;
+            }
+
+            .profile-item {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .profile-item-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
     </style>
 </head>
 <body>
@@ -678,6 +966,26 @@
                 <code style="display: block; margin-top: 8px; padding: 8px; background: rgba(0, 0, 0, 0.5); border-radius: 4px; font-size: 0.95rem;">
                     PathOfTitans/Saved/Config/LinuxServer/Commands.ini
                 </code>
+            </div>
+
+            <!-- Profile Management Section -->
+            <div id="profileSection" class="profile-section" style="display: none;">
+                <div id="discordUser" class="discord-user"></div>
+                <div class="profile-actions">
+                    <button id="saveProfileBtn" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save Profile
+                    </button>
+                    <button id="loadProfileBtn" class="btn btn-info">
+                        <i class="fas fa-folder-open"></i> Load Profile <span id="profileCount" class="profile-count"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login Prompt (shown when not authenticated) -->
+            <div id="loginPrompt" class="login-prompt" style="display: none;">
+                <a href="/auth/discord" class="btn btn-primary discord-login-btn">
+                    <i class="fab fa-discord"></i> Login with Discord to Save Profiles
+                </a>
             </div>
 
             <div class="action-bar">
@@ -883,6 +1191,44 @@
         </div>
     </div>
 
+    <!-- Save Profile Modal -->
+    <div id="saveProfileModal" class="profile-modal-overlay">
+        <div class="profile-modal">
+            <div class="profile-modal-header">
+                <h3>Save Profile</h3>
+                <button class="profile-modal-close">&times;</button>
+            </div>
+            <form id="saveProfileForm">
+                <div class="profile-form-group">
+                    <label for="profileName">Profile Name</label>
+                    <input type="text" id="profileName" placeholder="Enter a name for this profile" maxlength="50" required>
+                </div>
+                <div class="profile-modal-footer">
+                    <button type="button" class="btn btn-danger profile-modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Load Profile Modal -->
+    <div id="loadProfileModal" class="profile-modal-overlay">
+        <div class="profile-modal">
+            <div class="profile-modal-header">
+                <h3>Load Profile</h3>
+                <button class="profile-modal-close">&times;</button>
+            </div>
+            <div id="profilesList" class="profiles-list">
+                <!-- Profiles will be loaded here -->
+            </div>
+            <div class="profile-modal-footer">
+                <button type="button" class="btn btn-danger profile-modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-bottom">
             <p>&copy; 2025. Not affiliated with Path of Titans.</p>
@@ -890,7 +1236,8 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script src="js/profile-manager-ui.js?v=1.0"></script>
     <script src="CommandsINI/permissions-list.js?v=1.1"></script>
-    <script src="CommandsINI/commands-ini-generator.js?v=1.2"></script>
+    <script src="CommandsINI/commands-ini-generator.js?v=1.3"></script>
 </body>
 </html>
