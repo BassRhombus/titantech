@@ -112,6 +112,18 @@ header {
     box-shadow: 0 0 10px var(--neon-magenta);
 }
 
+.nav-links a.disabled {
+    color: #666;
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.nav-links a.disabled:hover {
+    color: #666;
+    text-shadow: none;
+}
+
 /* Generator Intro Section */
 .generator-intro {
     padding: 3rem 5%;
