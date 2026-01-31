@@ -93,6 +93,27 @@ const webhookGameIniSchema = z.object({
 });
 
 /**
+ * Profile creation/update validation
+ */
+const profileSchema = z.object({
+  name: z.string().trim().min(1, 'Profile name is required').max(50, 'Profile name cannot exceed 50 characters'),
+  data: z.object({}).passthrough(), // Flexible to accept different generator data structures
+});
+
+/**
+ * Profile update validation (all fields optional)
+ */
+const profileUpdateSchema = z.object({
+  name: z.string().trim().min(1).max(50).optional(),
+  data: z.object({}).passthrough().optional(),
+});
+
+/**
+ * Generator type validation
+ */
+const generatorTypeSchema = z.enum(['commands-ini', 'game-ini', 'rules-motd']);
+
+/**
  * Generic validation middleware factory
  * @param {z.ZodSchema} schema - Zod schema to validate against
  * @param {string} source - Where to get data from: 'body', 'query', 'params'
@@ -217,6 +238,9 @@ module.exports = {
   showcaseStatusUpdateSchema,
   serverSubmissionSchema,
   webhookGameIniSchema,
+  profileSchema,
+  profileUpdateSchema,
+  generatorTypeSchema,
   validate,
   sanitizeHtml,
   sanitizeFilename,

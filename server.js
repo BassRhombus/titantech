@@ -1,5 +1,5 @@
 // =============================================================================
-// TitanTech Hub Server - Production-Grade Security Baseline
+// TitanTech Server - Production-Grade Security Baseline
 // =============================================================================
 
 // Core dependencies
@@ -18,7 +18,9 @@ require('dotenv').config();
 // Security modules
 const { getSessionConfig, createUserSession, destroyUserSession } = require('./security/baseline/serverAuth');
 const { requireAuth, requireAdmin, optionalAuth } = require('./security/baseline/requireAuth');
-const { validate, commissionSubmissionSchema, commissionStatusUpdateSchema, showcaseSubmissionSchema, showcaseStatusUpdateSchema, serverSubmissionSchema, webhookGameIniSchema } = require('./security/baseline/validation');
+const { validate, commissionSubmissionSchema, commissionStatusUpdateSchema, showcaseSubmissionSchema, showcaseStatusUpdateSchema, serverSubmissionSchema, webhookGameIniSchema, profileSchema, profileUpdateSchema, generatorTypeSchema } = require('./security/baseline/validation');
+const { requireDiscordAuth, getDiscordUser, getDiscordAvatarUrl } = require('./security/baseline/requireDiscordAuth');
+const { loadUserProfiles, getProfile, createProfile, updateProfile, deleteProfile, getProfileCount, isValidGeneratorType, VALID_GENERATOR_TYPES, MAX_PROFILES_PER_TYPE } = require('./security/baseline/profileManager');
 const { standardRateLimit, authRateLimit, uploadRateLimit, webhookRateLimit } = require('./security/baseline/rateLimit');
 const { applySecurityHeaders, additionalSecurityHeaders, correlationId } = require('./security/baseline/securityHeaders');
 const { applyCors, strictCors, publicCors } = require('./security/baseline/cors');
@@ -359,12 +361,15 @@ app.get('/auth/discord/logout', (req, res) => {
   });
 });
 
-// Get current Discord user info
+// Get current Discord user info (enhanced with avatar URL)
 app.get('/api/discord/user', (req, res) => {
   if (req.user) {
     res.json({
       success: true,
-      user: req.user
+      user: {
+        ...req.user,
+        avatarUrl: getDiscordAvatarUrl(req.user)
+      }
     });
   } else {
     res.json({
@@ -373,6 +378,181 @@ app.get('/api/discord/user', (req, res) => {
     });
   }
 });
+
+// =============================================================================
+// PROFILE API ROUTES - Discord-linked user profiles for INI generators
+// =============================================================================
+
+// List user's profiles for a specific generator type
+app.get('/api/profiles/:generatorType', requireDiscordAuth, standardRateLimit, asyncHandler(async (req, res) => {
+  const { generatorType } = req.params;
+  const discordUserId = req.user.id;
+
+  // Validate generator type
+  if (!isValidGeneratorType(generatorType)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid generator type. Must be one of: ${VALID_GENERATOR_TYPES.join(', ')}`
+    });
+  }
+
+  const profiles = loadUserProfiles(discordUserId, generatorType);
+
+  res.json({
+    success: true,
+    profiles: profiles,
+    count: profiles.length,
+    maxProfiles: MAX_PROFILES_PER_TYPE
+  });
+}));
+
+// Get a specific profile
+app.get('/api/profiles/:generatorType/:profileId', requireDiscordAuth, standardRateLimit, asyncHandler(async (req, res) => {
+  const { generatorType, profileId } = req.params;
+  const discordUserId = req.user.id;
+
+  // Validate generator type
+  if (!isValidGeneratorType(generatorType)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid generator type. Must be one of: ${VALID_GENERATOR_TYPES.join(', ')}`
+    });
+  }
+
+  const profile = getProfile(discordUserId, generatorType, profileId);
+
+  if (!profile) {
+    return res.status(404).json({
+      success: false,
+      message: 'Profile not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    profile: profile
+  });
+}));
+
+// Create a new profile
+app.post('/api/profiles/:generatorType', requireDiscordAuth, uploadRateLimit, validate(profileSchema), asyncHandler(async (req, res) => {
+  const { generatorType } = req.params;
+  const discordUserId = req.user.id;
+  const { name, data } = req.body;
+
+  // Validate generator type
+  if (!isValidGeneratorType(generatorType)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid generator type. Must be one of: ${VALID_GENERATOR_TYPES.join(', ')}`
+    });
+  }
+
+  try {
+    const profile = createProfile(discordUserId, generatorType, { name, data });
+
+    res.status(201).json({
+      success: true,
+      message: 'Profile created successfully',
+      profile: {
+        id: profile.id,
+        name: profile.name,
+        generatorType: profile.generatorType,
+        createdAt: profile.createdAt
+      }
+    });
+  } catch (err) {
+    // Check for specific errors
+    if (err.message.includes('Maximum')) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    if (err.message.includes('exceeds maximum size')) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    throw err;
+  }
+}));
+
+// Update an existing profile
+app.put('/api/profiles/:generatorType/:profileId', requireDiscordAuth, uploadRateLimit, validate(profileUpdateSchema), asyncHandler(async (req, res) => {
+  const { generatorType, profileId } = req.params;
+  const discordUserId = req.user.id;
+  const { name, data } = req.body;
+
+  // Validate generator type
+  if (!isValidGeneratorType(generatorType)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid generator type. Must be one of: ${VALID_GENERATOR_TYPES.join(', ')}`
+    });
+  }
+
+  try {
+    const updatedProfile = updateProfile(discordUserId, generatorType, profileId, { name, data });
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      profile: {
+        id: updatedProfile.id,
+        name: updatedProfile.name,
+        generatorType: updatedProfile.generatorType,
+        updatedAt: updatedProfile.updatedAt
+      }
+    });
+  } catch (err) {
+    if (err.message === 'Profile not found') {
+      return res.status(404).json({
+        success: false,
+        message: 'Profile not found'
+      });
+    }
+    if (err.message.includes('exceeds maximum size')) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    throw err;
+  }
+}));
+
+// Delete a profile
+app.delete('/api/profiles/:generatorType/:profileId', requireDiscordAuth, standardRateLimit, asyncHandler(async (req, res) => {
+  const { generatorType, profileId } = req.params;
+  const discordUserId = req.user.id;
+
+  // Validate generator type
+  if (!isValidGeneratorType(generatorType)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid generator type. Must be one of: ${VALID_GENERATOR_TYPES.join(', ')}`
+    });
+  }
+
+  try {
+    deleteProfile(discordUserId, generatorType, profileId);
+
+    res.json({
+      success: true,
+      message: 'Profile deleted successfully'
+    });
+  } catch (err) {
+    if (err.message === 'Profile not found') {
+      return res.status(404).json({
+        success: false,
+        message: 'Profile not found'
+      });
+    }
+    throw err;
+  }
+}));
 
 // =============================================================================
 // API ROUTES
@@ -1713,13 +1893,13 @@ app.post('/api/webhook/game-ini-generated', webhookRateLimit, validate(webhookGa
     } else if (fileType.includes('MOTD.txt')) {
       generatorName = 'Rules/MOTD Generator (MOTD)';
     } else {
-      generatorName = 'TitanTech Hub Generator';
+      generatorName = 'TitanTech Generator';
     }
 
     // Create Discord embed
     const embed = {
       title: `${fileType} Generated`,
-      description: `A user has generated a ${fileType} file using the TitanTech Hub generator.`,
+      description: `A user has generated a ${fileType} file using the TitanTech generator.`,
       color: embedColor,
       fields: [
         {
@@ -1739,7 +1919,7 @@ app.post('/api/webhook/game-ini-generated', webhookRateLimit, validate(webhookGa
         }
       ],
       footer: {
-        text: 'TitanTech Hub'
+        text: 'TitanTech'
       },
       timestamp: new Date(timestamp).toISOString()
     };
@@ -1831,7 +2011,7 @@ app.use(globalErrorHandler);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n${'='.repeat(70)}`);
-  console.log(`TitanTech Hub Server`);
+  console.log(`TitanTech Server`);
   console.log(`${'='.repeat(70)}`);
   console.log(`Environment: ${NODE_ENV}`);
   console.log(`Server running at http://0.0.0.0:${PORT}/`);

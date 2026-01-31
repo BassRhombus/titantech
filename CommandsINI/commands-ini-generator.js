@@ -925,3 +925,58 @@ function handleDrop(e) {
 
     return false;
 }
+
+// =============================================================================
+// Profile Management Integration
+// =============================================================================
+
+/**
+ * Get current generator state for saving to profile
+ */
+function getProfileData() {
+    return {
+        roles: JSON.parse(JSON.stringify(roles)), // Deep copy
+        playerRoles: JSON.parse(JSON.stringify(playerRoles))
+    };
+}
+
+/**
+ * Load data from a profile into the generator
+ */
+function loadProfileData(data) {
+    if (data.roles && Array.isArray(data.roles)) {
+        roles = data.roles;
+    }
+    if (data.playerRoles && Array.isArray(data.playerRoles)) {
+        playerRoles = data.playerRoles;
+    }
+
+    // Re-render everything
+    renderRolesList();
+    renderPlayersList();
+    generatePreview();
+}
+
+/**
+ * Initialize profile manager if available
+ */
+function initProfileManager() {
+    if (typeof ProfileManager !== 'undefined') {
+        ProfileManager.init('commands-ini', {
+            getCurrentData: getProfileData,
+            loadData: loadProfileData,
+            onSaveSuccess: () => {
+                console.log('Commands.ini profile saved successfully');
+            },
+            onLoadSuccess: () => {
+                console.log('Commands.ini profile loaded successfully');
+            }
+        });
+    }
+}
+
+// Initialize profile manager after DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure ProfileManager script is loaded
+    setTimeout(initProfileManager, 100);
+});

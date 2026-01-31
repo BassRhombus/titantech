@@ -19,7 +19,7 @@ Comprehensive SEO and social media metadata has been added to all major pages of
 ### SEO Meta Tags
 - `meta name="description"` - Page descriptions optimized for search engines
 - `meta name="keywords"` - Relevant keywords for SEO
-- `meta name="author"` - TitanTech Hub
+- `meta name="author"` - TitanTech
 - `meta name="robots"` - index, follow (allows search engine indexing)
 
 ### Open Graph Tags (Discord, Facebook, LinkedIn)
@@ -31,7 +31,7 @@ Comprehensive SEO and social media metadata has been added to all major pages of
 - `og:image:alt` - Alt text for accessibility
 - `og:url` - Canonical URL for each page
 - `og:type` - website
-- `og:site_name` - TitanTech Hub
+- `og:site_name` - TitanTech
 - `og:locale` - en_US
 
 ### Twitter Card Tags

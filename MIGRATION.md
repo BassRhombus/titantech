@@ -178,7 +178,7 @@ curl -I https://titantech.party
 **Expected Startup Output:**
 ```
 ======================================================================
-TitanTech Hub Server
+TitanTech Server
 ======================================================================
 Environment: production
 Server running at http://0.0.0.0:25011/

@@ -1,8 +1,8 @@
-# Threat Model - TitanTech Hub
+# Threat Model - TitanTech
 
 ## Executive Summary
 
-This document identifies security threats to TitanTech Hub and documents mitigations implemented in the security baseline. The primary concern is **client-side tampering** (Fiddler/MITM attacks) leading to privilege escalation and unauthorized access.
+This document identifies security threats to TitanTech and documents mitigations implemented in the security baseline. The primary concern is **client-side tampering** (Fiddler/MITM attacks) leading to privilege escalation and unauthorized access.
 
 ## Assets
 

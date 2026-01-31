@@ -583,3 +583,60 @@ function autoFixErrors() {
     updatePreview(currentTab);
     updateLineCount(currentTab);
 }
+
+// =============================================================================
+// Profile Management Integration
+// =============================================================================
+
+/**
+ * Get current generator state for saving to profile
+ */
+function getProfileData() {
+    return {
+        rules: document.getElementById('rulesEditor').value,
+        motd: document.getElementById('motdEditor').value
+    };
+}
+
+/**
+ * Load data from a profile into the generator
+ */
+function loadProfileData(data) {
+    if (!data) return;
+
+    if (data.rules !== undefined) {
+        document.getElementById('rulesEditor').value = data.rules;
+        updatePreview('rules');
+        updateLineCount('rules');
+    }
+
+    if (data.motd !== undefined) {
+        document.getElementById('motdEditor').value = data.motd;
+        updatePreview('motd');
+        updateLineCount('motd');
+    }
+}
+
+/**
+ * Initialize profile manager if available
+ */
+function initProfileManager() {
+    if (typeof ProfileManager !== 'undefined') {
+        ProfileManager.init('rules-motd', {
+            getCurrentData: getProfileData,
+            loadData: loadProfileData,
+            onSaveSuccess: () => {
+                console.log('Rules/MOTD profile saved successfully');
+            },
+            onLoadSuccess: () => {
+                console.log('Rules/MOTD profile loaded successfully');
+            }
+        });
+    }
+}
+
+// Initialize profile manager after DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure ProfileManager script is loaded
+    setTimeout(initProfileManager, 100);
+});

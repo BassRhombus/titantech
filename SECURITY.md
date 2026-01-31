@@ -1,8 +1,8 @@
-# Security Policy - TitanTech Hub
+# Security Policy - TitanTech
 
 ## Overview
 
-This document describes the security baseline implemented for TitanTech Hub, including threat model, security controls, and operational procedures.
+This document describes the security baseline implemented for TitanTech, including threat model, security controls, and operational procedures.
 
 **Security Baseline Version:** 1.0.0
 **Last Updated:** 2025-01-XX
@@ -20,7 +20,7 @@ This document describes the security baseline implemented for TitanTech Hub, inc
 
 ## Security Baseline
 
-TitanTech Hub implements a comprehensive security baseline to protect against common web application vulnerabilities and prevent client-side tampering attacks.
+TitanTech implements a comprehensive security baseline to protect against common web application vulnerabilities and prevent client-side tampering attacks.
 
 ### Key Security Features
 
