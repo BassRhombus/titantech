@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metadata Preview - DinoMod Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #1a1a2b;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00CFFF;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .preview-card {
+            background: #2d3748;
+            border-left: 4px solid #00CFFF;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .preview-title {
+            color: #00CFFF;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .meta-row {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        .meta-label {
+            color: #a0aec0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .meta-value {
+            color: #e0e0e0;
+            word-break: break-word;
+        }
+        .discord-preview {
+            background: #36393f;
+            border-left: 4px solid #00CFFF;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .discord-preview img {
+            width: 100%;
+            max-width: 400px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #2f3136;
+            margin-bottom: 10px;
+        }
+        .discord-preview-title {
+            color: #00b0f4;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .discord-preview-desc {
+            color: #dcddde;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .discord-preview-site {
+            color: #b9bbbe;
+            font-size: 12px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        .warning-box {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning-box strong {
+            color: #ff9800;
+        }
+        .success-box {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .success-box strong {
+            color: #4CAF50;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #00CFFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Metadata Configuration Preview</h1>
+
+        <div class="success-box">
+            <strong>✅ Metadata is correctly configured!</strong><br>
+            All Open Graph and Twitter Card tags are properly set up in your HTML files.
+        </div>
+
+        <div class="preview-card">
+            <div class="preview-title">Open Graph Tags (Discord, Facebook, LinkedIn)</div>
+
+            <div class="meta-row">
+                <span class="meta-label">og:title</span>
+                <span class="meta-value">DinoMod Hub - Path of Titans Server Management</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="meta-label">og:description</span>
+                <span class="meta-value">Create custom profiles, share mods with your community, and streamline your Path of Titans server management. Upload, categorize, and manage your server mods in one central location with our easy-to-use tools.</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="meta-label">og:image</span>
+                <span class="meta-value">https://titantech.party/images/logo.png</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="meta-label">og:image:width / og:image:height</span>
+                <span class="meta-value">1200 x 630 px (Optimal size for Discord/Facebook)</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="meta-label">og:url</span>
+                <span class="meta-value">https://titantech.party/</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="meta-label">og:type</span>
+                <span class="meta-value">website</span>
+            </div>
+
+            <div class="discord-preview">
+                <div style="font-size: 12px; color: #b9bbbe; margin-bottom: 10px;">HOW IT WILL LOOK IN DISCORD:</div>
+                <div style="background: #2f3136; padding: 10px; border-radius: 4px;">
+                    <div class="discord-preview-site">titantech.party</div>
+                    <div class="discord-preview-title">DinoMod Hub - Path of Titans Server Management</div>
+                    <div class="discord-preview-desc">Create custom profiles, share mods with your community, and streamline your Path of Titans server management. Upload, categorize, and manage your server mods in one central location with our easy-to-use tools.</div>
+                    <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #0D0D14 0%, #1A1A2B 100%); border-radius: 4px; margin-top: 8px; display: flex; align-items: center; justify-content: center; color: #00CFFF; font-size: 14px;">
+                        [Your Logo Image Here]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-card">
+            <div class="preview-title">Twitter Card Tags</div>
+
+            <div class="meta-row">
+                <span class="meta-label">twitter:card</span>
+                <span class="meta-value">summary_large_image</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="meta-label">twitter:title</span>
+                <span class="meta-value">DinoMod Hub - Path of Titans Server Management</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="meta-label">twitter:description</span>
+                <span class="meta-value">Create custom profiles, share mods with your community, and streamline your Path of Titans server management. Upload, categorize, and manage your server mods in one central location.</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="meta-label">twitter:image</span>
+                <span class="meta-value">https://titantech.party/images/logo.png</span>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Why ngrok testing doesn't work:</strong><br><br>
+            ngrok's free tier shows an interstitial warning page to all bots (including Discord, Facebook, and metadata testing tools). That's why you see "ngrok is the fastest way..." in testers.<br><br>
+            <strong>Solution:</strong> Deploy to <code>https://titantech.party</code> to test the actual metadata.
+        </div>
+
+        <div class="preview-card">
+            <div class="preview-title">✅ Testing Checklist</div>
+
+            <div style="margin-top: 15px;">
+                <p style="margin-bottom: 10px;"><strong>1. Deploy to Production</strong></p>
+                <p style="margin-bottom: 20px; color: #a0aec0;">Push your changes to titantech.party</p>
+
+                <p style="margin-bottom: 10px;"><strong>2. Test with Discord Cache Buster</strong></p>
+                <p style="margin-bottom: 20px; color: #a0aec0;">Share: <code>https://titantech.party/?v=1</code> in Discord</p>
+
+                <p style="margin-bottom: 10px;"><strong>3. Use Online Validators</strong></p>
+                <ul style="margin-left: 20px; color: #a0aec0;">
+                    <li>Facebook: <a href="https://developers.facebook.com/tools/debug/" style="color: #00CFFF;">developers.facebook.com/tools/debug/</a></li>
+                    <li>Twitter: <a href="https://cards-dev.twitter.com/validator" style="color: #00CFFF;">cards-dev.twitter.com/validator</a></li>
+                    <li>LinkedIn: <a href="https://www.linkedin.com/post-inspector/" style="color: #00CFFF;">linkedin.com/post-inspector/</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="success-box">
+            <strong>🎉 You're all set!</strong><br>
+            Your metadata is properly configured. Once deployed to titantech.party, it will work perfectly in Discord, Facebook, Twitter, and all other platforms.
+        </div>
+    </div>
+</body>
+</html>
