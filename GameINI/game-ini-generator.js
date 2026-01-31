@@ -2191,4 +2191,135 @@ document.addEventListener('DOMContentLoaded', function() {
     if (resetBtn) {
         resetBtn.addEventListener('click', resetForm);
     }
+
+    // Initialize profile manager
+    setTimeout(initProfileManager, 100);
 });
+
+// =============================================================================
+// Profile Management Integration
+// =============================================================================
+
+/**
+ * Get current generator state for saving to profile
+ * Collects all changed settings from the form
+ */
+function getProfileData() {
+    const changedSettings = {};
+
+    // Collect all changed settings from the form
+    Object.keys(configData).forEach(sectionKey => {
+        const section = configData[sectionKey];
+        Object.keys(section).forEach(categoryKey => {
+            const category = section[categoryKey];
+            category.forEach(item => {
+                const element = document.getElementById(item.name);
+                if (element) {
+                    let currentValue;
+                    if (item.type === 'boolean') {
+                        currentValue = element.checked ? 'true' : 'false';
+                    } else {
+                        currentValue = element.value;
+                    }
+
+                    // Only save if different from default
+                    if (currentValue !== item.default) {
+                        changedSettings[item.name] = currentValue;
+                    }
+                }
+            });
+        });
+    });
+
+    // Include curve overrides if any
+    if (curveOverrides && curveOverrides.length > 0) {
+        changedSettings._curveOverrides = JSON.parse(JSON.stringify(curveOverrides));
+    }
+
+    return {
+        changedSettings: changedSettings
+    };
+}
+
+/**
+ * Load data from a profile into the generator
+ */
+function loadProfileData(data) {
+    if (!data || !data.changedSettings) return;
+
+    // Reset form first
+    Object.keys(configData).forEach(sectionKey => {
+        const section = configData[sectionKey];
+        Object.keys(section).forEach(categoryKey => {
+            const category = section[categoryKey];
+            category.forEach(item => {
+                const element = document.getElementById(item.name);
+                if (element) {
+                    if (item.type === 'boolean') {
+                        element.checked = item.default === 'true';
+                    } else {
+                        element.value = item.default;
+                    }
+                    // Remove changed class
+                    const configItem = element.closest('.config-item');
+                    if (configItem) {
+                        configItem.classList.remove('changed');
+                    }
+                }
+            });
+        });
+    });
+
+    // Reset curve overrides
+    curveOverrides = [];
+
+    // Apply saved settings
+    const changedSettings = data.changedSettings;
+    Object.keys(changedSettings).forEach(key => {
+        if (key === '_curveOverrides') {
+            // Handle curve overrides
+            curveOverrides = changedSettings[key];
+            renderCurveOverrides();
+            return;
+        }
+
+        const element = document.getElementById(key);
+        if (element) {
+            if (element.type === 'checkbox') {
+                element.checked = changedSettings[key] === 'true';
+            } else {
+                element.value = changedSettings[key];
+            }
+
+            // Trigger change detection
+            const configItem = element.closest('.config-item');
+            if (configItem) {
+                const item = findConfigItem(key);
+                if (item) {
+                    checkIfChanged(configItem, element, item.type, item.default);
+                }
+            }
+        }
+    });
+
+    // Regenerate preview
+    generateConfig();
+}
+
+/**
+ * Initialize profile manager if available
+ */
+function initProfileManager() {
+    if (typeof ProfileManager !== 'undefined') {
+        ProfileManager.init('game-ini', {
+            getCurrentData: getProfileData,
+            loadData: loadProfileData,
+            onSaveSuccess: () => {
+                console.log('Game.ini profile saved successfully');
+            },
+            onLoadSuccess: () => {
+                console.log('Game.ini profile loaded successfully');
+            }
+        });
+    }
+}
