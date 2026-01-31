@@ -28,6 +28,7 @@ function getHelmetConfig(isProduction = false) {
           "'self'",
           "'unsafe-inline'", // Required for inline styles
           "https://cdnjs.cloudflare.com",
+          "https://fonts.googleapis.com",
         ],
         imgSrc: [
           "'self'",
@@ -40,6 +41,7 @@ function getHelmetConfig(isProduction = false) {
         fontSrc: [
           "'self'",
           "https://cdnjs.cloudflare.com",
+          "https://fonts.gstatic.com",
         ],
         connectSrc: [
           "'self'",
