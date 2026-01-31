@@ -30,6 +30,9 @@ const { createShowcaseUpload, validateUploadedFile } = require('./security/basel
 
 const app = express();
 
+// Trust proxy - required for rate limiting when behind reverse proxy/load balancer
+app.set('trust proxy', true);
+
 // Environment configuration with validation
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const PORT = parseInt(process.env.PORT, 10) || 25011;
