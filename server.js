@@ -750,7 +750,7 @@ async function fetchModsFromAPI() {
 }
 
 // Community server submission - with image upload and validation
-app.post('/api/submit-server', uploadRateLimit, serverUpload.single('imageFile'), validateUploadedFile, validate(serverSubmissionSchema), asyncHandler(async (req, res) => {
+app.post('/api/submit-server', optionalAuth, uploadRateLimit, serverUpload.single('imageFile'), validateUploadedFile, validate(serverSubmissionSchema), asyncHandler(async (req, res) => {
   if (!req.file) {
     return res.status(400).json({
       success: false,

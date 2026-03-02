@@ -234,9 +234,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             const messages = jsonData.errors.map(err => err.message).join(', ');
                             throw new Error(messages);
                         }
-                        throw new Error(jsonData.message || 'Server error: ' + response.status);
+                        // Handle both response formats: { message } and { error: { message } }
+                        const msg = jsonData.message || (jsonData.error && jsonData.error.message);
+                        throw new Error(msg || 'Server error: ' + response.status);
                     } catch (parseErr) {
-                        if (parseErr.message.includes('Server error') || parseErr.message.includes('too large')) throw parseErr;
+                        if (parseErr.message && parseErr.message !== 'Unexpected token') throw parseErr;
                         throw new Error('Server error: ' + response.status);
                     }
                 });
