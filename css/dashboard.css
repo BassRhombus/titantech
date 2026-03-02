@@ -377,17 +377,94 @@
     }
 }
 
+/* Dashboard Sections */
+.dash-section {
+    display: none;
+}
+
+.dash-section.active {
+    display: block;
+}
+
+/* My Server Cards */
+.my-server-card {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #333;
+    transition: all 0.3s ease;
+}
+
+.my-server-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.my-server-image {
+    height: 140px;
+    overflow: hidden;
+}
+
+.my-server-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.my-server-info {
+    padding: 1rem;
+}
+
+.my-server-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+    color: white;
+}
+
+.my-server-info .server-ip {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 0.5rem;
+}
+
+/* Status badges in dashboard */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-badge.pending {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
+}
+
+.status-badge.approved {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+}
+
+.status-badge.rejected {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
+}
+
 @media (max-width: 768px) {
     .stats-overview {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .stat-card {
         width: 100%;
         max-width: 100%;
     }
-    
+
     .quick-actions {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }

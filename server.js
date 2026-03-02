@@ -16,7 +16,7 @@ const DiscordStrategy = require('passport-discord').Strategy;
 require('dotenv').config();
 
 // Security modules
-const { getSessionConfig, createUserSession, destroyUserSession } = require('./security/baseline/serverAuth');
+const { getSessionConfig, createUserSession, destroyUserSession, getUserFromSession } = require('./security/baseline/serverAuth');
 const { requireAuth, requireAdmin, optionalAuth } = require('./security/baseline/requireAuth');
 const { validate, commissionSubmissionSchema, commissionStatusUpdateSchema, showcaseSubmissionSchema, showcaseStatusUpdateSchema, serverSubmissionSchema, serverStatusUpdateSchema, webhookGameIniSchema, profileSchema, profileUpdateSchema, generatorTypeSchema } = require('./security/baseline/validation');
 const { requireDiscordAuth, getDiscordUser, getDiscordAvatarUrl } = require('./security/baseline/requireDiscordAuth');
@@ -762,6 +762,7 @@ app.post('/api/submit-server', uploadRateLimit, serverUpload.single('imageFile')
     });
   }
 
+  const user = getUserFromSession(req);
   const newServer = {
     id: uuidv4(),
     name: req.body.name,
@@ -771,6 +772,7 @@ app.post('/api/submit-server', uploadRateLimit, serverUpload.single('imageFile')
     ownerDiscord: req.body.ownerDiscord,
     serverIP: req.body.serverIP,
     queryPort: parseInt(req.body.queryPort, 10),
+    submittedBy: user ? user.username : req.body.ownerDiscord,
     submittedAt: new Date(),
     status: 'pending',
     approvedAt: null
@@ -788,6 +790,16 @@ app.post('/api/submit-server', uploadRateLimit, serverUpload.single('imageFile')
     throw new Error('Failed to save server submission to disk');
   }
 }));
+
+// Get servers submitted by the current user
+app.get('/api/my-servers', optionalAuth, (req, res) => {
+  const user = getUserFromSession(req);
+  if (!user) return res.json([]);
+  const mine = serverSubmissions.filter(s =>
+    s.submittedBy === user.username || s.ownerDiscord === user.username
+  );
+  res.json(mine);
+});
 
 // Public endpoint to get approved servers
 app.get('/api/approved-servers', (req, res) => {
