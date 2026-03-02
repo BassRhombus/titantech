@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - TitanTech</title>
     <link rel="stylesheet" href="css/style.css?v=1.5">
-    <link rel="stylesheet" href="css/admin.css?v=1.0">
+    <link rel="stylesheet" href="css/admin.css?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.1">
 </head>
 <body>
@@ -44,13 +44,12 @@
     <div class="admin-hero">
         <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
         <p>Manage server submissions and showcase items</p>
-        <div class="admin-user">Logged in as: <strong id="username">Loading...</strong></div>
+        <div class="admin-user">Logged in as: <strong id="adminUsername">Loading...</strong></div>
     </div>
 
-    <!-- Tab Navigation -->
     <div class="admin-tabs">
-        <button class="admin-tab-btn active" onclick="switchAdminTab('servers', this)"><i class="fas fa-server"></i> Server Submissions</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('showcase', this)"><i class="fas fa-images"></i> Showcase</button>
+        <button class="admin-tab-btn active" data-tab="servers"><i class="fas fa-server"></i> Server Submissions</button>
+        <button class="admin-tab-btn" data-tab="showcase"><i class="fas fa-images"></i> Showcase</button>
     </div>
 
     <div class="admin-content">
@@ -58,14 +57,14 @@
         <!-- Servers Tab -->
         <div id="servers-tab" class="admin-tab-content active">
             <div class="admin-controls">
-                <input type="text" id="serverSearchInput" placeholder="Search servers by name...">
-                <select id="serverStatusFilter">
+                <input type="text" id="serverSearch" placeholder="Search servers by name...">
+                <select id="serverFilter">
                     <option value="">All Status</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
                 </select>
-                <button class="refresh-btn" id="serverRefreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="refresh-btn" id="serverRefresh"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
             <table class="admin-table">
                 <thead>
@@ -79,23 +78,21 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="serverTableBody">
-                    <tr><td colspan="7" class="loading-data">Loading...</td></tr>
-                </tbody>
+                <tbody id="serverRows"></tbody>
             </table>
         </div>
 
         <!-- Showcase Tab -->
         <div id="showcase-tab" class="admin-tab-content">
             <div class="admin-controls">
-                <input type="text" id="showcaseSearchInput" placeholder="Search showcase by title...">
-                <select id="showcaseStatusFilter">
+                <input type="text" id="showcaseSearch" placeholder="Search showcase by title...">
+                <select id="showcaseFilter">
                     <option value="">All Status</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
                 </select>
-                <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="refresh-btn" id="showcaseRefresh"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
             <table class="admin-table">
                 <thead>
@@ -108,9 +105,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="showcaseTableBody">
-                    <tr><td colspan="6" class="loading-data">Loading...</td></tr>
-                </tbody>
+                <tbody id="showcaseRows"></tbody>
             </table>
         </div>
 
@@ -123,33 +118,222 @@
     </footer>
 
     <script src="js/main.js"></script>
-    <script src="js/admin-servers.js"></script>
-    <script src="js/admin-showcase.js"></script>
     <script>
-        // Admin auth check
+    (function() {
+        // =================================================================
+        // AUTH CHECK
+        // =================================================================
         fetch('/api/user')
-            .then(r => r.json())
-            .then(data => {
-                if (!data.loggedIn) {
-                    window.location.href = '/login.html';
-                    return;
-                }
-                if (!data.user.admin) {
-                    window.location.href = '/dashboard.html';
-                    return;
-                }
-                document.getElementById('username').textContent = data.user.username;
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.loggedIn) { window.location.href = '/login.html'; return; }
+                if (!data.user.admin) { window.location.href = '/dashboard.html'; return; }
+                document.getElementById('adminUsername').textContent = data.user.username;
             })
-            .catch(err => console.error('Auth check failed:', err));
+            .catch(function(err) { console.error('Auth failed:', err); });
 
-        // Tab switching
-        function switchAdminTab(tabName, btn) {
-            document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+        // =================================================================
+        // TAB SWITCHING
+        // =================================================================
+        document.querySelectorAll('.admin-tab-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var tabName = this.getAttribute('data-tab');
+                document.querySelectorAll('.admin-tab-content').forEach(function(t) { t.classList.remove('active'); });
+                document.querySelectorAll('.admin-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                document.getElementById(tabName + '-tab').classList.add('active');
+                this.classList.add('active');
+            });
+        });
 
-            document.getElementById(tabName + '-tab').classList.add('active');
-            btn.classList.add('active');
+        // =================================================================
+        // HELPERS
+        // =================================================================
+        function formatDate(d) {
+            try { return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+            catch(e) { return 'Unknown'; }
         }
+
+        function esc(str) {
+            var el = document.createElement('div');
+            el.textContent = str || '';
+            return el.innerHTML;
+        }
+
+        function badge(status) {
+            return '<span class="status-badge ' + status + '">' + status + '</span>';
+        }
+
+        function btns(id, status, type) {
+            var h = '<button class="view-btn" data-action="toggle" data-id="' + id + '" data-type="' + type + '"><i class="fas fa-eye"></i></button>';
+            if (status === 'pending') {
+                h += '<button class="approve-btn" data-action="approve" data-id="' + id + '" data-type="' + type + '"><i class="fas fa-check"></i></button>';
+                h += '<button class="reject-btn" data-action="reject" data-id="' + id + '" data-type="' + type + '"><i class="fas fa-times"></i></button>';
+            } else {
+                h += '<button class="edit-btn" data-action="change" data-id="' + id + '" data-type="' + type + '"><i class="fas fa-edit"></i></button>';
+            }
+            h += '<button class="delete-btn" data-action="delete" data-id="' + id + '" data-type="' + type + '"><i class="fas fa-trash-alt"></i></button>';
+            return h;
+        }
+
+        // =================================================================
+        // SERVERS
+        // =================================================================
+        var serverData = [];
+
+        function loadServers() {
+            var tbody = document.getElementById('serverRows');
+            tbody.innerHTML = '<tr><td colspan="7" class="loading-data">Loading server submissions...</td></tr>';
+            fetch('/api/admin/servers')
+                .then(function(r) { if (!r.ok) throw new Error('Error ' + r.status); return r.json(); })
+                .then(function(data) { serverData = data; renderServers(data); })
+                .catch(function(err) { tbody.innerHTML = '<tr><td colspan="7" class="error-message">' + err.message + '</td></tr>'; });
+        }
+
+        function renderServers(list) {
+            var tbody = document.getElementById('serverRows');
+            if (!list || !list.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-table">No server submissions found</td></tr>'; return; }
+            var html = '';
+            list.forEach(function(s) {
+                var st = s.status || 'pending';
+                html += '<tr data-id="' + s.id + '">' +
+                    '<td><div class="thumbnail-container"><img src="' + (s.imagePath || 'images/placeholder.jpg') + '"></div></td>' +
+                    '<td>' + esc(s.name) + '</td><td>' + esc(s.ownerDiscord) + '</td>' +
+                    '<td>' + esc(s.serverIP) + ':' + (s.queryPort || '') + '</td>' +
+                    '<td>' + formatDate(s.submittedAt) + '</td><td>' + badge(st) + '</td>' +
+                    '<td class="action-buttons">' + btns(s.id, st, 'server') + '</td></tr>';
+                html += '<tr id="detail-server-' + s.id + '" class="detail-row"><td colspan="7"><div class="submission-detail">' +
+                    '<div class="submission-image"><img src="' + (s.imagePath || 'images/placeholder.jpg') + '"></div>' +
+                    '<div class="submission-info"><h3>' + esc(s.name) + '</h3>' +
+                    '<p><strong>Description:</strong> ' + esc(s.description) + '</p>' +
+                    '<p><strong>Owner:</strong> ' + esc(s.ownerDiscord) + '</p>' +
+                    '<p><strong>Discord:</strong> <a href="' + esc(s.discordInvite) + '" target="_blank" style="color:var(--primary-light)">' + esc(s.discordInvite) + '</a></p>' +
+                    '<p><strong>Server IP:</strong> ' + esc(s.serverIP) + ' <strong>Port:</strong> ' + (s.queryPort || '') + '</p>' +
+                    '<p><strong>Submitted:</strong> ' + formatDate(s.submittedAt) + '</p>' +
+                    '<p><strong>Status:</strong> ' + badge(st) + '</p>' +
+                    (s.rejectionReason ? '<p><strong>Reason:</strong> ' + esc(s.rejectionReason) + '</p>' : '') +
+                    '<div class="detail-actions">' + btns(s.id, st, 'server') + '</div>' +
+                    '</div></div></td></tr>';
+            });
+            tbody.innerHTML = html;
+        }
+
+        function filterServers() {
+            var q = document.getElementById('serverSearch').value.toLowerCase();
+            var st = document.getElementById('serverFilter').value;
+            renderServers(serverData.filter(function(s) {
+                return (s.name || '').toLowerCase().indexOf(q) !== -1 && (!st || s.status === st);
+            }));
+        }
+
+        document.getElementById('serverRefresh').addEventListener('click', loadServers);
+        document.getElementById('serverSearch').addEventListener('input', filterServers);
+        document.getElementById('serverFilter').addEventListener('change', filterServers);
+
+        // =================================================================
+        // SHOWCASE
+        // =================================================================
+        var showcaseData = [];
+
+        function loadShowcase() {
+            var tbody = document.getElementById('showcaseRows');
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-data">Loading showcase submissions...</td></tr>';
+            fetch('/api/admin/showcase')
+                .then(function(r) { if (!r.ok) throw new Error('Error ' + r.status); return r.json(); })
+                .then(function(data) { showcaseData = data; renderShowcase(data); })
+                .catch(function(err) { tbody.innerHTML = '<tr><td colspan="6" class="error-message">' + err.message + '</td></tr>'; });
+        }
+
+        function renderShowcase(list) {
+            var tbody = document.getElementById('showcaseRows');
+            if (!list || !list.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-table">No showcase submissions found</td></tr>'; return; }
+            var html = '';
+            list.forEach(function(s) {
+                var st = s.status || 'pending';
+                html += '<tr data-id="' + s.id + '">' +
+                    '<td><div class="thumbnail-container"><img src="' + (s.imagePath || 'images/placeholder.jpg') + '"></div></td>' +
+                    '<td>' + esc(s.imageTitle) + '</td><td>' + esc(s.authorName) + '</td>' +
+                    '<td>' + formatDate(s.submittedAt) + '</td><td>' + badge(st) + '</td>' +
+                    '<td class="action-buttons">' + btns(s.id, st, 'showcase') + '</td></tr>';
+                html += '<tr id="detail-showcase-' + s.id + '" class="detail-row"><td colspan="6"><div class="submission-detail">' +
+                    '<div class="submission-image"><img src="' + (s.imagePath || 'images/placeholder.jpg') + '"></div>' +
+                    '<div class="submission-info"><h3>' + esc(s.imageTitle) + '</h3>' +
+                    '<p><strong>Description:</strong> ' + esc(s.imageDescription || 'No description') + '</p>' +
+                    '<p><strong>Author:</strong> ' + esc(s.authorName) + '</p>' +
+                    '<p><strong>Submitted:</strong> ' + formatDate(s.submittedAt) + '</p>' +
+                    '<p><strong>Status:</strong> ' + badge(st) + '</p>' +
+                    '<div class="detail-actions">' + btns(s.id, st, 'showcase') + '</div>' +
+                    '</div></div></td></tr>';
+            });
+            tbody.innerHTML = html;
+        }
+
+        function filterShowcase() {
+            var q = document.getElementById('showcaseSearch').value.toLowerCase();
+            var st = document.getElementById('showcaseFilter').value;
+            renderShowcase(showcaseData.filter(function(s) {
+                return (s.imageTitle || '').toLowerCase().indexOf(q) !== -1 && (!st || s.status === st);
+            }));
+        }
+
+        document.getElementById('showcaseRefresh').addEventListener('click', loadShowcase);
+        document.getElementById('showcaseSearch').addEventListener('input', filterShowcase);
+        document.getElementById('showcaseFilter').addEventListener('change', filterShowcase);
+
+        // =================================================================
+        // ACTION HANDLER (single delegated listener)
+        // =================================================================
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('[data-action]');
+            if (!btn) return;
+
+            var action = btn.getAttribute('data-action');
+            var id = btn.getAttribute('data-id');
+            var type = btn.getAttribute('data-type');
+            var api = type === 'server' ? '/api/admin/servers/' : '/api/admin/showcase/';
+
+            if (action === 'toggle') {
+                var row = document.getElementById('detail-' + type + '-' + id);
+                if (row) row.style.display = row.style.display === 'table-row' ? 'none' : 'table-row';
+                return;
+            }
+
+            if (action === 'approve') {
+                if (!confirm('Approve this submission?')) return;
+                doUpdate(api + id, 'approved', '', type);
+            } else if (action === 'reject') {
+                var reason = prompt('Reason for rejection (optional):');
+                if (reason === null) return;
+                doUpdate(api + id, 'rejected', reason, type);
+            } else if (action === 'change') {
+                var ns = prompt('Enter new status (pending, approved, rejected):');
+                if (!ns || ['pending','approved','rejected'].indexOf(ns) === -1) { if (ns) alert('Invalid status'); return; }
+                doUpdate(api + id, ns, '', type);
+            } else if (action === 'delete') {
+                if (!confirm('Delete this submission? This cannot be undone.')) return;
+                fetch(api + id, { method: 'DELETE' })
+                    .then(function(r) { if (!r.ok) throw new Error('Error ' + r.status); return r.json(); })
+                    .then(function() { alert('Deleted'); type === 'server' ? loadServers() : loadShowcase(); })
+                    .catch(function(err) { alert('Delete failed: ' + err.message); });
+            }
+        });
+
+        function doUpdate(url, status, reason, type) {
+            fetch(url, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: status, reason: reason || '' })
+            })
+            .then(function(r) { if (!r.ok) throw new Error('Error ' + r.status); return r.json(); })
+            .then(function() { alert('Status updated to "' + status + '"'); type === 'server' ? loadServers() : loadShowcase(); })
+            .catch(function(err) { alert('Update failed: ' + err.message); });
+        }
+
+        // =================================================================
+        // INIT
+        // =================================================================
+        loadServers();
+        loadShowcase();
+    })();
     </script>
 </body>
 </html>

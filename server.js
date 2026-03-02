@@ -383,9 +383,14 @@ app.get('/auth/discord', passport.authenticate('discord'));
 // Discord callback
 app.get('/auth/discord/callback',
   passport.authenticate('discord', { failureRedirect: '/suggestions.html?error=discord_auth_failed' }),
-  (req, res) => {
-    // Successful authentication
-    console.log(`[${req.correlationId}] Discord user logged in: ${req.user.username} (${req.user.id}), Moderator: ${req.user.isModerator}`);
+  async (req, res) => {
+    // Create proper session with admin flag mapped from isModerator
+    await createUserSession(req, {
+      id: req.user.id,
+      username: req.user.username,
+      admin: req.user.isModerator || false
+    });
+    console.log(`[${req.correlationId}] Discord user logged in: ${req.user.username} (${req.user.id}), Admin: ${req.user.isModerator}`);
     res.redirect('/suggestions.html?auth=success');
   }
 );
