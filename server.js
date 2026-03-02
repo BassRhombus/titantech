@@ -30,8 +30,8 @@ const { createShowcaseUpload, createServerUpload, validateUploadedFile } = requi
 
 const app = express();
 
-// Trust proxy - required for rate limiting when behind reverse proxy/load balancer
-app.set('trust proxy', true);
+// Trust proxy - 1 means trust first proxy hop (required for rate limiting behind reverse proxy)
+app.set('trust proxy', 1);
 
 // Environment configuration with validation
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -224,11 +224,7 @@ const users = [
   }
 ];
 
-// Trust proxy for secure cookies when behind reverse proxy
-if (isProduction || process.env.TRUST_PROXY === 'true') {
-  app.set('trust proxy', 1);
-  console.log('Trust proxy enabled');
-}
+// Trust proxy already set at startup (trust proxy = 1)
 
 // =============================================================================
 // SECURITY MIDDLEWARE - Apply these BEFORE route handlers
