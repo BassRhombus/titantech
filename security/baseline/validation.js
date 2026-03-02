@@ -81,6 +81,13 @@ const serverSubmissionSchema = z.object({
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(1000),
   discordInvite: z.string().url('Invalid Discord invite URL').regex(/discord\.(gg|com\/invite)\//, 'Must be a valid Discord invite'),
   ownerDiscord: schemas.discordUsername,
+  serverIP: z.string().trim().regex(/^(\d{1,3}\.){3}\d{1,3}$/, 'Must be a valid IPv4 address'),
+  queryPort: z.coerce.number().int().min(1, 'Port must be between 1 and 65535').max(65535, 'Port must be between 1 and 65535'),
+});
+
+const serverStatusUpdateSchema = z.object({
+  status: schemas.showcaseStatus,
+  reason: z.string().trim().max(500).optional(),
 });
 
 /**
@@ -237,6 +244,7 @@ module.exports = {
   showcaseSubmissionSchema,
   showcaseStatusUpdateSchema,
   serverSubmissionSchema,
+  serverStatusUpdateSchema,
   webhookGameIniSchema,
   profileSchema,
   profileUpdateSchema,

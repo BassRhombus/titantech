@@ -18,7 +18,7 @@ require('dotenv').config();
 // Security modules
 const { getSessionConfig, createUserSession, destroyUserSession } = require('./security/baseline/serverAuth');
 const { requireAuth, requireAdmin, optionalAuth } = require('./security/baseline/requireAuth');
-const { validate, commissionSubmissionSchema, commissionStatusUpdateSchema, showcaseSubmissionSchema, showcaseStatusUpdateSchema, serverSubmissionSchema, webhookGameIniSchema, profileSchema, profileUpdateSchema, generatorTypeSchema } = require('./security/baseline/validation');
+const { validate, commissionSubmissionSchema, commissionStatusUpdateSchema, showcaseSubmissionSchema, showcaseStatusUpdateSchema, serverSubmissionSchema, serverStatusUpdateSchema, webhookGameIniSchema, profileSchema, profileUpdateSchema, generatorTypeSchema } = require('./security/baseline/validation');
 const { requireDiscordAuth, getDiscordUser, getDiscordAvatarUrl } = require('./security/baseline/requireDiscordAuth');
 const { loadUserProfiles, getProfile, createProfile, updateProfile, deleteProfile, getProfileCount, isValidGeneratorType, VALID_GENERATOR_TYPES, MAX_PROFILES_PER_TYPE } = require('./security/baseline/profileManager');
 const { standardRateLimit, authRateLimit, uploadRateLimit, webhookRateLimit } = require('./security/baseline/rateLimit');
@@ -26,7 +26,7 @@ const { applySecurityHeaders, additionalSecurityHeaders, correlationId } = requi
 const { applyCors, strictCors, publicCors } = require('./security/baseline/cors');
 const { requireHmacWebhook } = require('./security/baseline/webhookVerify');
 const { globalErrorHandler, notFoundHandler, asyncHandler } = require('./security/baseline/error');
-const { createShowcaseUpload, validateUploadedFile } = require('./security/baseline/uploads');
+const { createShowcaseUpload, createServerUpload, validateUploadedFile } = require('./security/baseline/uploads');
 
 const app = express();
 
@@ -55,6 +55,7 @@ const dataDir = path.join(__dirname, 'data');
 const commissionsFile = path.join(dataDir, 'commissions.json');
 const showcaseFile = path.join(dataDir, 'showcase.json');
 const suggestionsFile = path.join(dataDir, 'suggestions.json');
+const serversFile = path.join(dataDir, 'servers.json');
 
 // Configuration from environment variables
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
@@ -69,8 +70,9 @@ const GSH_API_HOST = process.env.GSH_API_HOST || 'pot-api.gsh-servers.com';
 const isProduction = NODE_ENV === 'production';
 const isDevelopment = NODE_ENV === 'development';
 
-// Create secure upload middleware (replaces old multer config)
+// Create secure upload middleware
 const upload = createShowcaseUpload();
+const serverUpload = createServerUpload();
 
 // Create data directory if it doesn't exist
 if (!fs.existsSync(dataDir)) {
@@ -82,6 +84,7 @@ if (!fs.existsSync(dataDir)) {
 let commissions = [];
 let showcaseItems = [];
 let suggestions = [];
+let serverSubmissions = [];
 
 // Load existing commissions from JSON file
 function loadCommissions() {
@@ -170,15 +173,45 @@ function saveSuggestions() {
   }
 }
 
+// Load server submissions from JSON file
+function loadServerSubmissions() {
+  try {
+    if (fs.existsSync(serversFile)) {
+      const data = fs.readFileSync(serversFile, 'utf8');
+      serverSubmissions = JSON.parse(data);
+      console.log(`Loaded ${serverSubmissions.length} server submissions from ${serversFile}`);
+    } else {
+      console.log(`No servers file found at ${serversFile}, starting with empty array`);
+      saveServerSubmissions();
+    }
+  } catch (err) {
+    console.error(`Error loading server submissions from ${serversFile}:`, err);
+    serverSubmissions = [];
+  }
+}
+
+// Save server submissions to JSON file
+function saveServerSubmissions() {
+  try {
+    fs.writeFileSync(serversFile, JSON.stringify(serverSubmissions, null, 2), 'utf8');
+    console.log(`Saved ${serverSubmissions.length} server submissions to ${serversFile}`);
+    return true;
+  } catch (err) {
+    console.error(`Error saving server submissions to ${serversFile}:`, err);
+    return false;
+  }
+}
+
 // Generate a unique ID for commissions
 function generateId() {
   return 'commission_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
-// Load commissions, showcase items, and suggestions at startup
+// Load commissions, showcase items, suggestions, and server submissions at startup
 loadCommissions();
 loadShowcaseItems();
 loadSuggestions();
+loadServerSubmissions();
 
 // Simple in-memory user store (replace with database in production)
 // SECURITY NOTE: These are temporary users. In production, use a proper database with hashed passwords.
@@ -715,56 +748,121 @@ async function fetchModsFromAPI() {
   });
 }
 
-// Community server submission - requires authentication and validation
-app.post('/api/submit-server', requireAuth, validate(serverSubmissionSchema), asyncHandler(async (req, res) => {
-  // In production, store this in a database
-  console.log(`[${req.correlationId}] Server submission from user ${req.user.id}:`, req.body);
-  res.json({ success: true, message: 'Server submitted for approval' });
+// Community server submission - with image upload and validation
+app.post('/api/submit-server', uploadRateLimit, serverUpload.single('imageFile'), validateUploadedFile, validate(serverSubmissionSchema), asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      message: 'No image file provided. Please upload a server logo or banner.'
+    });
+  }
+
+  const newServer = {
+    id: uuidv4(),
+    name: req.body.name,
+    description: req.body.description,
+    imagePath: '/uploads/servers/' + req.file.filename,
+    discordInvite: req.body.discordInvite,
+    ownerDiscord: req.body.ownerDiscord,
+    serverIP: req.body.serverIP,
+    queryPort: parseInt(req.body.queryPort, 10),
+    submittedAt: new Date(),
+    status: 'pending',
+    approvedAt: null
+  };
+
+  serverSubmissions.push(newServer);
+
+  if (saveServerSubmissions()) {
+    console.log(`[${req.correlationId}] Server submission saved: ${newServer.name} (${newServer.id})`);
+    res.json({
+      success: true,
+      message: 'Your server has been submitted and is pending review by our team.'
+    });
+  } else {
+    throw new Error('Failed to save server submission to disk');
+  }
 }));
+
+// Public endpoint to get approved servers
+app.get('/api/approved-servers', (req, res) => {
+  const approved = serverSubmissions.filter(s => s.status === 'approved');
+  res.json(approved);
+});
 
 // =============================================================================
 // ADMIN API ROUTES - All require authentication AND admin privileges
 // =============================================================================
 
-// Admin endpoint to get pending submissions
+// Admin endpoint to get pending server submissions
 app.get('/api/admin/pending-servers', requireAuth, requireAdmin, (req, res) => {
-  // In production, fetch these from database
-  const mockPendingServers = [];
-  res.json(mockPendingServers);
+  const pending = serverSubmissions.filter(s => s.status === 'pending');
+  res.json(pending);
 });
 
-// Server management API endpoints
+// Admin endpoint to get all server submissions
 app.get('/api/admin/servers', requireAuth, requireAdmin, (req, res) => {
-  // In a real app, fetch from database
-  const mockServers = [
-    {
-      id: 1,
-      name: "Jurassic Journey",
-      owner: "DinoMaster",
-      ownerID: "1",
-      submitted: "2023-05-15",
-      status: "active"
-    },
-    {
-      id: 2,
-      name: "Dino Haven",
-      owner: "RexLover",
-      ownerID: "2",
-      submitted: "2023-06-20",
-      status: "pending"
-    },
-    {
-      id: 3,
-      name: "Prehistoric Paradise",
-      owner: "DinoQueen",
-      ownerID: "3",
-      submitted: "2023-07-05",
-      status: "reported"
-    }
-  ];
-  
-  res.json(mockServers);
+  res.json(serverSubmissions);
 });
+
+// Admin endpoint to update server submission status
+app.put('/api/admin/servers/:id', requireAuth, requireAdmin, validate(serverStatusUpdateSchema), asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status, reason } = req.body;
+
+  const index = serverSubmissions.findIndex(s => s.id === id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Server submission not found' });
+  }
+
+  serverSubmissions[index].status = status;
+
+  if (reason) {
+    serverSubmissions[index].rejectionReason = reason;
+  }
+
+  if (status === 'approved') {
+    serverSubmissions[index].approvedAt = new Date();
+  } else if (status === 'rejected') {
+    serverSubmissions[index].rejectedAt = new Date();
+  }
+
+  if (saveServerSubmissions()) {
+    res.json({ success: true, message: 'Server submission status updated', item: serverSubmissions[index] });
+  } else {
+    throw new Error('Failed to save updated server submission to disk');
+  }
+}));
+
+// Admin endpoint to delete a server submission
+app.delete('/api/admin/servers/:id', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const index = serverSubmissions.findIndex(s => s.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Server submission not found' });
+  }
+
+  const deleted = serverSubmissions.splice(index, 1)[0];
+
+  // Try to delete the image file
+  if (deleted.imagePath) {
+    const fullPath = path.join(__dirname, deleted.imagePath);
+    try {
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
+    } catch (err) {
+      console.error('Error deleting server image:', err);
+    }
+  }
+
+  if (saveServerSubmissions()) {
+    res.json({ success: true, message: 'Server submission deleted' });
+  } else {
+    throw new Error('Failed to save after deleting server submission');
+  }
+}));
 
 // Commission form endpoint - with rate limiting and validation
 app.post('/api/commission', uploadRateLimit, validate(commissionSubmissionSchema), asyncHandler(async (req, res) => {

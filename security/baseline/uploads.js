@@ -261,12 +261,29 @@ async function deleteFileSafely(filePath) {
   }
 }
 
+/**
+ * Secure server logo/banner upload middleware
+ */
+function createServerUpload() {
+  const uploadDir = path.join(__dirname, '../../uploads/servers');
+
+  return multer({
+    storage: createSecureStorage(uploadDir, true),
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB for server images
+      files: 1,
+    },
+    fileFilter: imageFileFilter,
+  });
+}
+
 module.exports = {
   generateSecureFilename,
   createSecureStorage,
   imageFileFilter,
   createImageUpload,
   createShowcaseUpload,
+  createServerUpload,
   validateFileContent,
   validateUploadedFile,
   cleanupOldUploads,
