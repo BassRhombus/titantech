@@ -23,6 +23,8 @@ function getHelmetConfig(isProduction = false) {
           "'unsafe-inline'", // Required for inline scripts and onclick handlers
           "https://cdnjs.cloudflare.com",
           "https://pagead2.googlesyndication.com",
+          "https://www.googletagservices.com",
+          "https://adservice.google.com",
         ],
         styleSrc: [
           "'self'",
@@ -33,10 +35,12 @@ function getHelmetConfig(isProduction = false) {
         imgSrc: [
           "'self'",
           "data:",
+          "blob:",
           "https:",
           "https://cdn.discordapp.com",
           "https://web-cdn.alderongames.com",
           "https://via.placeholder.com",
+          "https://pagead2.googlesyndication.com",
         ],
         fontSrc: [
           "'self'",
@@ -47,6 +51,9 @@ function getHelmetConfig(isProduction = false) {
           "'self'",
           "https://pot-api.gsh-servers.com",
           "https://discord.com",
+          "https://pagead2.googlesyndication.com",
+          "https://*.adtrafficquality.google",
+          "https://*.google.com",
         ],
         frameSrc: [
           "'self'",
@@ -54,6 +61,8 @@ function getHelmetConfig(isProduction = false) {
           "https://www.youtube.com",
           "https://youtube.com",
           "https://www.myinstants.com",
+          "https://googleads.g.doubleclick.net",
+          "https://pagead2.googlesyndication.com",
         ],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],

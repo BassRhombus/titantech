@@ -138,8 +138,9 @@ function validate(schema, source = 'body') {
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const errors = error.errors.map(err => ({
-          field: err.path.join('.'),
+        const issues = error.issues || error.errors || [];
+        const errors = issues.map(err => ({
+          field: (err.path || []).join('.'),
           message: err.message,
         }));
 
@@ -150,12 +151,9 @@ function validate(schema, source = 'body') {
         });
       }
 
-      // Unexpected error
-      console.error('Validation error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal validation error',
-      });
+      // Unexpected error - pass to Express error handler
+      console.error('Validation middleware error:', error.message, error.stack);
+      next(error);
     }
   };
 }
