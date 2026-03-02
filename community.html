@@ -604,7 +604,7 @@
                         <li><a href="mod-manager.html">Mod Manager</a></li>
                     </ul>
                 </li>
-                <li><a href="community.html" class="active disabled">Community</a></li>
+                <li><a href="community.html" class="active">Community</a></li>
                 <li><a href="suggestions.html">Mod Map Suggestions</a></li>
                 <li><a href="bots.html">Bots/Scripts</a></li>
                 <li><a href="showcase.html" class="disabled">Showcase</a></li>
@@ -621,20 +621,20 @@
 
     <main>
         <section class="community-intro">
-            <h2>TitanTech Community</h2>
-            <p>Connect with Path of Titans servers and join their communities</p>
+            <h2>Community Servers</h2>
+            <p>Discover and advertise Path of Titans servers. Browse live servers or check out our featured picks below.</p>
         </section>
 
         <!-- Tab Navigation -->
         <div class="tabs-container">
-            <button class="tab-btn active" id="featured-tab-btn">Featured Servers</button>
-            <button class="tab-btn disabled" id="browser-tab-btn">Server Browser - Under Maintenance</button>
+            <button class="tab-btn active" id="featured-tab-btn" onclick="switchTab('featured')">Featured Servers</button>
+            <button class="tab-btn" id="browser-tab-btn" onclick="switchTab('browser')">Server Browser</button>
         </div>
 
         <!-- Featured Servers Tab -->
         <div id="featured-tab" class="tab-content active">
             <section class="server-list-container">
-                <h2>Featured Servers (examples)</h2>
+                <h2>Featured Servers</h2>
 
                 <div class="server-list-horizontal">
                 <!-- Server 1 -->
