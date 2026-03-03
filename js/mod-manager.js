@@ -128,12 +128,19 @@ async function loadModsData() {
         // Load from local file which is kept updated by the update-mods.js script
         const response = await fetch('ModINI/public/mods_details.json?' + new Date().getTime());
         const modsData = await response.json();
-        
+
         // Sort mods alphabetically by name (case-insensitive)
         modsData.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-        
+
         window.modsData = modsData; // Store for filtering
-        displayMods(modsData);
+
+        // Re-apply search filter if user has typed something
+        var searchInput = document.getElementById('searchInput');
+        if (searchInput && searchInput.value.trim()) {
+            filterMods();
+        } else {
+            displayMods(modsData);
+        }
         updateLastRefreshed(); // Update the timestamp
         return Promise.resolve();
     } catch (error) {
