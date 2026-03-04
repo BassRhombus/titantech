@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Mod Manager - Path of Titans | TitanTech</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Browse and select Path of Titans mods for your server. Generate GameUserSettings.ini files with your custom mod selection easily.">
+    <meta name="keywords" content="Mod Manager, Path of Titans, POT mods, server mods, mod selector, GameUserSettings.ini">
+    <meta name="author" content="TitanTech">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Mod Manager - Path of Titans Mod Selector">
+    <meta property="og:description" content="Browse, select, and manage Path of Titans mods for your server with our easy-to-use mod manager">
+    <meta property="og:image" content="https://titantech.party/images/logo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TitanTech">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mod Manager - Path of Titans">
+    <meta name="twitter:description" content="Select and manage mods for your Path of Titans server">
+    <meta name="twitter:image" content="https://titantech.party/images/logo.png">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#00CFFF"> <link rel="stylesheet" href="css/style.css?v=1.5"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.1"> <link rel="stylesheet" href="css/mod-manager.css?v=1.1"> <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1883759877039329" crossorigin="anonymous"></script> </head> <body> <header> <div class="logo-container"> <img src="images/logo.png" alt="TitanTech Logo" class="logo"> <h1>TitanTech</h1> </div> <nav> <ul class="nav-links"> <li><a href="index.html">Home</a></li> <li class="dropdown"> <a href="#" class="active dropdown-toggle">Tools <i class="fas fa-chevron-down"></i></a> <ul class="dropdown-menu"> <li><a href="game-ini-generator.html">Game.ini Generator</a></li> <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li> <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li> <li><a href="mod-manager.html">Mod Manager</a></li> </ul> </li> <li><a href="community.html">Community</a></li> <li><a href="suggestions.html">Mod Map Suggestions</a></li> <li><a href="bots.html">Bots/Scripts</a></li> <li><a href="showcase.html" class="disabled">Showcase</a></li> <li><a href="about.html">About</a></li> <li><a href="login.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</a></li> </ul> <div class="hamburger"> <div class="line"></div> <div class="line"></div> <div class="line"></div> </div> </nav>
+    </header>
+    
+    <section class="mod-manager-intro">
+        <h2>Path of Titans Mod Selector</h2>
+        <p>Select mods and generate your configuration file</p>
+    </section>
+    
+    <main>
+        <div class="mod-manager-content">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search mods by name, description, or ID...">
+            </div>
+
+            <div style="background: rgba(0, 207, 255, 0.1); border: 1px solid #00CFFF; border-radius: 8px; padding: 1rem; margin: 1rem 0; color: #e0e0e0;">
+                <strong style="color: #00CFFF;"><i class="fas fa-folder-open"></i> File Location:</strong>
+                Place your generated GameUserSettings.ini file in:<br>
+                <code style="display: block; margin-top: 8px; padding: 8px; background: rgba(0, 0, 0, 0.5); border-radius: 4px; font-size: 0.95rem;">
+                    PathOfTitans/Saved/Config/LinuxServer/GameUserSettings.ini
+                </code>
+            </div>
+
+            <div class="controls">
+                <button id="generateBtn">Generate Config</button>
+                <button id="selectAllBtn">Select All</button>
+                <button id="deselectAllBtn">Deselect All</button>
+                <button id="uploadIniBtn">Upload GameUserSettings.ini</button>
+                <button id="checkIniBtn">Check INI for Issues</button>
+                <input type="file" id="iniFileInput" accept=".ini" style="display:none;" />
+                <input type="file" id="checkIniFileInput" accept=".ini" style="display:none;" />
+            </div>
+    
+            <div id="modsContainer" class="mods-container">
+                <!-- Mods will be loaded here via JavaScript -->
+            </div>
+            
+            <!-- Preview Box -->
+            <div id="configPreview" class="config-preview" style="display: none;">
+                <div class="preview-header">
+                    <h3><i class="fas fa-eye"></i> Configuration Preview</h3>
+                    <button id="togglePreview" class="preview-toggle">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </div>
+                <div class="preview-content">
+                    <div class="preview-info">
+                        <p><strong>Selected Mods:</strong> <span id="selectedCount">0</span></p>
+                        <p><strong>Config File:</strong> GameUserSettings.ini</p>
+                    </div>
+                    <div class="preview-code">
+                        <pre id="previewCode">[PathOfTitans.Mods]
+# No mods selected</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Validation Results Modal -->
+            <div id="validationModal" class="validation-modal" style="display: none;">
+                <div class="validation-modal-content">
+                    <div class="validation-modal-header">
+                        <h3><i class="fas fa-clipboard-check"></i> INI File Validation Results</h3>
+                        <button id="closeValidationModal" class="close-modal">&times;</button>
+                    </div>
+                    <div id="validationResults" class="validation-results">
+                        <!-- Results will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/footer-logo.png" alt="TitanTech">
+                <p>TitanTech - Path of Titans Server Management</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="mod-manager.html">Mod Manager</a></li>
+                    <li><a href="community.html">Community</a></li>
+                    <li><a href="bots.html">Bots/Scripts</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Connect With Us</h4>
+                <div class="social-icons">
+                    <a href="https://discord.gg/bgvCWqdW" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025. Not affiliated with Path of Titans.</p>
+            <p class="disclaimer">Not an official GSH Tool</p>
+        </div>
+    </footer>
+    
+    <script src="js/mod-manager.js?v=1.2"></script>
+    <script src="js/mod-preview.js?v=1.0"></script>
+    <script src="js/main.js"></script>
+
+    <style>
+        .disclaimer {
+            color: #888;
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</body> </html>

@@ -1,16 +1,21 @@
-# Node.js dependencies
+# Dependencies
 node_modules/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
 package-lock.json
 
-# Environment variables and config
+# Next.js
+.next/
+out/
+
+# Environment variables
 .env
 .env.local
 .env.development
 .env.test
 .env.production
+.env*.local
 
 # Log files
 logs/
@@ -26,8 +31,6 @@ desktop.ini
 .vscode/
 *.sublime-project
 *.sublime-workspace
-.project
-.classpath
 
 # Build directories
 dist/
@@ -39,15 +42,17 @@ tmp/
 temp/
 .cache/
 
-# Images and large media files (optional)
-# Uncomment if you don't want to track these in git
-# images/*.jpg
-# images/*.png
+# Prisma
+prisma/*.db
+
+# Data files
+/data/
+/uploads/
+public/uploads/
+
+# Legacy files
+ModINI/public/mods_details.json
 
 # User-specific files
 .npmrc
 .yarnrc
-/data
-/uploadsModINI/public/mods_details.json
-ModINI/public/mods_details.json
-/uploads

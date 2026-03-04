@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game.ini Generator - Path of Titans | TitanTech</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Generate custom Game.ini files for your Path of Titans server. Configure server settings, growth rates, and gameplay parameters with our easy-to-use tool.">
+    <meta name="keywords" content="Game.ini, Path of Titans, server configuration, POT server, game settings, server tool">
+    <meta name="author" content="TitanTech">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Game.ini Generator - Path of Titans Server Tool">
+    <meta property="og:description" content="Generate custom Game.ini files for your Path of Titans server with advanced configuration options">
+    <meta property="og:image" content="https://titantech.party/images/logo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TitanTech">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Game.ini Generator - Path of Titans">
+    <meta name="twitter:description" content="Generate custom Game.ini files for your Path of Titans server">
+    <meta name="twitter:image" content="https://titantech.party/images/logo.png">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#00CFFF">
+    <link rel="stylesheet" href="css/style.css?v=1.5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.1">
+    <link rel="stylesheet" href="ModINI/public/styles.css">
+    <style>
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .section {
+            background: linear-gradient(135deg, rgba(26, 26, 43, 0.8) 0%, rgba(13, 13, 20, 0.8) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 207, 255, 0.2);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h2 {
+            color: #00CFFF;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 207, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .config-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border-left: 3px solid #4CAF50;
+            transition: all 0.3s ease;
+        }
+
+        .config-item.changed {
+            background: rgba(217, 79, 203, 0.15);
+            border-left: 3px solid #D94FCB;
+            box-shadow: 0 0 10px rgba(217, 79, 203, 0.2);
+        }
+
+        .config-item.changed label::after {
+            content: " ✓";
+            color: #D94FCB;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .config-item label {
+            display: block;
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .config-item .description {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .config-item input,
+        .config-item select,
+        .config-item textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #252525;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .config-item textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .config-item input:focus,
+        .config-item select:focus,
+        .config-item textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Toggle Switch Styles */
+        .switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(21px);
+        }
+
+        .switch-label {
+            font-size: 14px;
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button,
+        .action-buttons .upload-btn-wrapper {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .upload-btn-wrapper:hover {
+            background-color: #F57C00;
+            transform: translateY(-2px);
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .generate-btn {
+            background: linear-gradient(45deg, #D94FCB, #00CFFF);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 15px rgba(217, 79, 203, 0.3);
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(45deg, #00CFFF, #D94FCB);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 207, 255, 0.4);
+        }
+
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .download-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .reset-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background-color: #da190b;
+            transform: translateY(-2px);
+        }
+
+        .output-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 207, 255, 0.3);
+            border-radius: 12px;
+        }
+
+        .output-container h3 {
+            color: #00CFFF;
+            margin-bottom: 15px;
+        }
+
+        .output-container pre {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .output-container .section-header {
+            color: #D94FCB;
+            font-weight: bold;
+        }
+
+        .output-container .config-line {
+            color: #00CFFF;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .info-box {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        .info-box strong {
+            color: #4CAF50;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .search-section input {
+            width: 500px;
+            max-width: 100%;
+            padding: 12px 20px;
+            background-color: #252525;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+
+        .search-section input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .section-toggle-item {
+            background: rgba(217, 79, 203, 0.1) !important;
+            border-left: 3px solid #D94FCB !important;
+        }
+
+        .gsh-note {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #4CAF50;
+        }
+
+        .gsh-note strong {
+            color: #4CAF50;
+        }
+
+        /* Beta Warning Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1A1A2B 0%, #0D0D14 100%);
+            border: 2px solid #FF9800;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 152, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header i {
+            font-size: 48px;
+            color: #FF9800;
+        }
+
+        .modal-header h2 {
+            color: #FF9800;
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .modal-body {
+            color: #e0e0e0;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .modal-body p {
+            margin-bottom: 15px;
+        }
+
+        .modal-body strong {
+            color: #FF9800;
+        }
+
+        .modal-body ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .modal-body ul li {
+            margin-bottom: 8px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-accept {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .modal-btn-accept:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .modal-btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(0, 207, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: rgba(26, 26, 43, 0.6);
+            color: #e0e0e0;
+            border: 1px solid rgba(0, 207, 255, 0.3);
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: none;
+        }
+
+        .tab-button:hover {
+            background: rgba(0, 207, 255, 0.1);
+            border-color: #00CFFF;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, rgba(217, 79, 203, 0.2), rgba(0, 207, 255, 0.2));
+            border-color: #00CFFF;
+            color: #00CFFF;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(0, 207, 255, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tab-navigation {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+                border-radius: 8px;
+                opacity: 1 !important;
+            }
+
+            .tab-button:not(.active) {
+                background: rgba(26, 26, 43, 0.6) !important;
+                color: #e0e0e0 !important;
+            }
+
+            .tab-button.active {
+                background: linear-gradient(45deg, rgba(217, 79, 203, 0.2), rgba(0, 207, 255, 0.2)) !important;
+                color: #00CFFF !important;
+                opacity: 1 !important;
+            }
+        }
+
+        /* Profile Section Styles */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(0, 207, 255, 0.1) 0%, rgba(217, 79, 203, 0.1) 100%);
+            border: 1px solid rgba(0, 207, 255, 0.3);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .discord-user {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .discord-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-blue);
+        }
+
+        .discord-username {
+            color: var(--light-color);
+            font-weight: 600;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        .profile-count {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-left: 4px;
+        }
+
+        .login-prompt {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed rgba(0, 207, 255, 0.3);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .discord-login-btn {
+            background: #5865F2 !important;
+            box-shadow: 0 0 15px rgba(88, 101, 242, 0.4);
+        }
+
+        .discord-login-btn:hover {
+            background: #4752C4 !important;
+            box-shadow: 0 0 25px rgba(88, 101, 242, 0.6);
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-info {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-magenta));
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .profile-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-modal-overlay.active {
+            display: flex;
+        }
+
+        .profile-modal {
+            background: linear-gradient(135deg, #1A1A2B 0%, #0D0D14 100%);
+            border: 2px solid var(--neon-blue);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 207, 255, 0.3);
+        }
+
+        .profile-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 207, 255, 0.3);
+        }
+
+        .profile-modal-header h3 {
+            color: var(--neon-blue);
+            margin: 0;
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .profile-modal-close {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .profile-modal-close:hover {
+            color: var(--neon-magenta);
+        }
+
+        .profile-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-form-group label {
+            display: block;
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-form-group input {
+            width: 100%;
+            padding: 10px;
+            background-color: #252525;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .profile-form-group input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 8px rgba(0, 207, 255, 0.3);
+        }
+
+        .profile-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 207, 255, 0.3);
+        }
+
+        .profiles-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .no-profiles-message {
+            text-align: center;
+            color: #aaa;
+            padding: 2rem;
+        }
+
+        .profile-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 207, 255, 0.2);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .profile-item:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 207, 255, 0.2);
+        }
+
+        .profile-item-info {
+            flex: 1;
+        }
+
+        .profile-item-name {
+            display: block;
+            color: var(--light-color);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .profile-item-date {
+            display: block;
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .profile-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .profile-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 10002;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-notification.show {
+            transform: translateX(0);
+        }
+
+        .profile-notification.success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .profile-notification.error {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+        }
+
+        @media (max-width: 768px) {
+            .profile-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .profile-actions {
+                margin-left: 0;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="TitanTech Logo" class="logo">
+            <h1>TitanTech</h1>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="#" class="active dropdown-toggle">Tools <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="game-ini-generator.html">Game.ini Generator</a></li>
+                        <li><a href="commands-ini-generator.html">Commands.ini Generator</a></li>
+                        <li><a href="rules-motd-generator.html">Rules/MOTD Generator</a></li>
+                        <li><a href="mod-manager.html">Mod Manager</a></li>
+                    </ul>
+                </li>
+                <li><a href="community.html">Community</a></li>
+                <li><a href="suggestions.html">Mod Map Suggestions</a></li>
+                <li><a href="bots.html">Bots/Scripts</a></li>
+                <li><a href="showcase.html" class="disabled">Showcase</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="login.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+            </ul>
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="generator-intro">
+            <h2>Game.ini Generator</h2>
+            <p>Configure your server settings - only changed values will be included in the output</p>
+        </section>
+
+    <div class="container">
+
+        <div class="info-box">
+            <strong>Note:</strong> All settings below are set to their default values. Only modify the settings you want to change.
+            Unchanged settings will not be added to the final Game.ini file, keeping your configuration clean and minimal.
+            <div style="margin-top: 10px; font-size: 1.1em;">
+                <strong>Changed Settings: <span id="changedCount" style="color: #D94FCB;">0</span></strong>
+            </div>
+        </div>
+
+        <div class="info-box" style="background: rgba(0, 207, 255, 0.1); border-color: #00CFFF;">
+            <strong style="color: #00CFFF;"><i class="fas fa-folder-open"></i> File Location:</strong>
+            Place your generated Game.ini file in:<br>
+            <code style="display: block; margin-top: 8px; padding: 8px; background: rgba(0, 0, 0, 0.5); border-radius: 4px; font-size: 0.95rem;">
+                PathOfTitans/Saved/Config/LinuxServer/Game.ini
+            </code>
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="searchInput" placeholder="Search settings...">
+        </div>
+
+        <div class="tab-navigation" id="tabNavigation">
+            <!-- Tabs will be generated by JavaScript -->
+        </div>
+
+        <!-- Profile Management Section -->
+        <div id="profileSection" class="profile-section" style="display: none;">
+            <div id="discordUser" class="discord-user"></div>
+            <div class="profile-actions">
+                <button id="saveProfileBtn" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Profile
+                </button>
+                <button id="loadProfileBtn" class="btn btn-info">
+                    <i class="fas fa-folder-open"></i> Load Profile <span id="profileCount" class="profile-count"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Login Prompt (shown when not authenticated) -->
+        <div id="loginPrompt" class="login-prompt" style="display: none;">
+            <a href="/auth/discord" class="btn btn-primary discord-login-btn">
+                <i class="fab fa-discord"></i> Login with Discord to Save Profiles
+            </a>
+        </div>
+
+        <div class="action-buttons">
+            <div class="upload-btn-wrapper">
+                Upload Game.ini
+                <input type="file" id="uploadFile" accept=".ini">
+            </div>
+            <button class="generate-btn" id="generateBtn">Generate Game.ini</button>
+            <button class="copy-btn" id="copyBtn">Copy to Clipboard</button>
+            <button class="download-btn" id="downloadBtn">Download Game.ini</button>
+            <button class="reset-btn" id="resetBtn">Reset All</button>
+        </div>
+
+        <div id="configForm"></div>
+
+        <div class="output-container">
+            <h3>Generated Configuration Preview</h3>
+            <pre id="outputPreview">[/Script/PathOfTitans.IGameSession]
+; No changes made yet. Modify settings above and click "Generate Game.ini" to see your configuration.
+
+[/Script/PathOfTitans.IGameMode]
+; No changes made yet.</pre>
+        </div>
+    </div>
+    </main>
+
+    <!-- Beta Warning Modal -->
+    <div id="betaWarningModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>Beta Testing Notice</h2>
+            </div>
+            <div class="modal-body">
+                <p><strong>This feature is currently in beta testing.</strong></p>
+                <p>Please be aware that:</p>
+                <ul>
+                    <li>Some features may not work as expected</li>
+                    <li>Generated configurations should be reviewed before use</li>
+                    <li>We recommend backing up your current Game.ini before replacing it</li>
+                    <li>Report any issues or bugs you encounter to help us improve</li>
+                </ul>
+                <p>By continuing, you acknowledge that this tool is in active development and may contain bugs or inaccuracies.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-cancel" id="betaCancelBtn">Go Back</button>
+                <button class="modal-btn modal-btn-accept" id="betaAcceptBtn">I Understand, Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Profile Modal -->
+    <div id="saveProfileModal" class="profile-modal-overlay">
+        <div class="profile-modal">
+            <div class="profile-modal-header">
+                <h3>Save Profile</h3>
+                <button class="profile-modal-close">&times;</button>
+            </div>
+            <form id="saveProfileForm">
+                <div class="profile-form-group">
+                    <label for="profileName">Profile Name</label>
+                    <input type="text" id="profileName" placeholder="Enter a name for this profile" maxlength="50" required>
+                </div>
+                <div class="profile-modal-footer">
+                    <button type="button" class="btn btn-danger profile-modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Load Profile Modal -->
+    <div id="loadProfileModal" class="profile-modal-overlay">
+        <div class="profile-modal">
+            <div class="profile-modal-header">
+                <h3>Load Profile</h3>
+                <button class="profile-modal-close">&times;</button>
+            </div>
+            <div id="profilesList" class="profiles-list">
+                <!-- Profiles will be loaded here -->
+            </div>
+            <div class="profile-modal-footer">
+                <button type="button" class="btn btn-danger profile-modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/profile-manager-ui.js?v=1.0"></script>
+    <script src="GameINI/game-ini-generator.js?v=1.5.2"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Beta warning modal functionality
+        function showBetaWarning() {
+            const modal = document.getElementById('betaWarningModal');
+            const hasAccepted = sessionStorage.getItem('betaWarningAccepted');
+
+            if (!hasAccepted) {
+                modal.classList.add('active');
+            }
+        }
+
+        function handleBetaAccept() {
+            sessionStorage.setItem('betaWarningAccepted', 'true');
+            document.getElementById('betaWarningModal').classList.remove('active');
+        }
+
+        function handleBetaCancel() {
+            window.location.href = 'index.html';
+        }
+
+        // Show modal on page load and attach event listeners
+        window.addEventListener('DOMContentLoaded', function() {
+            showBetaWarning();
+
+            // Attach event listeners to modal buttons
+            const acceptBtn = document.getElementById('betaAcceptBtn');
+            const cancelBtn = document.getElementById('betaCancelBtn');
+
+            if (acceptBtn) {
+                acceptBtn.addEventListener('click', handleBetaAccept);
+            }
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', handleBetaCancel);
+            }
+        });
+    </script>
+</body>
+</html>

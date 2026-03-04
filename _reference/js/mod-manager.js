@@ -1,0 +1,664 @@
+// Add this function to the top - above the DOMContentLoaded event
+async function refreshModsFromAPI() {
+    try {
+        console.log("Requesting server to refresh mods from API...");
+        const response = await fetch('/api/refresh-mods');
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log(`API refresh successful: ${data.message}`);
+            return true;
+        } else {
+            console.error(`API refresh failed: ${data.message}`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error triggering API refresh:', error);
+        return false;
+    }
+}
+
+// Load the mods data
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial load
+    loadModsData();
+    
+    // Do an API refresh once when page loads
+    refreshModsFromAPI().then(success => {
+        if (success) {
+            // Reload the data after API refresh
+            setTimeout(loadModsData, 1000);
+        }
+    });
+    
+    // Set up auto-refresh every 5 minutes (300,000 ms)
+    window.modRefreshInterval = setInterval(function() {
+        console.log("Auto-refreshing mod data...");
+        loadModsData();
+    }, 300000);
+    
+    // Log that the interval was set up
+    console.log("Mod auto-refresh scheduled every 5 minutes");
+    
+    document.getElementById('generateBtn').addEventListener('click', generateConfig);
+    document.getElementById('selectAllBtn').addEventListener('click', selectAllMods);
+    document.getElementById('deselectAllBtn').addEventListener('click', deselectAllMods);
+    document.getElementById('searchInput').addEventListener('input', filterMods);
+    
+    // Add preview toggle functionality
+    const previewHeader = document.querySelector('.preview-header');
+    const toggleBtn = document.getElementById('togglePreview');
+    const configPreview = document.getElementById('configPreview');
+    
+    if (previewHeader && toggleBtn) {
+        previewHeader.addEventListener('click', function() {
+            configPreview.classList.toggle('collapsed');
+            toggleBtn.classList.toggle('collapsed');
+        });
+    }
+    
+    // Add a manual refresh button
+    addRefreshButton();
+    
+    // Initialize preview box
+    initializePreview();
+});
+
+// Add this global variable at the top of your file, after the DOMContentLoaded event listener
+let selectedModIds = new Set();
+
+// Initialize the preview box
+function initializePreview() {
+    const previewBox = document.getElementById('configPreview');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const previewCode = document.getElementById('previewCode');
+    
+    // Debug: Check if elements exist
+    console.log('Preview elements:', {
+        previewBox: !!previewBox,
+        selectedCountSpan: !!selectedCountSpan,
+        previewCode: !!previewCode
+    });
+    
+    if (!previewBox || !selectedCountSpan || !previewCode) {
+        console.error('Preview elements not found in DOM');
+        return;
+    }
+    
+    // Set initial state
+    selectedCountSpan.textContent = '0';
+    previewCode.innerHTML = '<span class="section-line">[PathOfTitans.Mods]</span>\n<span class="comment-line"># No mods selected</span>';
+    previewBox.style.display = 'none';
+    
+    console.log('Preview initialized successfully');
+}
+
+// Update the refresh button functionality
+function addRefreshButton() {
+    const controlsDiv = document.querySelector('.controls');
+    if (controlsDiv) {
+        const refreshBtn = document.createElement('button');
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
+        refreshBtn.id = 'refreshBtn';
+        refreshBtn.addEventListener('click', async function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            
+            // First trigger an API refresh
+            const apiRefresh = await refreshModsFromAPI();
+            
+            // Then load the updated data
+            loadModsData().then(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
+                
+                if (apiRefresh) {
+                    alert('Mods data has been refreshed from the API!');
+                }
+            });
+        });
+        controlsDiv.appendChild(refreshBtn);
+    }
+}
+
+// Update loadModsData to return a Promise and sort mods alphabetically
+async function loadModsData() {
+    try {
+        showLoading();
+        // Load from local file which is kept updated by the update-mods.js script
+        const response = await fetch('ModINI/public/mods_details.json?' + new Date().getTime());
+        const modsData = await response.json();
+
+        // Sort mods alphabetically by name (case-insensitive)
+        modsData.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
+        window.modsData = modsData; // Store for filtering
+
+        // Re-apply search filter if user has typed something
+        var searchInput = document.getElementById('searchInput');
+        if (searchInput && searchInput.value.trim()) {
+            filterMods();
+        } else {
+            displayMods(modsData);
+        }
+        updateLastRefreshed(); // Update the timestamp
+        return Promise.resolve();
+    } catch (error) {
+        console.error('Error loading mods data:', error);
+        document.getElementById('modsContainer').innerHTML = '<p>Error loading mods data. Please try again later.</p>';
+        return Promise.reject(error);
+    }
+}
+
+/**
+ * Updates the last refreshed timestamp display
+ */
+function updateLastRefreshed(source = '') {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    const dateString = now.toLocaleDateString();
+    
+    // Create or update the timestamp element
+    let timestampDiv = document.getElementById('lastRefreshed');
+    if (!timestampDiv) {
+        // Create the element if it doesn't exist
+        timestampDiv = document.createElement('div');
+        timestampDiv.id = 'lastRefreshed';
+        timestampDiv.className = 'refresh-info';
+        
+        // Insert it after the search bar
+        const searchBar = document.querySelector('.search-bar');
+        if (searchBar) {
+            searchBar.insertAdjacentElement('afterend', timestampDiv);
+        }
+    }
+    
+    timestampDiv.innerHTML = `<i class="fas fa-sync-alt"></i> Last updated: ${dateString} ${timeString} ${source}`;
+}
+
+// Update the displayMods function to handle creator display better
+function displayMods(mods) {
+    const container = document.getElementById('modsContainer');
+    container.innerHTML = '';
+    
+    mods.forEach(mod => {
+        const modCard = document.createElement('div');
+        modCard.className = 'mod-card';
+        
+        // Generate unique ID for each checkbox
+        const checkboxId = `mod-${mod.sku.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        
+        // Check if this mod was previously selected
+        const isChecked = selectedModIds.has(mod.sku) ? 'checked' : '';
+        
+        // Determine how to display the creator
+        let creatorDisplay = mod.creator ? mod.creator : 'Unknown Creator';
+        let creatorClass = mod.creator ? 'specific-creator' : 'unknown-creator';
+        
+        modCard.innerHTML = `
+            <img src="${mod.icon}" alt="${mod.name}" onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'">
+            <h2>${mod.name}</h2>
+            <div class="mod-creator ${creatorClass}">
+                <strong>Creator:</strong> <span>${creatorDisplay}</span>
+            </div>
+            <div class="mod-id">
+                <strong>ID:</strong> <code>${mod.sku}</code>
+            </div>
+            <p>${mod.description}</p>
+            <label class="checkbox-container">
+                <span>Select this mod</span>
+                <input type="checkbox" id="${checkboxId}" class="mod-checkbox" data-id="${mod.sku}" data-name="${mod.name}" ${isChecked}>
+                <svg viewBox="0 0 100 100">
+                    <path class="path" d="M20,55 L40,75 L77,27" />
+                </svg>
+            </label>
+        `;
+        
+        container.appendChild(modCard);
+    });
+    
+    // Update the count to reflect current selections
+    updateSelectedCount();
+}
+
+function filterMods() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    if (!window.modsData) return;
+
+    const filteredMods = window.modsData.filter(mod =>
+        mod.name.toLowerCase().includes(searchTerm) ||
+        mod.description.toLowerCase().includes(searchTerm) ||
+        mod.sku.toLowerCase().includes(searchTerm)
+    );
+
+    displayMods(filteredMods);
+}
+
+// Update selectAllMods function
+function selectAllMods() {
+    const checkboxes = document.querySelectorAll('.mod-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+        selectedModIds.add(checkbox.dataset.id);
+    });
+    updateSelectedCount();
+}
+
+// Update deselectAllMods function
+function deselectAllMods() {
+    document.querySelectorAll('.mod-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+        selectedModIds.delete(checkbox.dataset.id);
+    });
+    updateSelectedCount();
+}
+
+function generateConfig() {
+    const selectedMods = [];
+    document.querySelectorAll('.mod-checkbox:checked').forEach(checkbox => {
+        selectedMods.push({
+            id: checkbox.dataset.id,
+            name: checkbox.dataset.name
+        });
+    });
+    
+    if (selectedMods.length === 0) {
+        alert('Please select at least one mod.');
+        return;
+    }
+    
+    let configContent = '[PathOfTitans.Mods]\n';
+    
+    selectedMods.forEach(mod => {
+        configContent += `EnabledMods=${mod.id}\n#${mod.name}\n`;
+    });
+    
+    downloadConfig(configContent, 'GameUserSettings.ini');
+}
+
+async function downloadConfig(content, filename) {
+    // Count the number of selected mods
+    const modCount = document.querySelectorAll('.mod-checkbox:checked').length;
+
+    // Send webhook notification
+    try {
+        await fetch('/api/webhook/game-ini-generated', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fileType: 'GameUserSettings.ini',
+                changedSettingsCount: modCount,
+                timestamp: new Date().toISOString()
+            })
+        });
+    } catch (error) {
+        console.error('Failed to send webhook notification:', error);
+        // Don't block the download if webhook fails
+    }
+
+    // Download the file
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const element = document.createElement('a');
+    element.href = url;
+    element.download = filename;
+    element.style.display = 'none';
+
+    document.body.appendChild(element);
+    element.click();
+
+    setTimeout(() => {
+        document.body.removeChild(element);
+        URL.revokeObjectURL(url);
+    }, 100);
+}
+
+// Show loading indicator
+function showLoading() {
+    const container = document.getElementById('modsContainer');
+    container.innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading mods...</p>
+        </div>
+    `;
+}
+
+// Update count of selected mods
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.mod-checkbox:checked').length;
+    const generateBtn = document.getElementById('generateBtn');
+    
+    console.log('updateSelectedCount called, count:', count);
+    
+    if (generateBtn) {
+        generateBtn.textContent = count > 0 ? `Generate Config (${count})` : 'Generate Config';
+    }
+    
+    // Update preview
+    updateConfigPreview();
+}
+
+// New function to update the configuration preview
+function updateConfigPreview() {
+    const selectedMods = [];
+    document.querySelectorAll('.mod-checkbox:checked').forEach(checkbox => {
+        selectedMods.push({
+            id: checkbox.dataset.id,
+            name: checkbox.dataset.name
+        });
+    });
+    
+    const previewBox = document.getElementById('configPreview');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const previewCode = document.getElementById('previewCode');
+    
+    console.log('updateConfigPreview called with', selectedMods.length, 'mods');
+    
+    if (!previewBox || !selectedCountSpan || !previewCode) {
+        console.error('Preview elements not found during update');
+        return;
+    }
+    
+    // Update selected count
+    selectedCountSpan.textContent = selectedMods.length;
+    
+    // Generate preview content
+    if (selectedMods.length === 0) {
+        previewCode.innerHTML = '<span class="section-line">[PathOfTitans.Mods]</span>\n<span class="comment-line"># No mods selected</span>';
+        previewBox.style.display = 'none';
+        console.log('Preview hidden - no mods selected');
+    } else {
+        let previewContent = '<span class="section-line">[PathOfTitans.Mods]</span>\n';
+        
+        selectedMods.forEach(mod => {
+            previewContent += `<span class="mod-line">EnabledMods=${mod.id}</span>\n`;
+            previewContent += `<span class="comment-line">#${mod.name}</span>\n`;
+        });
+        
+        previewCode.innerHTML = previewContent;
+        previewBox.style.display = 'block';
+        console.log('Preview shown with', selectedMods.length, 'mods');
+    }
+}
+
+// Update the click handler to track selections
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('mod-checkbox')) {
+        // Update our tracking Set when checkboxes are clicked
+        const modId = e.target.dataset.id;
+        if (e.target.checked) {
+            selectedModIds.add(modId);
+        } else {
+            selectedModIds.delete(modId);
+        }
+        updateSelectedCount();
+    }
+});
+
+// Add event listeners for INI upload
+
+document.getElementById('uploadIniBtn').addEventListener('click', function() {
+    document.getElementById('iniFileInput').click();
+});
+
+document.getElementById('iniFileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const modIds = extractModIdsFromIni(content);
+        if (modIds.length === 0) {
+            alert('No mods found in the uploaded GameUserSettings.ini.');
+            return;
+        }
+
+        // Clear search to show all mods
+        document.getElementById('searchInput').value = '';
+
+        // Update selectedModIds and checkboxes
+        selectedModIds = new Set(modIds);
+
+        // Re-render mods to update checked state
+        if (window.modsData) {
+            displayMods(window.modsData);
+        } else {
+            loadModsData();
+        }
+
+        // Update preview and counts after a brief delay to ensure DOM is ready
+        setTimeout(() => {
+            updateConfigPreview();
+            updateSelectedCount();
+        }, 100);
+
+        alert('Successfully loaded ' + modIds.length + ' mods from your INI file!');
+    };
+    reader.readAsText(file);
+});
+
+// Helper to extract mod IDs from INI file
+function extractModIdsFromIni(iniContent) {
+    // Look for lines like EnabledMods=MODID
+    // Ignore comments that start with # (either on their own line or after the mod ID)
+    const modIds = [];
+    const lines = iniContent.split(/\r?\n/);
+    for (const line of lines) {
+        // Skip lines that start with # (comment lines)
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('#')) {
+            continue;
+        }
+
+        // Match EnabledMods=MODID, but stop at # if there's an inline comment
+        const match = line.match(/^EnabledMods=([^#]+)/);
+        if (match) {
+            // Trim whitespace from the mod ID
+            const modId = match[1].trim();
+            if (modId) {
+                modIds.push(modId);
+            }
+        }
+    }
+    return modIds;
+}
+
+// Check INI button event listener
+document.getElementById('checkIniBtn').addEventListener('click', function() {
+    document.getElementById('checkIniFileInput').click();
+});
+
+document.getElementById('checkIniFileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        validateIniFile(content);
+    };
+    reader.readAsText(file);
+
+    // Reset the input so the same file can be selected again
+    event.target.value = '';
+});
+
+// Close modal button
+document.getElementById('closeValidationModal').addEventListener('click', function() {
+    document.getElementById('validationModal').style.display = 'none';
+});
+
+// Close modal when clicking outside
+document.getElementById('validationModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
+    }
+});
+
+/**
+ * Validate INI file and show results
+ */
+async function validateIniFile(iniContent) {
+    // Ensure mods data is loaded
+    if (!window.modsData) {
+        await loadModsData();
+    }
+
+    const modIds = extractModIdsFromIni(iniContent);
+
+    if (modIds.length === 0) {
+        showValidationResults({
+            totalMods: 0,
+            validMods: 0,
+            issues: [{
+                type: 'error',
+                message: 'No mods found in the INI file. Make sure your file contains lines like "EnabledMods=MOD_ID"'
+            }]
+        });
+        return;
+    }
+
+    // Create a map of valid mod IDs for quick lookup
+    const validModsMap = new Map();
+    window.modsData.forEach(mod => {
+        validModsMap.set(mod.sku.toLowerCase(), mod);
+    });
+
+    const issues = [];
+    let validCount = 0;
+
+    modIds.forEach((modId, index) => {
+        const lineNumber = index + 1;
+
+        // Check for uppercase O instead of zero
+        if (/[O]/.test(modId) && /UGC_M_/.test(modId)) {
+            issues.push({
+                type: 'error',
+                modId: modId,
+                modName: 'Invalid ID Format',
+                message: `This mod ID contains the letter 'O' instead of the number '0'. Mod IDs should only contain zeros (0), not the letter O.`,
+                lineNumber: lineNumber
+            });
+            return;
+        }
+
+        // Check if mod exists in current database
+        const modLower = modId.toLowerCase();
+        const validMod = validModsMap.get(modLower);
+
+        if (!validMod) {
+            // Check if it's just wrong case
+            const correctCaseMod = window.modsData.find(m =>
+                m.sku.toLowerCase() === modLower
+            );
+
+            if (correctCaseMod) {
+                issues.push({
+                    type: 'warning',
+                    modId: modId,
+                    modName: correctCaseMod.name,
+                    message: `Mod ID has incorrect casing. Should be: ${correctCaseMod.sku}`,
+                    lineNumber: lineNumber,
+                    correctId: correctCaseMod.sku
+                });
+                validCount++;
+            } else {
+                issues.push({
+                    type: 'error',
+                    modId: modId,
+                    modName: 'Unknown Mod',
+                    message: 'This mod ID does not exist in the current mod database. It may have been removed, renamed, or is incorrectly formatted.',
+                    lineNumber: lineNumber
+                });
+            }
+        } else {
+            validCount++;
+        }
+    });
+
+    showValidationResults({
+        totalMods: modIds.length,
+        validMods: validCount,
+        issues: issues
+    });
+}
+
+/**
+ * Display validation results in modal
+ */
+function showValidationResults(results) {
+    const modal = document.getElementById('validationModal');
+    const resultsContainer = document.getElementById('validationResults');
+
+    let html = '';
+
+    // Summary section
+    html += `
+        <div class="validation-summary">
+            <h4>Summary</h4>
+            <p><strong>Total Mods:</strong> ${results.totalMods}</p>
+            <p><strong>Valid Mods:</strong> ${results.validMods}</p>
+            <p><strong>Issues Found:</strong> ${results.issues.length}</p>
+        </div>
+    `;
+
+    if (results.issues.length === 0) {
+        html += `
+            <div class="no-issues">
+                <i class="fas fa-check-circle"></i>
+                <p>All mods are valid! No issues found.</p>
+            </div>
+        `;
+    } else {
+        // Group issues by type
+        const errors = results.issues.filter(i => i.type === 'error');
+        const warnings = results.issues.filter(i => i.type === 'warning');
+
+        if (errors.length > 0) {
+            html += `
+                <div class="validation-section">
+                    <h4><i class="fas fa-exclamation-circle"></i> Errors (${errors.length})</h4>
+            `;
+
+            errors.forEach(issue => {
+                html += `
+                    <div class="validation-issue error">
+                        <div class="issue-type error">ERROR</div>
+                        <div class="issue-mod-name">${issue.modName}</div>
+                        <div class="issue-mod-id">ID: ${issue.modId}</div>
+                        <div class="issue-description">${issue.message}</div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+        }
+
+        if (warnings.length > 0) {
+            html += `
+                <div class="validation-section">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Warnings (${warnings.length})</h4>
+            `;
+
+            warnings.forEach(issue => {
+                html += `
+                    <div class="validation-issue warning">
+                        <div class="issue-type warning">WARNING</div>
+                        <div class="issue-mod-name">${issue.modName}</div>
+                        <div class="issue-mod-id">ID: ${issue.modId}</div>
+                        <div class="issue-description">${issue.message}</div>
+                        ${issue.correctId ? `<div class="issue-description" style="margin-top: 0.5rem;"><strong>Correct ID:</strong> <code>${issue.correctId}</code></div>` : ''}
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+        }
+    }
+
+    resultsContainer.innerHTML = html;
+    modal.style.display = 'flex';
+}

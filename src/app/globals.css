@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #16181d;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #0a51c2;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #3b7de6;
+  }
+
+  /* Selection color */
+  ::selection {
+    background-color: rgba(10, 81, 194, 0.4);
+    color: #E5E7EB;
+  }
+}
+
+@layer components {
+  /* ─── Buttons ─── */
+  .btn-primary {
+    @apply bg-primary text-white font-semibold rounded-lg px-6 py-2.5
+           transition-all duration-200 ease-in-out
+           hover:bg-primary-dark hover:shadow-glow-primary hover:scale-[1.02]
+           disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white font-semibold rounded-lg px-6 py-2.5
+           transition-all duration-200 ease-in-out
+           hover:bg-secondary-dark hover:shadow-glow-secondary hover:scale-[1.02]
+           disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary bg-transparent text-primary-light font-semibold rounded-lg px-6 py-2.5
+           transition-all duration-200 ease-in-out
+           hover:bg-primary hover:text-white hover:shadow-glow-primary;
+  }
+
+  /* ─── Cards ─── */
+  .card {
+    @apply bg-background-paper border border-divider rounded-card shadow-card
+           transition-all duration-200 ease-in-out
+           hover:border-primary/40 hover:shadow-card-hover;
+  }
+
+  .card-static {
+    @apply bg-background-paper border border-divider rounded-card shadow-card;
+  }
+
+  /* ─── Inputs ─── */
+  .input-field {
+    @apply w-full bg-background-paper border border-divider rounded-lg px-4 py-2.5
+           text-text-primary placeholder:text-text-secondary
+           transition-colors duration-200
+           hover:border-primary focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light;
+  }
+
+  /* ─── Chips ─── */
+  .chip-primary {
+    @apply inline-flex items-center px-3 py-1 rounded-chip text-sm font-semibold
+           bg-primary/10 text-primary-light border border-primary/30;
+  }
+
+  .chip-secondary {
+    @apply inline-flex items-center px-3 py-1 rounded-chip text-sm font-semibold
+           bg-secondary/10 text-secondary-light border border-secondary/30;
+  }
+
+  .chip-accent {
+    @apply inline-flex items-center px-3 py-1 rounded-chip text-sm font-semibold
+           bg-accent/10 text-accent-light border border-accent/30;
+  }
+
+  /* ─── Gradient text ─── */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-light via-accent-light to-secondary-light bg-clip-text text-transparent;
+  }
+
+  .gradient-text-primary {
+    @apply bg-gradient-to-r from-primary-light to-accent bg-clip-text text-transparent;
+  }
+
+  /* ─── Gradient lines / accents ─── */
+  .gradient-line {
+    @apply h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent;
+  }
+
+  .gradient-line-accent {
+    @apply h-[2px] bg-gradient-to-r from-primary via-accent to-secondary;
+  }
+
+  /* ─── Glow effects ─── */
+  .glow-primary {
+    box-shadow: 0 0 30px rgba(10, 81, 194, 0.3), 0 0 60px rgba(10, 81, 194, 0.1);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 30px rgba(24, 160, 153, 0.3), 0 0 60px rgba(24, 160, 153, 0.1);
+  }
+
+  /* ─── Nav link active/hover effects ─── */
+  .nav-link {
+    @apply relative flex items-center gap-1.5 px-3 py-2 text-sm text-text-secondary
+           hover:text-text-primary rounded-lg transition-all duration-200;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-primary-light
+           rounded-full transition-all duration-200;
+  }
+
+  .nav-link:hover::after {
+    @apply w-3/4;
+  }
+
+  .nav-link:hover {
+    background: rgba(10, 81, 194, 0.08);
+  }
+
+  .nav-link-active {
+    @apply text-primary-light;
+  }
+
+  .nav-link-active::after {
+    @apply w-3/4;
+  }
+
+  /* ─── Background patterns ─── */
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(rgba(59, 125, 230, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 125, 230, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .bg-dots-pattern {
+    background-image: radial-gradient(rgba(59, 125, 230, 0.08) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+}
+
+@layer utilities {
+  .text-glow-primary {
+    text-shadow: 0 0 20px rgba(59, 125, 230, 0.5);
+  }
+
+  .text-glow-accent {
+    text-shadow: 0 0 20px rgba(31, 194, 185, 0.5);
+  }
+
+  .border-glow-primary {
+    box-shadow: inset 0 0 0 1px rgba(10, 81, 194, 0.3), 0 0 15px rgba(10, 81, 194, 0.1);
+  }
+}
