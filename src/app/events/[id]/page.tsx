@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
-  ArrowLeft, Calendar, Clock, MapPin, ExternalLink, Edit, Trash2,
+  ArrowLeft, Calendar, Clock, MapPin, ExternalLink, Pencil, Trash2,
   AlertCircle, XCircle, CheckCircle,
 } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -109,7 +108,8 @@ export default function EventDetailPage() {
       {/* Event Image */}
       {event.imageUrl && (
         <div className="relative h-64 sm:h-80 rounded-xl overflow-hidden mb-6">
-          <Image src={event.imageUrl} alt={event.title} fill className="object-cover" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={event.imageUrl} alt={event.title} className="absolute inset-0 w-full h-full object-cover" />
         </div>
       )}
 
@@ -175,6 +175,13 @@ export default function EventDetailPage() {
         <div className="card p-6">
           <h2 className="font-heading font-semibold text-lg mb-4">Manage Event</h2>
           <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/events/${event.id}/edit`}
+              className="btn-primary flex items-center gap-2 text-sm"
+            >
+              <Pencil size={16} />
+              Edit Event
+            </Link>
             {event.status === 'active' && (
               <>
                 <button

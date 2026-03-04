@@ -3,10 +3,10 @@
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import Link from 'next/link';
 import {
-  Shield, Server, Check, X, Trash2, Eye, AlertCircle, ChevronDown,
-  ExternalLink,
+  Shield, Server, Check, X, Trash2, Eye, AlertCircle, Pencil,
+  ExternalLink, Calendar, ImageIcon, Save, CheckCircle, XCircle,
 } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Spinner } from '@/components/ui/Spinner';
@@ -14,26 +14,67 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
 import type { ServerSubmission } from '@/types';
 
+interface EventItem {
+  id: string;
+  title: string;
+  description: string;
+  dateTime: string;
+  endDateTime?: string | null;
+  serverName?: string | null;
+  category: string;
+  status: string;
+  creator: { username: string; discordId: string };
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession();
+  const [activeTab, setActiveTab] = useState<'servers' | 'events'>('servers');
+
+  // Server state
   const [servers, setServers] = useState<ServerSubmission[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('pending');
+  const [loadingServers, setLoadingServers] = useState(true);
+  const [serverFilter, setServerFilter] = useState<string>('pending');
   const [selectedServer, setSelectedServer] = useState<ServerSubmission | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
+  // Server edit state
+  const [editingServer, setEditingServer] = useState<ServerSubmission | null>(null);
+  const [savingServer, setSavingServer] = useState(false);
+  const [serverEditError, setServerEditError] = useState('');
+  const [serverEditSuccess, setServerEditSuccess] = useState('');
+  const [editPreview, setEditPreview] = useState<string | null>(null);
+  const [editFile, setEditFile] = useState<File | null>(null);
+
+  // Event state
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [eventFilter, setEventFilter] = useState<string>('all');
+
   useEffect(() => {
-    if (session?.user?.isAdmin) fetchServers();
+    if (session?.user?.isAdmin) {
+      fetchServers();
+      fetchEvents();
+    }
   }, [session]);
 
   async function fetchServers() {
-    setLoading(true);
+    setLoadingServers(true);
     try {
       const res = await fetch('/api/admin/servers');
       if (res.ok) setServers(await res.json());
     } catch {} finally {
-      setLoading(false);
+      setLoadingServers(false);
+    }
+  }
+
+  async function fetchEvents() {
+    setLoadingEvents(true);
+    try {
+      const res = await fetch('/api/events');
+      if (res.ok) setEvents(await res.json());
+    } catch {} finally {
+      setLoadingEvents(false);
     }
   }
 
@@ -55,7 +96,7 @@ export default function AdminPage() {
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDeleteServer(id: string) {
     if (!confirm('Permanently delete this server submission?')) return;
     setActionLoading(id);
     try {
@@ -63,6 +104,75 @@ export default function AdminPage() {
       if (res.ok) {
         setServers((prev) => prev.filter((s) => s.id !== id));
         setSelectedServer(null);
+      }
+    } catch {} finally {
+      setActionLoading(null);
+    }
+  }
+
+  function startEditServer(server: ServerSubmission) {
+    setEditingServer(server);
+    setEditPreview(null);
+    setEditFile(null);
+    setServerEditError('');
+    setSelectedServer(null);
+  }
+
+  async function handleSaveServer(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingServer) return;
+    setServerEditError('');
+    setSavingServer(true);
+
+    const formData = new FormData(e.currentTarget);
+    if (editFile) {
+      formData.set('imageFile', editFile);
+    }
+
+    try {
+      const res = await fetch(`/api/servers/${editingServer.id}`, {
+        method: 'PUT',
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setServerEditSuccess('Server updated successfully!');
+        setEditingServer(null);
+        fetchServers();
+        setTimeout(() => setServerEditSuccess(''), 4000);
+      } else {
+        setServerEditError(data.message || 'Failed to update server');
+      }
+    } catch {
+      setServerEditError('Network error. Please try again.');
+    } finally {
+      setSavingServer(false);
+    }
+  }
+
+  async function handleEventStatusChange(id: string, newStatus: string) {
+    setActionLoading(id);
+    try {
+      const res = await fetch(`/api/events/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (data.success) fetchEvents();
+    } catch {} finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleDeleteEvent(id: string) {
+    if (!confirm('Permanently delete this event?')) return;
+    setActionLoading(id);
+    try {
+      const res = await fetch(`/api/events/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setEvents((prev) => prev.filter((e) => e.id !== id));
       }
     } catch {} finally {
       setActionLoading(null);
@@ -77,12 +187,20 @@ export default function AdminPage() {
     redirect('/');
   }
 
-  const filtered = filter === 'all' ? servers : servers.filter((s) => s.status === filter);
-  const counts = {
+  const filteredServers = serverFilter === 'all' ? servers : servers.filter((s) => s.status === serverFilter);
+  const serverCounts = {
     all: servers.length,
     pending: servers.filter((s) => s.status === 'pending').length,
     approved: servers.filter((s) => s.status === 'approved').length,
     rejected: servers.filter((s) => s.status === 'rejected').length,
+  };
+
+  const filteredEvents = eventFilter === 'all' ? events : events.filter((e) => e.status === eventFilter);
+  const eventCounts = {
+    all: events.length,
+    active: events.filter((e) => e.status === 'active').length,
+    completed: events.filter((e) => e.status === 'completed').length,
+    cancelled: events.filter((e) => e.status === 'cancelled').length,
   };
 
   return (
@@ -92,114 +210,361 @@ export default function AdminPage() {
           <Shield size={28} className="text-primary-light" />
           Admin Panel
         </h1>
-        <p className="text-text-secondary">Manage server submissions and site content.</p>
+        <p className="text-text-secondary">Manage server submissions, events, and site content.</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        {(['all', 'pending', 'approved', 'rejected'] as const).map((key) => (
-          <button
-            key={key}
-            onClick={() => setFilter(key)}
-            className={`card p-4 text-center transition-colors ${
-              filter === key ? 'border-primary bg-primary/5' : ''
-            }`}
-          >
-            <p className="text-2xl font-bold text-text-primary">{counts[key]}</p>
-            <p className="text-xs text-text-secondary capitalize">{key}</p>
-          </button>
-        ))}
+      {/* Tab Switcher */}
+      <div className="flex gap-2 mb-8 border-b border-divider">
+        <button
+          onClick={() => setActiveTab('servers')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+            activeTab === 'servers'
+              ? 'border-primary text-primary-light'
+              : 'border-transparent text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          <Server size={16} />
+          Servers
+          {serverCounts.pending > 0 && (
+            <span className="bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5 rounded-full">{serverCounts.pending}</span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('events')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+            activeTab === 'events'
+              ? 'border-primary text-primary-light'
+              : 'border-transparent text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          <Calendar size={16} />
+          Events
+          <span className="bg-surface text-text-secondary text-xs px-1.5 py-0.5 rounded-full">{eventCounts.all}</span>
+        </button>
       </div>
 
-      {/* Server List */}
-      <h2 className="font-heading text-xl font-semibold mb-4 flex items-center gap-2">
-        <Server size={20} className="text-primary-light" />
-        Server Submissions
-      </h2>
+      {/* Success Messages */}
+      {serverEditSuccess && (
+        <div className="bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg p-3 mb-6 flex items-center gap-2 text-sm animate-fade-in">
+          <CheckCircle size={16} />
+          {serverEditSuccess}
+        </div>
+      )}
 
-      {loading ? (
-        <div className="flex justify-center py-20"><Spinner size="lg" /></div>
-      ) : filtered.length > 0 ? (
-        <div className="space-y-3">
-          {filtered.map((server) => (
-            <div key={server.id} className="card p-4">
-              <div className="flex items-start gap-4">
-                {/* Image thumbnail */}
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-surface shrink-0">
-                  {server.imagePath ? (
-                    <Image src={server.imagePath} alt="" fill className="object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Server size={24} className="text-text-secondary/30" />
-                    </div>
-                  )}
-                </div>
+      {/* Server Edit Form (inline) */}
+      {editingServer && (
+        <div className="card-static p-6 mb-8 animate-fade-in">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="font-heading font-semibold text-lg flex items-center gap-2">
+              <Pencil size={20} className="text-primary-light" />
+              Edit Server: {editingServer.name}
+            </h3>
+            <button onClick={() => setEditingServer(null)} className="text-text-secondary hover:text-text-primary transition-colors">
+              <X size={20} />
+            </button>
+          </div>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-heading font-semibold text-text-primary truncate">{server.name}</h3>
-                    <StatusBadge status={server.status} />
-                  </div>
-                  <p className="text-text-secondary text-sm line-clamp-1 mb-1">{server.description}</p>
-                  <div className="flex items-center gap-4 text-xs text-text-secondary">
-                    <span>IP: {server.serverIP}:{server.queryPort}</span>
-                    <span>By: {server.submittedBy}</span>
-                    <span>{new Date(server.submittedAt).toLocaleDateString()}</span>
-                  </div>
-                  {server.rejectionReason && (
-                    <p className="text-xs text-red-400 mt-1">Reason: {server.rejectionReason}</p>
-                  )}
-                </div>
+          {serverEditError && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg p-3 mb-4 flex items-center gap-2 text-sm">
+              <AlertCircle size={16} />
+              {serverEditError}
+            </div>
+          )}
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => setSelectedServer(server)}
-                    className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-colors"
-                    title="View details"
-                  >
-                    <Eye size={18} />
-                  </button>
-                  {server.status === 'pending' && (
-                    <>
-                      <button
-                        onClick={() => handleStatusUpdate(server.id, 'approved')}
-                        disabled={actionLoading === server.id}
-                        className="p-2 rounded-lg text-green-400 hover:bg-green-500/10 transition-colors"
-                        title="Approve"
-                      >
-                        <Check size={18} />
-                      </button>
-                      <button
-                        onClick={() => { setSelectedServer(server); setRejectReason(''); }}
-                        disabled={actionLoading === server.id}
-                        className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-                        title="Reject"
-                      >
-                        <X size={18} />
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => handleDelete(server.id)}
-                    disabled={actionLoading === server.id}
-                    className="p-2 rounded-lg text-text-secondary hover:text-error hover:bg-red-500/10 transition-colors"
-                    title="Delete"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
+          <form onSubmit={handleSaveServer} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-1">Server Image</label>
+              <div className="flex items-center gap-4">
+                {(editPreview || editingServer.imagePath) && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={editPreview || editingServer.imagePath}
+                    alt="Server"
+                    className="w-24 h-16 object-cover rounded border border-divider"
+                  />
+                )}
+                <label className="btn-outline flex items-center gap-1.5 text-xs cursor-pointer">
+                  <ImageIcon size={14} />
+                  Change Image
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) {
+                        setEditFile(f);
+                        const reader = new FileReader();
+                        reader.onload = (ev) => setEditPreview(ev.target?.result as string);
+                        reader.readAsDataURL(f);
+                      }
+                    }}
+                  />
+                </label>
               </div>
             </div>
-          ))}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="admin-edit-name" className="block text-sm font-medium text-text-primary mb-1">Server Name</label>
+                <input id="admin-edit-name" name="name" defaultValue={editingServer.name} minLength={3} maxLength={100} className="input-field w-full text-sm" />
+              </div>
+              <div>
+                <label htmlFor="admin-edit-ownerDiscord" className="block text-sm font-medium text-text-primary mb-1">Owner Discord</label>
+                <input id="admin-edit-ownerDiscord" name="ownerDiscord" defaultValue={editingServer.ownerDiscord} className="input-field w-full text-sm" />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="admin-edit-description" className="block text-sm font-medium text-text-primary mb-1">Description</label>
+              <textarea id="admin-edit-description" name="description" defaultValue={editingServer.description} rows={3} minLength={10} maxLength={1000} className="input-field w-full text-sm resize-none" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="admin-edit-serverIP" className="block text-sm font-medium text-text-primary mb-1">Server IP</label>
+                <input id="admin-edit-serverIP" name="serverIP" defaultValue={editingServer.serverIP} className="input-field w-full text-sm" />
+              </div>
+              <div>
+                <label htmlFor="admin-edit-queryPort" className="block text-sm font-medium text-text-primary mb-1">Server Port</label>
+                <input id="admin-edit-queryPort" name="queryPort" type="number" defaultValue={editingServer.queryPort} min={1} max={65535} className="input-field w-full text-sm" />
+              </div>
+              <div>
+                <label htmlFor="admin-edit-discordInvite" className="block text-sm font-medium text-text-primary mb-1">Discord Invite</label>
+                <input id="admin-edit-discordInvite" name="discordInvite" defaultValue={editingServer.discordInvite} className="input-field w-full text-sm" />
+              </div>
+            </div>
+
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" name="showIP" value="true" defaultChecked={editingServer.showIP} className="rounded border-divider w-4 h-4" />
+              <span className="text-sm text-text-primary">Show server IP publicly</span>
+            </label>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button type="submit" disabled={savingServer} className="btn-primary flex items-center gap-2 text-sm disabled:opacity-50">
+                {savingServer ? <><Spinner size="sm" /> Saving...</> : <><Save size={16} /> Save Changes</>}
+              </button>
+              <button type="button" onClick={() => setEditingServer(null)} className="text-sm text-text-secondary hover:text-text-primary transition-colors">
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
-      ) : (
-        <EmptyState
-          icon={<Server size={48} />}
-          title="No Submissions"
-          description={`No ${filter === 'all' ? '' : filter} server submissions found.`}
-        />
+      )}
+
+      {/* ===== SERVERS TAB ===== */}
+      {activeTab === 'servers' && (
+        <>
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            {(['all', 'pending', 'approved', 'rejected'] as const).map((key) => (
+              <button
+                key={key}
+                onClick={() => setServerFilter(key)}
+                className={`card p-4 text-center transition-colors ${
+                  serverFilter === key ? 'border-primary bg-primary/5' : ''
+                }`}
+              >
+                <p className="text-2xl font-bold text-text-primary">{serverCounts[key]}</p>
+                <p className="text-xs text-text-secondary capitalize">{key}</p>
+              </button>
+            ))}
+          </div>
+
+          {/* Server List */}
+          {loadingServers ? (
+            <div className="flex justify-center py-20"><Spinner size="lg" /></div>
+          ) : filteredServers.length > 0 ? (
+            <div className="space-y-3">
+              {filteredServers.map((server) => (
+                <div key={server.id} className="card p-4">
+                  <div className="flex items-start gap-4">
+                    {/* Image thumbnail */}
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-surface shrink-0">
+                      {server.imagePath ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={server.imagePath} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Server size={24} className="text-text-secondary/30" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-heading font-semibold text-text-primary truncate">{server.name}</h3>
+                        <StatusBadge status={server.status} />
+                      </div>
+                      <p className="text-text-secondary text-sm line-clamp-1 mb-1">{server.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-text-secondary">
+                        <span>IP: {server.serverIP}:{server.queryPort}</span>
+                        <span>By: {server.submittedBy}</span>
+                        <span>{new Date(server.submittedAt).toLocaleDateString()}</span>
+                      </div>
+                      {server.rejectionReason && (
+                        <p className="text-xs text-red-400 mt-1">Reason: {server.rejectionReason}</p>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => setSelectedServer(server)}
+                        className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-colors"
+                        title="View details"
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button
+                        onClick={() => startEditServer(server)}
+                        className="p-2 rounded-lg text-text-secondary hover:text-primary-light hover:bg-primary/10 transition-colors"
+                        title="Edit server"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      {server.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleStatusUpdate(server.id, 'approved')}
+                            disabled={actionLoading === server.id}
+                            className="p-2 rounded-lg text-green-400 hover:bg-green-500/10 transition-colors"
+                            title="Approve"
+                          >
+                            <Check size={18} />
+                          </button>
+                          <button
+                            onClick={() => { setSelectedServer(server); setRejectReason(''); }}
+                            disabled={actionLoading === server.id}
+                            className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+                            title="Reject"
+                          >
+                            <X size={18} />
+                          </button>
+                        </>
+                      )}
+                      <button
+                        onClick={() => handleDeleteServer(server.id)}
+                        disabled={actionLoading === server.id}
+                        className="p-2 rounded-lg text-text-secondary hover:text-error hover:bg-red-500/10 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<Server size={48} />}
+              title="No Submissions"
+              description={`No ${serverFilter === 'all' ? '' : serverFilter} server submissions found.`}
+            />
+          )}
+        </>
+      )}
+
+      {/* ===== EVENTS TAB ===== */}
+      {activeTab === 'events' && (
+        <>
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            {(['all', 'active', 'completed', 'cancelled'] as const).map((key) => (
+              <button
+                key={key}
+                onClick={() => setEventFilter(key)}
+                className={`card p-4 text-center transition-colors ${
+                  eventFilter === key ? 'border-primary bg-primary/5' : ''
+                }`}
+              >
+                <p className="text-2xl font-bold text-text-primary">{eventCounts[key]}</p>
+                <p className="text-xs text-text-secondary capitalize">{key}</p>
+              </button>
+            ))}
+          </div>
+
+          {/* Event List */}
+          {loadingEvents ? (
+            <div className="flex justify-center py-20"><Spinner size="lg" /></div>
+          ) : filteredEvents.length > 0 ? (
+            <div className="space-y-3">
+              {filteredEvents.map((event) => (
+                <div key={event.id} className="card p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-heading font-semibold text-text-primary truncate">{event.title}</h3>
+                        <StatusBadge status={event.status} />
+                        <span className="text-xs bg-surface px-2 py-0.5 rounded text-text-secondary capitalize">{event.category}</span>
+                      </div>
+                      <p className="text-text-secondary text-sm line-clamp-1 mb-1">{event.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-text-secondary">
+                        <span>{new Date(event.dateTime).toLocaleDateString()} {new Date(event.dateTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+                        {event.serverName && <span>Server: {event.serverName}</span>}
+                        <span>By: {event.creator.username}</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Link
+                        href={`/events/${event.id}`}
+                        className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface transition-colors"
+                        title="View event"
+                      >
+                        <Eye size={18} />
+                      </Link>
+                      <Link
+                        href={`/events/${event.id}/edit`}
+                        className="p-2 rounded-lg text-text-secondary hover:text-primary-light hover:bg-primary/10 transition-colors"
+                        title="Edit event"
+                      >
+                        <Pencil size={18} />
+                      </Link>
+                      {event.status === 'active' && (
+                        <>
+                          <button
+                            onClick={() => handleEventStatusChange(event.id, 'completed')}
+                            disabled={actionLoading === event.id}
+                            className="p-2 rounded-lg text-green-400 hover:bg-green-500/10 transition-colors"
+                            title="Mark completed"
+                          >
+                            <CheckCircle size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleEventStatusChange(event.id, 'cancelled')}
+                            disabled={actionLoading === event.id}
+                            className="p-2 rounded-lg text-orange-400 hover:bg-orange-500/10 transition-colors"
+                            title="Cancel event"
+                          >
+                            <XCircle size={18} />
+                          </button>
+                        </>
+                      )}
+                      <button
+                        onClick={() => handleDeleteEvent(event.id)}
+                        disabled={actionLoading === event.id}
+                        className="p-2 rounded-lg text-text-secondary hover:text-error hover:bg-red-500/10 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<Calendar size={48} />}
+              title="No Events"
+              description={`No ${eventFilter === 'all' ? '' : eventFilter} events found.`}
+            />
+          )}
+        </>
       )}
 
       {/* Server Detail Modal */}
@@ -212,7 +577,8 @@ export default function AdminPage() {
           <div className="space-y-4">
             {selectedServer.imagePath && (
               <div className="relative h-48 rounded-lg overflow-hidden">
-                <Image src={selectedServer.imagePath} alt="" fill className="object-cover" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={selectedServer.imagePath} alt="" className="w-full h-full object-cover" />
               </div>
             )}
             <div>
@@ -244,35 +610,44 @@ export default function AdminPage() {
               <StatusBadge status={selectedServer.status} />
             </div>
 
-            {/* Actions for pending servers */}
-            {selectedServer.status === 'pending' && (
-              <div className="border-t border-divider pt-4 space-y-3">
-                <button
-                  onClick={() => handleStatusUpdate(selectedServer.id, 'approved')}
-                  disabled={!!actionLoading}
-                  className="btn-primary w-full flex items-center justify-center gap-2"
-                >
-                  <Check size={16} /> Approve Server
-                </button>
-                <div>
-                  <textarea
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="Rejection reason (optional)"
-                    maxLength={500}
-                    rows={2}
-                    className="input-field w-full resize-none text-sm mb-2"
-                  />
+            {/* Edit + Approve/Reject actions */}
+            <div className="border-t border-divider pt-4 space-y-3">
+              <button
+                onClick={() => startEditServer(selectedServer)}
+                className="btn-outline w-full flex items-center justify-center gap-2"
+              >
+                <Pencil size={16} /> Edit Server Details
+              </button>
+
+              {selectedServer.status === 'pending' && (
+                <>
                   <button
-                    onClick={() => handleStatusUpdate(selectedServer.id, 'rejected', rejectReason)}
+                    onClick={() => handleStatusUpdate(selectedServer.id, 'approved')}
                     disabled={!!actionLoading}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors text-sm"
+                    className="btn-primary w-full flex items-center justify-center gap-2"
                   >
-                    <X size={16} /> Reject Server
+                    <Check size={16} /> Approve Server
                   </button>
-                </div>
-              </div>
-            )}
+                  <div>
+                    <textarea
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      placeholder="Rejection reason (optional)"
+                      maxLength={500}
+                      rows={2}
+                      className="input-field w-full resize-none text-sm mb-2"
+                    />
+                    <button
+                      onClick={() => handleStatusUpdate(selectedServer.id, 'rejected', rejectReason)}
+                      disabled={!!actionLoading}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors text-sm"
+                    >
+                      <X size={16} /> Reject Server
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
       </Modal>
