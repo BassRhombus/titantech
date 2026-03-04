@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { ExternalLink, Copy, Server, Users, Wifi, WifiOff } from 'lucide-react';
 import type { ServerSubmission } from '@/types';
 
@@ -22,11 +21,11 @@ export function ServerCard({ server, status }: ServerCardProps) {
       {/* Server Image */}
       <div className="relative h-40 bg-surface overflow-hidden">
         {server.imagePath ? (
-          <Image
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
             src={server.imagePath}
             alt={server.name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
