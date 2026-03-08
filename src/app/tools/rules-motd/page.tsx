@@ -28,43 +28,46 @@ const COLOR_TAGS = [
 
 const CHAR_LIMIT = 1024;
 
-const RULES_TEMPLATE = `<title>Server Rules</title>
-<large>Welcome to our server!</large>
+const RULES_TEMPLATE = `<title>Server Rules</>
+<large>Welcome to our server!</>
 
-<red>1. Be Respectful</red>
+<red>1. Be Respectful</>
 Treat all players with respect. No harassment, hate speech, or toxic behavior.
 
-<orange>2. No Random Killing</orange>
+<orange>2. No Random Killing</>
 Do not attack players without roleplay reason. Follow the server's combat rules.
 
-<yellow>3. No Exploits or Hacking</yellow>
+<yellow>3. No Exploits or Hacking</>
 Using exploits, hacks, or any unfair advantage will result in an immediate ban.
 
-<green>4. Follow Roleplay Rules</green>
+<green>4. Follow Roleplay Rules</>
 Stay in character and respect the roleplay guidelines. No breaking character in public chat.
 
-<blue>5. Listen to Staff</blue>
+<blue>5. Listen to Staff</>
 Staff decisions are final. If you have a dispute, handle it privately with staff.`;
 
-const MOTD_TEMPLATE = `<title>Welcome to Our Server!</title>
+const MOTD_TEMPLATE = `<title>Welcome to Our Server!</>
 
-<large>Message of the Day</large>
+<large>Message of the Day</>
 
-<green>Server is running smoothly!</green>
+<green>Server is running smoothly!</>
 Current version: Latest
 
-<blue>Upcoming Events:</blue>
+<blue>Upcoming Events:</>
 - Community Hunt this Saturday at 8PM EST
 - New map area opening next week
 
-<yellow>Reminders:</yellow>
+<yellow>Reminders:</>
 - Read /rules before playing
 - Join our Discord for updates
 - Report issues to staff`;
 
 function stripTags(text: string): string {
-  return text.replace(/<\/?(?:title|large|small|red|orange|yellow|green|blue|purple|white)>/gi, '');
+  return text.replace(/<(?:\/|title|large|small|red|orange|yellow|green|blue|purple|white)>/gi, '');
 }
+
+const ALL_TAGS = ['title', 'large', 'small', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white'];
+const TAG_OPEN_RE = new RegExp(`<(${ALL_TAGS.join('|')})>`, 'gi');
 
 function getCharCount(text: string): number {
   return stripTags(text).length;
@@ -76,10 +79,9 @@ function parsePreview(text: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Parse tags
-  const tags = ['title', 'large', 'small', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white'];
-  for (const tag of tags) {
-    const re = new RegExp(`&lt;${tag}&gt;(.*?)&lt;/${tag}&gt;`, 'gi');
+  // Parse tags: <tag>content</>
+  for (const tag of ALL_TAGS) {
+    const re = new RegExp(`&lt;${tag}&gt;(.*?)&lt;/&gt;`, 'gi');
     html = html.replace(re, `<span class="preview-${tag}">$1</span>`);
   }
 
@@ -88,13 +90,30 @@ function parsePreview(text: string): string {
 
 function getValidationErrors(text: string): string[] {
   const errors: string[] = [];
-  const tags = ['title', 'large', 'small', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white'];
 
-  for (const tag of tags) {
-    const openCount = (text.match(new RegExp(`<${tag}>`, 'gi')) || []).length;
-    const closeCount = (text.match(new RegExp(`</${tag}>`, 'gi')) || []).length;
-    if (openCount !== closeCount) {
-      errors.push(`Unclosed <${tag}> tag (${openCount} open, ${closeCount} close)`);
+  // Count total openers vs total </>
+  let totalOpens = 0;
+  for (const tag of ALL_TAGS) {
+    totalOpens += (text.match(new RegExp(`<${tag}>`, 'gi')) || []).length;
+  }
+  const totalCloses = (text.match(/<\/>/g) || []).length;
+  if (totalOpens !== totalCloses) {
+    errors.push(`Mismatched tags: ${totalOpens} opening tag${totalOpens !== 1 ? 's' : ''}, ${totalCloses} closer${totalCloses !== 1 ? 's' : ''}`);
+  }
+
+  // Check for nested tags
+  for (const tag of ALL_TAGS) {
+    const re = new RegExp(`<${tag}>(.*?)</>`, 'gis');
+    let match;
+    while ((match = re.exec(text)) !== null) {
+      const inner = match[1];
+      TAG_OPEN_RE.lastIndex = 0;
+      if (TAG_OPEN_RE.test(inner)) {
+        errors.push(`Nested tags inside <${tag}> — tags cannot be placed inside other tags`);
+        TAG_OPEN_RE.lastIndex = 0;
+        break;
+      }
+      TAG_OPEN_RE.lastIndex = 0;
     }
   }
 
@@ -107,29 +126,56 @@ function getValidationErrors(text: string): string[] {
 
 function autoFix(text: string): string {
   let fixed = text;
-  const tags = ['title', 'large', 'small', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white'];
 
-  for (const tag of tags) {
-    const openCount = (fixed.match(new RegExp(`<${tag}>`, 'gi')) || []).length;
-    const closeCount = (fixed.match(new RegExp(`</${tag}>`, 'gi')) || []).length;
-
-    if (openCount > closeCount) {
-      for (let i = 0; i < openCount - closeCount; i++) {
-        // Find last unclosed open tag and close it at end of line
-        const lastOpen = fixed.lastIndexOf(`<${tag}>`);
-        const nextNewline = fixed.indexOf('\n', lastOpen);
-        if (nextNewline !== -1) {
-          fixed = fixed.slice(0, nextNewline) + `</${tag}>` + fixed.slice(nextNewline);
-        } else {
-          fixed += `</${tag}>`;
+  // First, unnest tags: <outer><inner>text</></>  → <inner>text</>
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const outer of ALL_TAGS) {
+      const re = new RegExp(`<${outer}>(.*?)</>`, 'gis');
+      let match;
+      while ((match = re.exec(fixed)) !== null) {
+        const inner = match[1];
+        TAG_OPEN_RE.lastIndex = 0;
+        if (TAG_OPEN_RE.test(inner)) {
+          // Remove the outer tag wrapper, keep inner content as-is
+          const before = fixed.slice(0, match.index);
+          const after = fixed.slice(match.index + match[0].length);
+          fixed = before + inner + after;
+          changed = true;
+          break;
         }
+        TAG_OPEN_RE.lastIndex = 0;
       }
-    } else if (closeCount > openCount) {
-      for (let i = 0; i < closeCount - openCount; i++) {
-        const idx = fixed.indexOf(`</${tag}>`);
-        if (idx !== -1) {
-          fixed = fixed.slice(0, idx) + fixed.slice(idx + `</${tag}>`.length);
-        }
+      if (changed) break;
+    }
+  }
+
+  // Fix mismatched open/close counts
+  let totalOpens = 0;
+  for (const tag of ALL_TAGS) {
+    totalOpens += (fixed.match(new RegExp(`<${tag}>`, 'gi')) || []).length;
+  }
+  let totalCloses = (fixed.match(/<\/>/g) || []).length;
+
+  if (totalOpens > totalCloses) {
+    // Add missing </> at end of lines with unclosed tags
+    const lines = fixed.split('\n');
+    for (let i = lines.length - 1; i >= 0 && totalOpens > totalCloses; i--) {
+      const lineOpens = ALL_TAGS.reduce((n, tag) => n + (lines[i].match(new RegExp(`<${tag}>`, 'gi')) || []).length, 0);
+      const lineCloses = (lines[i].match(/<\/>/g) || []).length;
+      if (lineOpens > lineCloses) {
+        lines[i] += '</>'.repeat(lineOpens - lineCloses);
+        totalCloses += lineOpens - lineCloses;
+      }
+    }
+    fixed = lines.join('\n');
+  } else if (totalCloses > totalOpens) {
+    // Remove excess </>
+    for (let i = 0; i < totalCloses - totalOpens; i++) {
+      const idx = fixed.lastIndexOf('</>');
+      if (idx !== -1) {
+        fixed = fixed.slice(0, idx) + fixed.slice(idx + 3);
       }
     }
   }
@@ -152,26 +198,42 @@ export default function RulesMotdPage() {
   const errors = useMemo(() => getValidationErrors(currentText), [currentText]);
   const previewHtml = useMemo(() => parsePreview(currentText), [currentText]);
 
+  function isInsideTag(text: string, pos: number): boolean {
+    const before = text.substring(0, pos);
+    for (const t of ALL_TAGS) {
+      const lastOpen = before.lastIndexOf(`<${t}>`);
+      if (lastOpen === -1) continue;
+      // Find the next </> after that open tag
+      const nextClose = before.indexOf('</>', lastOpen);
+      if (nextClose === -1) return true; // No closer found after open = we're inside
+    }
+    return false;
+  }
+
   function insertTag(tag: string) {
     const ta = textareaRef.current;
     if (!ta) return;
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const text = currentText;
+
+    // Prevent nesting: don't insert if cursor is inside another tag
+    if (isInsideTag(text, start)) return;
+
     const selected = text.substring(start, end);
 
     let newText: string;
     if (selected) {
-      newText = text.substring(0, start) + `<${tag}>${selected}</${tag}>` + text.substring(end);
+      newText = text.substring(0, start) + `<${tag}>${selected}</>` + text.substring(end);
     } else {
-      newText = text.substring(0, start) + `<${tag}></${tag}>` + text.substring(end);
+      newText = text.substring(0, start) + `<${tag}></>` + text.substring(end);
     }
     setText(newText);
 
     setTimeout(() => {
       ta.focus();
       const cursorPos = selected
-        ? start + `<${tag}>${selected}</${tag}>`.length
+        ? start + `<${tag}>${selected}</>`.length
         : start + `<${tag}>`.length;
       ta.setSelectionRange(cursorPos, cursorPos);
     }, 0);
@@ -181,24 +243,16 @@ export default function RulesMotdPage() {
     const ta = textareaRef.current;
     if (!ta) return;
     const pos = ta.selectionStart;
-    const before = currentText.substring(0, pos);
-    const tags = ['title', 'large', 'small', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white'];
 
-    // Find last unclosed tag
-    for (const t of tags) {
-      const lastOpen = before.lastIndexOf(`<${t}>`);
-      const lastClose = before.lastIndexOf(`</${t}>`);
-      if (lastOpen > lastClose) {
-        const closeTag = `</${t}>`;
-        const newText = currentText.substring(0, pos) + closeTag + currentText.substring(pos);
-        setText(newText);
-        setTimeout(() => {
-          ta.focus();
-          ta.setSelectionRange(pos + closeTag.length, pos + closeTag.length);
-        }, 0);
-        return;
-      }
-    }
+    if (!isInsideTag(currentText, pos)) return;
+
+    const closeTag = '</>';
+    const newText = currentText.substring(0, pos) + closeTag + currentText.substring(pos);
+    setText(newText);
+    setTimeout(() => {
+      ta.focus();
+      ta.setSelectionRange(pos + closeTag.length, pos + closeTag.length);
+    }, 0);
   }
 
   async function handleDownload() {
