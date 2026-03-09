@@ -67,9 +67,13 @@ export default function GameIniPage() {
             continue;
           }
 
-          if (current === setting.default) continue;
+          // Always include ServerMap in output
+          if (setting.name !== 'ServerMap' && current === setting.default) continue;
 
-          if (MULTILINE_KEYS.has(setting.name)) {
+          if (setting.name === 'ServerAdmins') {
+            const entries = current.split('\n').map((l) => l.trim()).filter(Boolean);
+            entries.forEach((entry) => lines.push(`ServerAdmins=${entry}`));
+          } else if (MULTILINE_KEYS.has(setting.name)) {
             const outputKey = getMultilineOutputKey(setting.name);
             const entries = current.split('\n').map((l) => l.trim()).filter(Boolean);
             entries.forEach((entry) => lines.push(`${outputKey}=${entry}`));
@@ -190,6 +194,13 @@ export default function GameIniPage() {
       if (!match) continue;
       let [, key, val] = match;
       val = val.replace(/^"(.*)"$/, '$1');
+
+      // Handle ServerAdmins=ID1,ID2 (comma-separated) format
+      if (key === 'ServerAdmins') {
+        if (!multilineAccum['ServerAdmins']) multilineAccum['ServerAdmins'] = [];
+        multilineAccum['ServerAdmins'].push(...val.split(',').map((v) => v.trim()).filter(Boolean));
+        continue;
+      }
 
       const pluralKey = key === 'ServerAdmin' ? 'ServerAdmins'
         : key === 'AllowedCharacter' ? 'AllowedCharacters'
