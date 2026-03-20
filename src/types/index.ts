@@ -63,6 +63,16 @@ export interface Profile {
   updatedAt: Date;
 }
 
+export interface Screenshot {
+  id: string;
+  title: string;
+  description?: string | null;
+  imagePath: string;
+  userId: string;
+  username: string;
+  createdAt: Date;
+}
+
 export interface NavItem {
   label: string;
   href: string;

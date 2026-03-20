@@ -11,6 +11,8 @@ import {
   Lightbulb,
   Zap,
   Users,
+  Bot,
+  Globe,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -59,7 +61,7 @@ export default function HomePage() {
               {/* Quick stats */}
               <div className="flex items-center gap-8 mt-10 justify-center lg:justify-start">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-text-primary">4</div>
+                  <div className="text-2xl font-bold text-text-primary">5</div>
                   <div className="text-xs text-text-secondary mt-0.5">Config Tools</div>
                 </div>
                 <div className="w-px h-8 bg-divider" />
@@ -87,6 +89,48 @@ export default function HomePage() {
 
         {/* Bottom fade into next section */}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
+      </section>
+
+      {/* Bots Section */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="flex flex-col lg:flex-row items-center gap-12">
+          {/* Info */}
+          <div className="flex-1 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#5865F2]/10 border border-[#5865F2]/20 text-[#8b9dfa] text-sm font-medium mb-4">
+              <Bot size={14} />
+              Discord Bots
+            </div>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold mb-4">
+              Bots Built for{' '}
+              <span className="gradient-text-primary">Communities</span>
+            </h2>
+            <p className="text-text-secondary text-lg max-w-xl mb-8 leading-relaxed">
+              Custom Discord bots designed for Path of Titans communities. Server management, event tracking, moderation, and more — trusted by communities worldwide.
+            </p>
+            <a href="https://bots.titantech.party/" target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center gap-2 text-base px-7 py-3">
+              View All Bots <ArrowRight size={18} />
+            </a>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-3 gap-4 lg:gap-5">
+            <div className="card p-5 text-center min-w-[120px]">
+              <Bot size={22} className="mx-auto text-[#5865F2] mb-2" />
+              <div className="text-3xl font-bold text-text-primary">28</div>
+              <div className="text-xs text-text-secondary mt-1">Bots</div>
+            </div>
+            <div className="card p-5 text-center min-w-[120px]">
+              <Globe size={22} className="mx-auto text-primary-light mb-2" />
+              <div className="text-3xl font-bold text-text-primary">49</div>
+              <div className="text-xs text-text-secondary mt-1">Guilds</div>
+            </div>
+            <div className="card p-5 text-center min-w-[120px]">
+              <Users size={22} className="mx-auto text-secondary-light mb-2" />
+              <div className="text-3xl font-bold text-text-primary">92K+</div>
+              <div className="text-xs text-text-secondary mt-1">Members</div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Features Section */}

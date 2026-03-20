@@ -6,12 +6,14 @@ export function EmptyState({
   description,
   actionLabel,
   actionHref,
+  onAction,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
   actionLabel?: string;
   actionHref?: string;
+  onAction?: () => void;
 }) {
   return (
     <div className="border border-dashed border-divider rounded-lg p-12 text-center">
@@ -22,6 +24,11 @@ export function EmptyState({
         <Link href={actionHref} className="btn-primary inline-flex items-center gap-2 text-sm">
           {actionLabel}
         </Link>
+      )}
+      {actionLabel && onAction && !actionHref && (
+        <button onClick={onAction} className="btn-primary inline-flex items-center gap-2 text-sm">
+          {actionLabel}
+        </button>
       )}
     </div>
   );

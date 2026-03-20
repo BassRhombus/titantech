@@ -63,9 +63,10 @@ model User {
   sessions Session[]
 
   // App relations
-  profiles Profile[]
-  servers  ServerSubmission[]
-  events   Event[]
+  profiles    Profile[]
+  servers     ServerSubmission[]
+  events      Event[]
+  screenshots Screenshot[]
 }
 
 model Profile {
@@ -155,4 +156,19 @@ model Event {
   @@index([creatorId])
   @@index([status, dateTime])
   @@index([category])
+}
+
+model Screenshot {
+  id          String   @id @default(cuid())
+  title       String   @db.VarChar(100)
+  description String?  @db.VarChar(500)
+  imagePath   String
+  userId      String
+  username    String   @db.VarChar(100)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }

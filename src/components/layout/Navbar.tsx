@@ -25,6 +25,7 @@ import {
   FileText,
   TrendingUp,
   Bot,
+  ImageIcon,
 } from 'lucide-react';
 
 const toolsDropdown = [
@@ -144,6 +145,9 @@ export function Navbar() {
                 )}
               </div>
 
+              <NavLink href="/gallery" icon={<ImageIcon size={16} />} active={isActive('/gallery')}>
+                Gallery
+              </NavLink>
               <NavLink href="/suggestions" icon={<Lightbulb size={16} />} active={isActive('/suggestions')}>
                 Suggestions
               </NavLink>
@@ -286,6 +290,9 @@ export function Navbar() {
                   )}
                 </div>
 
+                <MobileNavLink href="/gallery" onClick={closeMobile} active={isActive('/gallery')}>
+                  <ImageIcon size={18} /> Gallery
+                </MobileNavLink>
                 <MobileNavLink href="/suggestions" onClick={closeMobile} active={isActive('/suggestions')}>
                   <Lightbulb size={18} /> Suggestions
                 </MobileNavLink>
