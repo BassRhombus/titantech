@@ -70,6 +70,7 @@ export interface Screenshot {
   imagePath: string;
   userId: string;
   username: string;
+  status: 'pending' | 'approved' | 'rejected';
   createdAt: Date;
 }
 

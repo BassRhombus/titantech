@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import {
-  ImageIcon, Upload, X, Trash2, AlertCircle, Plus, User, ZoomIn,
+  ImageIcon, Upload, X, Trash2, AlertCircle, Plus, User, ZoomIn, CheckCircle,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -22,6 +22,7 @@ export default function GalleryPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [uploadSuccess, setUploadSuccess] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -85,6 +86,8 @@ export default function GalleryPage() {
         setUploadFile(null);
         setPreviewUrl(null);
         (e.target as HTMLFormElement).reset();
+        setUploadSuccess('Screenshot uploaded! It will appear in the gallery after admin approval.');
+        setTimeout(() => setUploadSuccess(''), 6000);
         fetchScreenshots();
       } else {
         setUploadError(data.message || 'Upload failed');
@@ -209,6 +212,14 @@ export default function GalleryPage() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Upload Success */}
+      {uploadSuccess && (
+        <div className="bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg p-3 mb-6 flex items-center gap-2 text-sm animate-fade-in">
+          <CheckCircle size={16} />
+          {uploadSuccess}
         </div>
       )}
 

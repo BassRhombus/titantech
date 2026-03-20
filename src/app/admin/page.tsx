@@ -12,7 +12,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
-import type { ServerSubmission } from '@/types';
+import type { ServerSubmission, Screenshot } from '@/types';
 
 interface EventItem {
   id: string;
@@ -28,7 +28,7 @@ interface EventItem {
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
-  const [activeTab, setActiveTab] = useState<'servers' | 'events'>('servers');
+  const [activeTab, setActiveTab] = useState<'servers' | 'events' | 'gallery'>('servers');
 
   // Server state
   const [servers, setServers] = useState<ServerSubmission[]>([]);
@@ -51,10 +51,16 @@ export default function AdminPage() {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [eventFilter, setEventFilter] = useState<string>('all');
 
+  // Gallery state
+  const [galleryShots, setGalleryShots] = useState<Screenshot[]>([]);
+  const [loadingGallery, setLoadingGallery] = useState(true);
+  const [galleryFilter, setGalleryFilter] = useState<string>('pending');
+
   useEffect(() => {
     if (session?.user?.isAdmin) {
       fetchServers();
       fetchEvents();
+      fetchGallery();
     }
   }, [session]);
 
@@ -75,6 +81,41 @@ export default function AdminPage() {
       if (res.ok) setEvents(await res.json());
     } catch {} finally {
       setLoadingEvents(false);
+    }
+  }
+
+  async function fetchGallery() {
+    setLoadingGallery(true);
+    try {
+      const res = await fetch('/api/admin/gallery');
+      if (res.ok) setGalleryShots(await res.json());
+    } catch {} finally {
+      setLoadingGallery(false);
+    }
+  }
+
+  async function handleGalleryStatus(id: string, newStatus: string) {
+    setActionLoading(id);
+    try {
+      const res = await fetch(`/api/admin/gallery/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) fetchGallery();
+    } catch {} finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleDeleteScreenshot(id: string) {
+    if (!confirm('Permanently delete this screenshot?')) return;
+    setActionLoading(id);
+    try {
+      const res = await fetch(`/api/admin/gallery/${id}`, { method: 'DELETE' });
+      if (res.ok) setGalleryShots((prev) => prev.filter((s) => s.id !== id));
+    } catch {} finally {
+      setActionLoading(null);
     }
   }
 
@@ -203,6 +244,14 @@ export default function AdminPage() {
     cancelled: events.filter((e) => e.status === 'cancelled').length,
   };
 
+  const filteredGallery = galleryFilter === 'all' ? galleryShots : galleryShots.filter((s) => s.status === galleryFilter);
+  const galleryCounts = {
+    all: galleryShots.length,
+    pending: galleryShots.filter((s) => s.status === 'pending').length,
+    approved: galleryShots.filter((s) => s.status === 'approved').length,
+    rejected: galleryShots.filter((s) => s.status === 'rejected').length,
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
@@ -240,6 +289,20 @@ export default function AdminPage() {
           <Calendar size={16} />
           Events
           <span className="bg-surface text-text-secondary text-xs px-1.5 py-0.5 rounded-full">{eventCounts.all}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('gallery')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+            activeTab === 'gallery'
+              ? 'border-primary text-primary-light'
+              : 'border-transparent text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          <ImageIcon size={16} />
+          Gallery
+          {galleryCounts.pending > 0 && (
+            <span className="bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5 rounded-full">{galleryCounts.pending}</span>
+          )}
         </button>
       </div>
 
@@ -562,6 +625,101 @@ export default function AdminPage() {
               icon={<Calendar size={48} />}
               title="No Events"
               description={`No ${eventFilter === 'all' ? '' : eventFilter} events found.`}
+            />
+          )}
+        </>
+      )}
+
+      {/* ===== GALLERY TAB ===== */}
+      {activeTab === 'gallery' && (
+        <>
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            {(['all', 'pending', 'approved', 'rejected'] as const).map((key) => (
+              <button
+                key={key}
+                onClick={() => setGalleryFilter(key)}
+                className={`card p-4 text-center transition-colors ${
+                  galleryFilter === key ? 'border-primary bg-primary/5' : ''
+                }`}
+              >
+                <p className="text-2xl font-bold text-text-primary">{galleryCounts[key]}</p>
+                <p className="text-xs text-text-secondary capitalize">{key}</p>
+              </button>
+            ))}
+          </div>
+
+          {/* Gallery List */}
+          {loadingGallery ? (
+            <div className="flex justify-center py-20"><Spinner size="lg" /></div>
+          ) : filteredGallery.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredGallery.map((shot) => (
+                <div key={shot.id} className="card overflow-hidden">
+                  <div className="relative aspect-video bg-surface overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={shot.imagePath} alt={shot.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-heading font-semibold text-text-primary truncate flex-1">{shot.title}</h3>
+                      <StatusBadge status={shot.status} />
+                    </div>
+                    {shot.description && (
+                      <p className="text-text-secondary text-sm line-clamp-1 mb-1">{shot.description}</p>
+                    )}
+                    <div className="flex items-center gap-4 text-xs text-text-secondary mb-3">
+                      <span>By: {shot.username}</span>
+                      <span>{new Date(shot.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {shot.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleGalleryStatus(shot.id, 'approved')}
+                            disabled={actionLoading === shot.id}
+                            className="p-2 rounded-lg text-green-400 hover:bg-green-500/10 transition-colors"
+                            title="Approve"
+                          >
+                            <Check size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleGalleryStatus(shot.id, 'rejected')}
+                            disabled={actionLoading === shot.id}
+                            className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+                            title="Reject"
+                          >
+                            <X size={18} />
+                          </button>
+                        </>
+                      )}
+                      {shot.status !== 'pending' && (
+                        <button
+                          onClick={() => handleGalleryStatus(shot.id, 'pending')}
+                          disabled={actionLoading === shot.id}
+                          className="text-xs text-text-secondary hover:text-text-primary transition-colors"
+                        >
+                          Reset to Pending
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteScreenshot(shot.id)}
+                        disabled={actionLoading === shot.id}
+                        className="p-2 rounded-lg text-text-secondary hover:text-error hover:bg-red-500/10 transition-colors ml-auto"
+                        title="Delete"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<ImageIcon size={48} />}
+              title="No Screenshots"
+              description={`No ${galleryFilter === 'all' ? '' : galleryFilter} screenshots found.`}
             />
           )}
         </>

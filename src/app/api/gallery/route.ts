@@ -11,6 +11,7 @@ export async function GET(request: Request) {
   const limit = Math.min(Number(searchParams.get('limit')) || 24, 48);
 
   const screenshots = await prisma.screenshot.findMany({
+    where: { status: 'approved' },
     take: limit + 1,
     ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     orderBy: { createdAt: 'desc' },
