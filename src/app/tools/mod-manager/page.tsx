@@ -25,6 +25,7 @@ export default function ModManagerPage() {
   const [search, setSearch] = useState('');
   const [showPreview, setShowPreview] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  const [invalidModIds, setInvalidModIds] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -81,6 +82,7 @@ export default function ModManagerPage() {
 
   function deselectAll() {
     setSelectedIds(new Set());
+    setInvalidModIds([]);
   }
 
   function generateConfig(): string {
@@ -130,7 +132,11 @@ export default function ModManagerPage() {
     reader.onload = (ev) => {
       const content = ev.target?.result as string;
       const ids = extractModIdsFromIni(content);
-      setSelectedIds(new Set(ids));
+      const knownIds = new Set(mods.map((m) => m.mod_id));
+      const valid = ids.filter((id) => knownIds.has(id));
+      const invalid = ids.filter((id) => !knownIds.has(id));
+      setSelectedIds(new Set(valid));
+      setInvalidModIds(invalid);
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -142,9 +148,14 @@ export default function ModManagerPage() {
 
   const loadProfileData = useCallback((data: Record<string, unknown>) => {
     if (Array.isArray(data.selectedModIds)) {
-      setSelectedIds(new Set(data.selectedModIds as string[]));
+      const ids = data.selectedModIds as string[];
+      const knownIds = new Set(mods.map((m) => m.mod_id));
+      const valid = ids.filter((id) => knownIds.has(id));
+      const invalid = ids.filter((id) => !knownIds.has(id));
+      setSelectedIds(new Set(valid));
+      setInvalidModIds(invalid);
     }
-  }, []);
+  }, [mods]);
 
   function extractModIdsFromIni(content: string): string[] {
     const ids: string[] = [];
@@ -205,6 +216,40 @@ export default function ModManagerPage() {
           <span>Last refreshed: {lastRefreshed.toLocaleTimeString()}</span>
         )}
       </div>
+
+      {/* Invalid Mod IDs Warning */}
+      {invalidModIds.length > 0 && (
+        <div className="mb-4 card border-yellow-500/50 bg-yellow-500/10 p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle size={20} className="text-yellow-500 shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <h4 className="font-heading font-semibold text-yellow-400 text-sm mb-1">
+                {invalidModIds.length} Invalid Mod ID{invalidModIds.length !== 1 ? 's' : ''} Found
+              </h4>
+              <p className="text-xs text-text-secondary mb-2">
+                These mod IDs from your file don&apos;t match any mods in the API and won&apos;t be included in your config.
+                They may have been removed, renamed, or not yet published.
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {invalidModIds.map((id) => (
+                  <code
+                    key={id}
+                    className="text-[11px] bg-yellow-500/10 border border-yellow-500/30 rounded px-1.5 py-0.5 text-yellow-300"
+                  >
+                    {id}
+                  </code>
+                ))}
+              </div>
+              <button
+                onClick={() => setInvalidModIds([])}
+                className="text-xs text-text-secondary hover:text-text-primary mt-2 underline"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Mod Grid */}
