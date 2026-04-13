@@ -16,12 +16,20 @@ function handleShutdownSignal() {
   state.shuttingDown = true;
   state.shutdownAt = Date.now() + SHUTDOWN_DELAY_MS;
 
-  console.log(
-    `[shutdown] Signal received. Shutting down in ${SHUTDOWN_DELAY_MS / 1000}s...`
-  );
+  const totalSeconds = SHUTDOWN_DELAY_MS / 1000;
+  console.log(`[shutdown] Signal received. Shutting down in ${totalSeconds}s...`);
+
+  let remaining = totalSeconds;
+  const ticker = setInterval(() => {
+    remaining -= 10;
+    if (remaining > 0) {
+      console.log(`[shutdown] Restarting in ${remaining}s — save your work!`);
+    }
+  }, 10_000);
 
   setTimeout(() => {
-    console.log('[shutdown] Delay complete, exiting.');
+    clearInterval(ticker);
+    console.log('[shutdown] Shutting down now.');
     process.exit(0);
   }, SHUTDOWN_DELAY_MS);
 }

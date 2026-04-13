@@ -8,20 +8,33 @@ type Phase = 'idle' | 'countdown' | 'restarting';
 export function ShutdownBanner() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [secondsLeft, setSecondsLeft] = useState(60);
+  const [restartElapsed, setRestartElapsed] = useState(0);
   const shutdownAtRef = useRef<number | null>(null);
+  const restartStartRef = useRef<number | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const restartTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const clearAllIntervals = useCallback(() => {
     if (pollRef.current) clearInterval(pollRef.current);
     if (countdownRef.current) clearInterval(countdownRef.current);
+    if (restartTimerRef.current) clearInterval(restartTimerRef.current);
     pollRef.current = null;
     countdownRef.current = null;
+    restartTimerRef.current = null;
   }, []);
 
   const startHealthPolling = useCallback(() => {
     clearAllIntervals();
     setPhase('restarting');
+    restartStartRef.current = Date.now();
+    setRestartElapsed(0);
+
+    restartTimerRef.current = setInterval(() => {
+      if (restartStartRef.current) {
+        setRestartElapsed(Math.floor((Date.now() - restartStartRef.current) / 1000));
+      }
+    }, 1000);
 
     pollRef.current = setInterval(async () => {
       try {
@@ -105,12 +118,12 @@ export function ShutdownBanner() {
       {phase === 'countdown' ? (
         <span className="inline-flex items-center gap-2">
           <AlertTriangle size={16} />
-          Server shutting down in {secondsLeft}s
+          Server restarting in {secondsLeft}s &mdash; save your work!
         </span>
       ) : (
         <span className="inline-flex items-center gap-2">
           <RefreshCw size={16} className="animate-spin" />
-          Server is restarting&hellip; Page will auto-refresh when ready.
+          Server is restarting&hellip; ({restartElapsed}s elapsed) Page will auto-refresh when ready.
         </span>
       )}
     </div>
