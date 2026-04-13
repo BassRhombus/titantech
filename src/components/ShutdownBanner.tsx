@@ -11,10 +11,10 @@ export function ShutdownBanner() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [secondsLeft, setSecondsLeft] = useState(60);
   const phaseRef = useRef<Phase>('idle');
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const shutdownReceivedRef = useRef(false);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const healthPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const shutdownReceivedRef = useRef(false);
 
   const setPhaseSync = useCallback((next: Phase) => {
     phaseRef.current = next;
@@ -72,50 +72,59 @@ export function ShutdownBanner() {
 
   useEffect(() => {
     function connect() {
-      const es = new EventSource('/api/shutdown-status');
-      eventSourceRef.current = es;
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${proto}//${window.location.host}/ws`);
+      wsRef.current = ws;
 
-      es.addEventListener('shutdown', (e) => {
-        shutdownReceivedRef.current = true;
+      ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
 
-        if (data.shutdownAt && data.duration > 0) {
-          startCountdown(data.shutdownAt);
-        } else {
-          // Already in progress, go straight to restarting
-          startHealthPolling();
+        switch (data.type) {
+          case 'shutdown':
+            shutdownReceivedRef.current = true;
+            if (data.shutdownAt && data.duration > 0) {
+              startCountdown(data.shutdownAt);
+            } else {
+              startHealthPolling();
+            }
+            break;
+
+          case 'countdown':
+            if (phaseRef.current === 'countdown') {
+              setSecondsLeft(data.remaining);
+            }
+            break;
+
+          case 'shutdown_now':
+            startHealthPolling();
+            break;
         }
-      });
+      };
 
-      es.addEventListener('countdown', (e) => {
-        const data = JSON.parse(e.data);
-        if (phaseRef.current === 'countdown') {
-          setSecondsLeft(data.remaining);
-        }
-      });
-
-      es.addEventListener('shutdown_now', () => {
-        startHealthPolling();
-      });
-
-      es.onerror = () => {
-        es.close();
-
+      ws.onclose = () => {
+        wsRef.current = null;
         if (shutdownReceivedRef.current) {
-          // Server died after shutdown event — start health polling
+          // Server died after shutdown — start health polling
           startHealthPolling();
         } else {
-          // Normal disconnect (network blip, deploy) — silently reconnect
+          // Normal disconnect — silently reconnect
           setTimeout(connect, 3000);
         }
+      };
+
+      ws.onerror = () => {
+        ws.close();
       };
     }
 
     connect();
 
     return () => {
-      eventSourceRef.current?.close();
       clearTimers();
+      if (wsRef.current) {
+        wsRef.current.onclose = null; // prevent reconnect on cleanup
+        wsRef.current.close();
+      }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
