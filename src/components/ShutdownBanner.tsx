@@ -5,36 +5,34 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 type Phase = 'idle' | 'countdown' | 'restarting';
 
+const RESTART_COUNTDOWN = 60;
+
 export function ShutdownBanner() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [secondsLeft, setSecondsLeft] = useState(60);
-  const [restartElapsed, setRestartElapsed] = useState(0);
-  const shutdownAtRef = useRef<number | null>(null);
-  const restartStartRef = useRef<number | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const restartTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const clearAllIntervals = useCallback(() => {
     if (pollRef.current) clearInterval(pollRef.current);
     if (countdownRef.current) clearInterval(countdownRef.current);
-    if (restartTimerRef.current) clearInterval(restartTimerRef.current);
     pollRef.current = null;
     countdownRef.current = null;
-    restartTimerRef.current = null;
   }, []);
 
   const startHealthPolling = useCallback(() => {
-    clearAllIntervals();
-    setPhase('restarting');
-    restartStartRef.current = Date.now();
-    setRestartElapsed(0);
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    countdownRef.current = null;
 
-    restartTimerRef.current = setInterval(() => {
-      if (restartStartRef.current) {
-        setRestartElapsed(Math.floor((Date.now() - restartStartRef.current) / 1000));
-      }
-    }, 1000);
+    setPhase('restarting');
+    setSecondsLeft(RESTART_COUNTDOWN);
+
+    const restartDeadline = Date.now() + RESTART_COUNTDOWN * 1000;
+
+    countdownRef.current = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((restartDeadline - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+    }, 250);
 
     pollRef.current = setInterval(async () => {
       try {
@@ -51,14 +49,10 @@ export function ShutdownBanner() {
 
   const startCountdown = useCallback(
     (shutdownAt: number) => {
-      shutdownAtRef.current = shutdownAt;
       setPhase('countdown');
 
       countdownRef.current = setInterval(() => {
-        const remaining = Math.max(
-          0,
-          Math.ceil((shutdownAt - Date.now()) / 1000)
-        );
+        const remaining = Math.max(0, Math.ceil((shutdownAt - Date.now()) / 1000));
         setSecondsLeft(remaining);
 
         if (remaining <= 0) {
@@ -99,20 +93,19 @@ export function ShutdownBanner() {
   const urgency =
     secondsLeft <= 10 ? 'critical' : secondsLeft <= 30 ? 'warning' : 'notice';
 
+  const bannerClass =
+    urgency === 'critical'
+      ? 'bg-red-600 text-white animate-pulse'
+      : urgency === 'warning'
+        ? 'bg-red-500 text-white'
+        : 'bg-yellow-500 text-black';
+
   return (
     <div
       role="alert"
       className={`
         fixed top-0 inset-x-0 z-[9999] px-4 py-3 text-center text-sm font-semibold
-        transition-colors duration-300
-        ${phase === 'restarting'
-          ? 'bg-red-600 text-white'
-          : urgency === 'critical'
-            ? 'bg-red-600 text-white animate-pulse'
-            : urgency === 'warning'
-              ? 'bg-red-500 text-white'
-              : 'bg-yellow-500 text-black'
-        }
+        transition-colors duration-300 ${bannerClass}
       `}
     >
       {phase === 'countdown' ? (
@@ -123,7 +116,7 @@ export function ShutdownBanner() {
       ) : (
         <span className="inline-flex items-center gap-2">
           <RefreshCw size={16} className="animate-spin" />
-          Server is restarting&hellip; ({restartElapsed}s elapsed) Page will auto-refresh when ready.
+          Server is restarting&hellip; {secondsLeft}s &mdash; Page will auto-refresh when ready.
         </span>
       )}
     </div>
