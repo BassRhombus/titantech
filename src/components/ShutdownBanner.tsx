@@ -6,138 +6,135 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 type Phase = 'idle' | 'countdown' | 'restarting';
 
 export function ShutdownBanner() {
-  const [phase, setPhase] = useState<Phase>('idle');
-  const [secondsLeft, setSecondsLeft] = useState(60);
-  const phaseRef = useRef<Phase>('idle');
-  const shutdownReceivedRef = useRef(false);
+  const [display, setDisplay] = useState({ phase: 'idle' as Phase, seconds: 60 });
+  const started = useRef(false);
 
   useEffect(() => {
+    let countRef = 60;
+    let tick: ReturnType<typeof setTimeout> | null = null;
+    let health: ReturnType<typeof setInterval> | null = null;
     let ws: WebSocket | null = null;
-    let tickTimer: ReturnType<typeof setInterval> | null = null;
-    let healthTimer: ReturnType<typeof setInterval> | null = null;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let reconnect: ReturnType<typeof setTimeout> | null = null;
+    let gotShutdown = false;
 
-    function cleanup() {
-      if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
-      if (healthTimer) { clearInterval(healthTimer); healthTimer = null; }
-      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+    function render(phase: Phase, seconds: number) {
+      setDisplay({ phase, seconds });
     }
 
-    function startCountdown(seconds: number) {
-      if (phaseRef.current !== 'idle') return;
-      cleanup();
-      phaseRef.current = 'countdown';
-      setPhase('countdown');
-      setSecondsLeft(seconds);
-
-      tickTimer = setInterval(() => {
-        setSecondsLeft((prev) => {
-          const next = prev - 1;
-          if (next <= 0) {
-            startRestarting();
-            return 0;
-          }
-          return next;
-        });
-      }, 1000);
+    function stopTimers() {
+      if (tick) { clearTimeout(tick); tick = null; }
+      if (health) { clearInterval(health); health = null; }
+      if (reconnect) { clearTimeout(reconnect); reconnect = null; }
     }
 
-    function startRestarting() {
-      cleanup();
-      phaseRef.current = 'restarting';
-      setPhase('restarting');
-      setSecondsLeft(60);
+    function countdownTick() {
+      countRef -= 1;
+      render('countdown', countRef);
+      if (countRef <= 0) {
+        doRestart();
+      } else {
+        tick = setTimeout(countdownTick, 1000);
+      }
+    }
 
-      tickTimer = setInterval(() => {
-        setSecondsLeft((prev) => Math.max(0, prev - 1));
-      }, 1000);
+    function restartTick() {
+      countRef -= 1;
+      render('restarting', Math.max(0, countRef));
+      if (countRef > 0) {
+        tick = setTimeout(restartTick, 1000);
+      }
+    }
 
-      healthTimer = setInterval(async () => {
+    function doCountdown(seconds: number) {
+      if (started.current) return;
+      started.current = true;
+      stopTimers();
+      countRef = seconds;
+      render('countdown', countRef);
+      tick = setTimeout(countdownTick, 1000);
+    }
+
+    function doRestart() {
+      stopTimers();
+      countRef = 60;
+      render('restarting', 60);
+      tick = setTimeout(restartTick, 1000);
+
+      health = setInterval(async () => {
         try {
           const res = await fetch('/api/health', { cache: 'no-store' });
           if (res.ok) {
-            cleanup();
+            stopTimers();
             window.location.reload();
           }
-        } catch {
-          // still down
-        }
+        } catch {}
       }, 3000);
     }
 
     function connect() {
-      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      ws = new WebSocket(`${proto}//${window.location.host}/ws`);
+      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${proto}//${location.host}/ws`);
 
       ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        if (data.type === 'shutdown') {
-          shutdownReceivedRef.current = true;
-          if (data.duration > 0) {
-            startCountdown(data.duration);
-          } else {
-            startRestarting();
+        if (data.type === 'shutdown' && data.duration > 0) {
+          gotShutdown = true;
+          doCountdown(data.duration);
+        } else if (data.type === 'shutdown' || data.type === 'shutdown_now') {
+          gotShutdown = true;
+          if (!started.current) {
+            started.current = true;
+            doRestart();
           }
-        } else if (data.type === 'shutdown_now') {
-          startRestarting();
         }
       };
 
       ws.onclose = () => {
         ws = null;
-        if (phaseRef.current === 'countdown') return;
-        if (shutdownReceivedRef.current) {
-          startRestarting();
+        if (started.current) return; // countdown/restart running, leave it alone
+        if (gotShutdown) {
+          started.current = true;
+          doRestart();
         } else {
-          reconnectTimer = setTimeout(connect, 3000);
+          reconnect = setTimeout(connect, 3000);
         }
       };
 
-      ws.onerror = () => {
-        if (ws) ws.close();
-      };
+      ws.onerror = () => { if (ws) ws.close(); };
     }
 
     connect();
 
     return () => {
-      cleanup();
-      if (ws) {
-        ws.onclose = null;
-        ws.close();
-      }
+      stopTimers();
+      if (ws) { ws.onclose = null; ws.close(); }
     };
   }, []);
 
-  if (phase === 'idle') return null;
+  if (display.phase === 'idle') return null;
 
-  const urgency =
-    secondsLeft <= 10 ? 'critical' : secondsLeft <= 30 ? 'warning' : 'notice';
-
+  const s = display.seconds;
   const bannerClass =
-    urgency === 'critical'
+    s <= 10
       ? 'bg-red-600 text-white animate-pulse'
-      : urgency === 'warning'
+      : s <= 30
         ? 'bg-red-500 text-white'
         : 'bg-yellow-500 text-black';
 
   return (
     <div
       role="alert"
-      className={`
-        fixed top-0 inset-x-0 z-[9999] px-4 py-3 text-center text-sm font-semibold
-        transition-colors duration-300 ${bannerClass}
-      `}
+      className={`fixed top-0 inset-x-0 z-[9999] px-4 py-3 text-center text-sm font-semibold transition-colors duration-300 ${bannerClass}`}
     >
-      {phase === 'countdown' ? (
+      {display.phase === 'countdown' ? (
         <span className="inline-flex items-center gap-2">
           <AlertTriangle size={16} />
-          Server restarting in {secondsLeft}s &mdash; save your work!
+          Server restarting in {s}s &mdash; save your work!
         </span>
       ) : (
         <span className="inline-flex items-center gap-2">
           <RefreshCw size={16} className="animate-spin" />
-          Server is restarting&hellip; {secondsLeft}s &mdash; Page will auto-refresh when ready.
+          Server is restarting&hellip; {s}s &mdash; Page will auto-refresh when ready.
         </span>
       )}
     </div>
