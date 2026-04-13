@@ -89,12 +89,6 @@ export function ShutdownBanner() {
             }
             break;
 
-          case 'countdown':
-            if (phaseRef.current === 'countdown') {
-              setSecondsLeft(data.remaining);
-            }
-            break;
-
           case 'shutdown_now':
             startHealthPolling();
             break;
