@@ -11,23 +11,25 @@ export function ShutdownBanner() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [secondsLeft, setSecondsLeft] = useState(60);
   const phaseRef = useRef<Phase>('idle');
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const healthPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const shutdownReceivedRef = useRef(false);
 
   const setPhaseSync = useCallback((next: Phase) => {
     phaseRef.current = next;
     setPhase(next);
   }, []);
 
-  const clearAllIntervals = useCallback(() => {
-    if (pollRef.current) clearInterval(pollRef.current);
+  const clearTimers = useCallback(() => {
     if (countdownRef.current) clearInterval(countdownRef.current);
-    pollRef.current = null;
+    if (healthPollRef.current) clearInterval(healthPollRef.current);
     countdownRef.current = null;
+    healthPollRef.current = null;
   }, []);
 
   const startHealthPolling = useCallback(() => {
-    clearAllIntervals();
+    clearTimers();
     setPhaseSync('restarting');
     setSecondsLeft(RESTART_COUNTDOWN);
 
@@ -38,21 +40,22 @@ export function ShutdownBanner() {
       setSecondsLeft(remaining);
     }, 250);
 
-    pollRef.current = setInterval(async () => {
+    healthPollRef.current = setInterval(async () => {
       try {
         const res = await fetch('/api/health', { cache: 'no-store' });
         if (res.ok) {
-          clearAllIntervals();
+          clearTimers();
           window.location.reload();
         }
       } catch {
-        // Server still down, keep polling
+        // Server still down
       }
     }, 3000);
-  }, [clearAllIntervals, setPhaseSync]);
+  }, [clearTimers, setPhaseSync]);
 
   const startCountdown = useCallback(
     (shutdownAt: number) => {
+      clearTimers();
       setPhaseSync('countdown');
 
       countdownRef.current = setInterval(() => {
@@ -64,32 +67,56 @@ export function ShutdownBanner() {
         }
       }, 250);
     },
-    [startHealthPolling, setPhaseSync]
+    [clearTimers, startHealthPolling, setPhaseSync]
   );
 
   useEffect(() => {
-    const checkShutdown = async () => {
-      try {
-        const res = await fetch('/api/shutdown-status', { cache: 'no-store' });
-        if (!res.ok) {
-          if (phaseRef.current === 'idle') startHealthPolling();
-          return;
-        }
-        const data = await res.json();
-        if (data.shuttingDown && data.shutdownAt && phaseRef.current === 'idle') {
+    function connect() {
+      const es = new EventSource('/api/shutdown-status');
+      eventSourceRef.current = es;
+
+      es.addEventListener('shutdown', (e) => {
+        shutdownReceivedRef.current = true;
+        const data = JSON.parse(e.data);
+
+        if (data.shutdownAt && data.duration > 0) {
           startCountdown(data.shutdownAt);
-        }
-      } catch {
-        if (phaseRef.current === 'countdown') {
+        } else {
+          // Already in progress, go straight to restarting
           startHealthPolling();
         }
-      }
+      });
+
+      es.addEventListener('countdown', (e) => {
+        const data = JSON.parse(e.data);
+        if (phaseRef.current === 'countdown') {
+          setSecondsLeft(data.remaining);
+        }
+      });
+
+      es.addEventListener('shutdown_now', () => {
+        startHealthPolling();
+      });
+
+      es.onerror = () => {
+        es.close();
+
+        if (shutdownReceivedRef.current) {
+          // Server died after shutdown event — start health polling
+          startHealthPolling();
+        } else {
+          // Normal disconnect (network blip, deploy) — silently reconnect
+          setTimeout(connect, 3000);
+        }
+      };
+    }
+
+    connect();
+
+    return () => {
+      eventSourceRef.current?.close();
+      clearTimers();
     };
-
-    pollRef.current = setInterval(checkShutdown, 5000);
-    checkShutdown();
-
-    return clearAllIntervals;
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (phase === 'idle') return null;
