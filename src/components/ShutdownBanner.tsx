@@ -8,59 +8,55 @@ type Phase = 'idle' | 'countdown' | 'restarting';
 export function ShutdownBanner() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [secondsLeft, setSecondsLeft] = useState(60);
-
   const phaseRef = useRef<Phase>('idle');
-  const deadlineRef = useRef<number>(0);
   const shutdownReceivedRef = useRef(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const healthRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    function goToPhase(p: Phase) {
-      phaseRef.current = p;
-      setPhase(p);
+    let ws: WebSocket | null = null;
+    let tickTimer: ReturnType<typeof setInterval> | null = null;
+    let healthTimer: ReturnType<typeof setInterval> | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+    function cleanup() {
+      if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
+      if (healthTimer) { clearInterval(healthTimer); healthTimer = null; }
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
     }
 
-    function stopAllTimers() {
-      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-      if (healthRef.current) { clearInterval(healthRef.current); healthRef.current = null; }
-    }
+    function startCountdown(seconds: number) {
+      if (phaseRef.current !== 'idle') return;
+      cleanup();
+      phaseRef.current = 'countdown';
+      setPhase('countdown');
+      setSecondsLeft(seconds);
 
-    function startCountdown(durationSeconds: number) {
-      if (phaseRef.current === 'countdown') return; // already counting
-      stopAllTimers();
-      deadlineRef.current = Date.now() + durationSeconds * 1000;
-      setSecondsLeft(durationSeconds);
-      goToPhase('countdown');
-
-      timerRef.current = setInterval(() => {
-        const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
-        setSecondsLeft(remaining);
-        if (remaining <= 0) {
-          startRestarting();
-        }
-      }, 250);
+      tickTimer = setInterval(() => {
+        setSecondsLeft((prev) => {
+          const next = prev - 1;
+          if (next <= 0) {
+            startRestarting();
+            return 0;
+          }
+          return next;
+        });
+      }, 1000);
     }
 
     function startRestarting() {
-      if (phaseRef.current === 'restarting') return; // already restarting
-      stopAllTimers();
-      goToPhase('restarting');
-
-      const restartDeadline = Date.now() + 60_000;
+      cleanup();
+      phaseRef.current = 'restarting';
+      setPhase('restarting');
       setSecondsLeft(60);
 
-      timerRef.current = setInterval(() => {
-        const remaining = Math.max(0, Math.ceil((restartDeadline - Date.now()) / 1000));
-        setSecondsLeft(remaining);
-      }, 250);
+      tickTimer = setInterval(() => {
+        setSecondsLeft((prev) => Math.max(0, prev - 1));
+      }, 1000);
 
-      healthRef.current = setInterval(async () => {
+      healthTimer = setInterval(async () => {
         try {
           const res = await fetch('/api/health', { cache: 'no-store' });
           if (res.ok) {
-            stopAllTimers();
+            cleanup();
             window.location.reload();
           }
         } catch {
@@ -71,8 +67,7 @@ export function ShutdownBanner() {
 
     function connect() {
       const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const ws = new WebSocket(`${proto}//${window.location.host}/ws`);
-      wsRef.current = ws;
+      ws = new WebSocket(`${proto}//${window.location.host}/ws`);
 
       ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
@@ -89,28 +84,27 @@ export function ShutdownBanner() {
       };
 
       ws.onclose = () => {
-        wsRef.current = null;
-        if (phaseRef.current === 'countdown') {
-          // WS dropped during countdown — let it keep running
-          return;
-        }
+        ws = null;
+        if (phaseRef.current === 'countdown') return;
         if (shutdownReceivedRef.current) {
           startRestarting();
         } else {
-          setTimeout(connect, 3000);
+          reconnectTimer = setTimeout(connect, 3000);
         }
       };
 
-      ws.onerror = () => ws.close();
+      ws.onerror = () => {
+        if (ws) ws.close();
+      };
     }
 
     connect();
 
     return () => {
-      stopAllTimers();
-      if (wsRef.current) {
-        wsRef.current.onclose = null;
-        wsRef.current.close();
+      cleanup();
+      if (ws) {
+        ws.onclose = null;
+        ws.close();
       }
     };
   }, []);
