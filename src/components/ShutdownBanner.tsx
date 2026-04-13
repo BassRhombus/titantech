@@ -82,8 +82,9 @@ export function ShutdownBanner() {
         switch (data.type) {
           case 'shutdown':
             shutdownReceivedRef.current = true;
-            if (data.shutdownAt && data.duration > 0) {
-              startCountdown(data.shutdownAt);
+            if (data.duration > 0) {
+              // Calculate deadline from client clock, not server timestamp
+              startCountdown(Date.now() + data.duration * 1000);
             } else {
               startHealthPolling();
             }
@@ -97,13 +98,15 @@ export function ShutdownBanner() {
 
       ws.onclose = () => {
         wsRef.current = null;
-        if (shutdownReceivedRef.current) {
-          // Server died after shutdown — start health polling
+        if (shutdownReceivedRef.current && phaseRef.current !== 'countdown') {
+          // Server died after shutdown and countdown already finished
           startHealthPolling();
-        } else {
+        } else if (!shutdownReceivedRef.current) {
           // Normal disconnect — silently reconnect
           setTimeout(connect, 3000);
         }
+        // If in countdown phase, let it keep running — it'll call
+        // startHealthPolling when it hits 0
       };
 
       ws.onerror = () => {
