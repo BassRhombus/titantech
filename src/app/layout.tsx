@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { ShutdownBanner } from '@/components/ShutdownBanner';
 import { Providers } from './providers';
 import './globals.css';
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark">
       <body suppressHydrationWarning className="bg-background text-text-primary font-sans min-h-screen flex flex-col">
         <Providers>
+          <ShutdownBanner />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />

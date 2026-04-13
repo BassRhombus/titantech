@@ -62,9 +62,16 @@ export default function CurveOverridesPage() {
     fetch(`/api/gsh/curve-overrides/${coSelectedCategory.toLowerCase()}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.creatures) setCoCreatures(d.creatures);
-        if (d.creators) setCoCreators(d.creators);
-        else setCoCreators([]);
+        if (d.creatures) {
+          const sorted = [...d.creatures].sort((a: CoCreature, b: CoCreature) => a.name.localeCompare(b.name));
+          setCoCreatures(sorted);
+        }
+        if (d.creators) {
+          const sorted = [...d.creators].sort((a: CoCreator, b: CoCreator) => a.name.localeCompare(b.name));
+          setCoCreators(sorted);
+        } else {
+          setCoCreators([]);
+        }
       })
       .catch(() => {})
       .finally(() => setCoLoadingCreatures(false));
@@ -79,7 +86,12 @@ export default function CurveOverridesPage() {
 
     fetch(`/api/gsh/curve-overrides/mod/${encodeURIComponent(coSelectedAuthor)}`)
       .then((r) => r.json())
-      .then((d) => { if (d.creatures) setCoCreatures(d.creatures); })
+      .then((d) => {
+        if (d.creatures) {
+          const sorted = [...d.creatures].sort((a: CoCreature, b: CoCreature) => a.name.localeCompare(b.name));
+          setCoCreatures(sorted);
+        }
+      })
       .catch(() => {})
       .finally(() => setCoLoadingCreatures(false));
   }, [coSelectedAuthor, coSelectedCategory]);
@@ -113,10 +125,13 @@ export default function CurveOverridesPage() {
     }
   }, [coSelectedCurve, coSelectedSection, coSections]);
 
-  const sectionNames = useMemo(() => Object.keys(coSections), [coSections]);
+  const sectionNames = useMemo(
+    () => Object.keys(coSections).sort((a, b) => a.localeCompare(b)),
+    [coSections]
+  );
   const curveNames = useMemo(() => {
     if (!coSelectedSection || !coSections[coSelectedSection]) return [];
-    return Object.keys(coSections[coSelectedSection]);
+    return Object.keys(coSections[coSelectedSection]).sort((a, b) => a.localeCompare(b));
   }, [coSelectedSection, coSections]);
 
   // Group overrides by creature, sorted alphabetically by creature then section
