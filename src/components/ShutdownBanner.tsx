@@ -10,8 +10,14 @@ const RESTART_COUNTDOWN = 60;
 export function ShutdownBanner() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [secondsLeft, setSecondsLeft] = useState(60);
+  const phaseRef = useRef<Phase>('idle');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const setPhaseSync = useCallback((next: Phase) => {
+    phaseRef.current = next;
+    setPhase(next);
+  }, []);
 
   const clearAllIntervals = useCallback(() => {
     if (pollRef.current) clearInterval(pollRef.current);
@@ -21,10 +27,8 @@ export function ShutdownBanner() {
   }, []);
 
   const startHealthPolling = useCallback(() => {
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    countdownRef.current = null;
-
-    setPhase('restarting');
+    clearAllIntervals();
+    setPhaseSync('restarting');
     setSecondsLeft(RESTART_COUNTDOWN);
 
     const restartDeadline = Date.now() + RESTART_COUNTDOWN * 1000;
@@ -45,11 +49,11 @@ export function ShutdownBanner() {
         // Server still down, keep polling
       }
     }, 3000);
-  }, [clearAllIntervals]);
+  }, [clearAllIntervals, setPhaseSync]);
 
   const startCountdown = useCallback(
     (shutdownAt: number) => {
-      setPhase('countdown');
+      setPhaseSync('countdown');
 
       countdownRef.current = setInterval(() => {
         const remaining = Math.max(0, Math.ceil((shutdownAt - Date.now()) / 1000));
@@ -60,7 +64,7 @@ export function ShutdownBanner() {
         }
       }, 250);
     },
-    [startHealthPolling]
+    [startHealthPolling, setPhaseSync]
   );
 
   useEffect(() => {
@@ -68,15 +72,15 @@ export function ShutdownBanner() {
       try {
         const res = await fetch('/api/shutdown-status', { cache: 'no-store' });
         if (!res.ok) {
-          if (phase === 'idle') startHealthPolling();
+          if (phaseRef.current === 'idle') startHealthPolling();
           return;
         }
         const data = await res.json();
-        if (data.shuttingDown && data.shutdownAt && phase === 'idle') {
+        if (data.shuttingDown && data.shutdownAt && phaseRef.current === 'idle') {
           startCountdown(data.shutdownAt);
         }
       } catch {
-        if (phase === 'countdown') {
+        if (phaseRef.current === 'countdown') {
           startHealthPolling();
         }
       }
