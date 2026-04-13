@@ -1,16 +1,21 @@
 import { addSseClient, removeSseClient } from '@/lib/shutdown';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET() {
   const encoder = new TextEncoder();
+  let keepalive: ReturnType<typeof setInterval> | null = null;
+  let client: { send: (event: string, data: unknown) => void; close: () => void } | null = null;
 
   const stream = new ReadableStream({
     start(controller) {
-      const client = {
+      client = {
         send: (event: string, data: unknown) => {
           try {
-            controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+            controller.enqueue(
+              encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+            );
           } catch {
             // Stream closed
           }
@@ -24,28 +29,25 @@ export async function GET() {
         },
       };
 
+      // Send initial event so the client knows the connection is live
+      controller.enqueue(encoder.encode(`event: connected\ndata: {}\n\n`));
+
       addSseClient(client);
 
-      // Send keepalive every 30s to prevent proxy/nginx timeout
-      const keepalive = setInterval(() => {
+      // Keepalive comment every 30s to prevent proxy timeout
+      keepalive = setInterval(() => {
         try {
-          controller.enqueue(encoder.encode(': keepalive\n\n'));
+          controller.enqueue(encoder.encode(`: keepalive\n\n`));
         } catch {
-          clearInterval(keepalive);
-          removeSseClient(client);
+          if (keepalive) clearInterval(keepalive);
+          if (client) removeSseClient(client);
         }
       }, 30_000);
-
-      // Clean up when the client disconnects
-      const check = setInterval(() => {
-        try {
-          controller.enqueue(encoder.encode(''));
-        } catch {
-          clearInterval(check);
-          clearInterval(keepalive);
-          removeSseClient(client);
-        }
-      }, 5_000);
+    },
+    cancel() {
+      // Called when client disconnects
+      if (keepalive) clearInterval(keepalive);
+      if (client) removeSseClient(client);
     },
   });
 
