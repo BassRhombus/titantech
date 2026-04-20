@@ -2,7 +2,9 @@ const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const app = express();
-const PORT = 3003;
+// Honor the port assigned by the host (Pterodactyl sets SERVER_PORT; generic PaaS uses PORT).
+// Falls back to 3003 for local development.
+const PORT = parseInt(process.env.SERVER_PORT, 10) || parseInt(process.env.PORT, 10) || 3003;
 const http = require('http');
 const fs = require('fs');
 const multer = require('multer');
