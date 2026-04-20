@@ -862,12 +862,37 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Catch-all for other HTML pages
-app.get('/:page.html', (req, res) => {
-  // Skip mod-manager.html as it's handled above
-  if (req.params.page !== 'mod-manager') {
-    res.sendFile(path.join(__dirname, req.params.page + '.html'));
+// Serve 404 page for any unmatched request with proper 404 status
+function send404(req, res) {
+  const notFoundPath = path.join(__dirname, '404.html');
+  res.status(404);
+  if (req.accepts('html')) {
+    return res.sendFile(notFoundPath);
   }
+  if (req.accepts('json')) {
+    return res.json({ success: false, error: 'Not Found', path: req.originalUrl });
+  }
+  res.type('txt').send('Not Found');
+}
+
+// Catch-all for other HTML pages - checks existence and 404s when missing
+app.get('/:page.html', (req, res, next) => {
+  // Skip mod-manager.html as it's handled above
+  if (req.params.page === 'mod-manager') {
+    return next();
+  }
+  const filePath = path.join(__dirname, req.params.page + '.html');
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return send404(req, res);
+    }
+    res.sendFile(filePath);
+  });
+});
+
+// Final 404 handler for unmatched routes (includes malformed URLs like "/&")
+app.use((req, res) => {
+  send404(req, res);
 });
 
 // Revert to original app.listen
