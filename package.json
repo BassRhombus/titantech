@@ -5,6 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "prod": "node server.js",
+    "dev": "node server.js --dev",
     "fix-creators": "node update-creators-definitive.js",
     "update-mods": "node update-mods-json.js",
     "direct-creators": "node update-mods-direct.js",
