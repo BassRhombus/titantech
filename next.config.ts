@@ -25,6 +25,32 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      { source: '/index.html', destination: '/', permanent: true },
+      { source: '/about.html', destination: '/', permanent: true },
+      { source: '/community.html', destination: '/community', permanent: true },
+      { source: '/bots.html', destination: '/bots', permanent: true },
+      { source: '/dashboard.html', destination: '/dashboard', permanent: true },
+      { source: '/login.html', destination: '/login', permanent: true },
+      { source: '/admin.html', destination: '/admin', permanent: true },
+      { source: '/suggestions.html', destination: '/suggestions', permanent: true },
+      { source: '/showcase.html', destination: '/gallery', permanent: true },
+      { source: '/showcase-submit.html', destination: '/gallery', permanent: true },
+      { source: '/servers.html', destination: '/community', permanent: true },
+      { source: '/commission.html', destination: '/', permanent: true },
+      { source: '/tos-commission.html', destination: '/', permanent: true },
+      { source: '/mod-manager.html', destination: '/tools/mod-manager', permanent: true },
+      { source: '/game-ini-generator.html', destination: '/tools/game-ini', permanent: true },
+      { source: '/commands-ini-generator.html', destination: '/tools/commands-ini', permanent: true },
+      { source: '/rules-motd-generator.html', destination: '/tools/rules-motd', permanent: true },
+      { source: '/admin-commissions.html', destination: '/admin', permanent: true },
+      { source: '/admin-showcase.html', destination: '/admin', permanent: true },
+      { source: '/api/community-mods', destination: '/api/gsh/mods', permanent: true },
+      { source: '/api/gsh-mods', destination: '/api/gsh/mods', permanent: true },
+      { source: '/api/gsh-servers', destination: '/api/gsh/servers', permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

@@ -6,18 +6,23 @@ import { Providers } from './providers';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://titantech.party'),
   title: {
     default: 'TitanTech - Path of Titans Community Hub',
     template: '%s | TitanTech',
   },
   description:
     'The community hub for Path of Titans server owners. Browse servers, share events, and use powerful configuration tools.',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'TitanTech - Path of Titans Community Hub',
     description:
       'The community hub for Path of Titans server owners. Browse servers, share events, and use powerful configuration tools.',
     siteName: 'TitanTech',
     type: 'website',
+    url: 'https://titantech.party',
   },
 };
 
