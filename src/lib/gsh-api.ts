@@ -50,6 +50,7 @@ export interface GshMod {
   description: string;
   image_url: string;
   sku: string;
+  is_host_restricted: boolean;
 }
 
 interface GshApiMod {
@@ -59,6 +60,8 @@ interface GshApiMod {
   description?: string;
   authorDisplayName?: string;
   imagesIcon?: string;
+  is_host_restricted?: boolean;
+  isHostRestricted?: boolean;
 }
 
 // Mods - 10 minute cache
@@ -83,6 +86,7 @@ export async function fetchMods(): Promise<GshMod[]> {
           description: mod.description || '',
           image_url: mod.imagesIcon || '',
           sku: mod.sku,
+          is_host_restricted: mod.is_host_restricted === true || mod.isHostRestricted === true,
         });
       }
       offset += limit;

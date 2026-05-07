@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import {
   Puzzle, Search, Download, Upload, RefreshCw, CheckSquare, Square,
-  ChevronDown, ChevronUp, AlertCircle,
+  ChevronDown, ChevronUp, AlertCircle, Lock,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
 import { ProfileManager } from '@/components/generators/ProfileManager';
@@ -16,6 +16,7 @@ interface Mod {
   description?: string;
   image_url?: string;
   sku?: string;
+  is_host_restricted?: boolean;
 }
 
 export default function ModManagerPage() {
@@ -68,6 +69,8 @@ export default function ModManagerPage() {
   }, [mods, search]);
 
   function toggleMod(id: string) {
+    const mod = mods.find((m) => m.mod_id === id);
+    if (mod?.is_host_restricted) return;
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -77,7 +80,9 @@ export default function ModManagerPage() {
   }
 
   function selectAll() {
-    setSelectedIds(new Set(filtered.map((m) => m.mod_id)));
+    setSelectedIds(
+      new Set(filtered.filter((m) => !m.is_host_restricted).map((m) => m.mod_id))
+    );
   }
 
   function deselectAll() {
@@ -132,9 +137,14 @@ export default function ModManagerPage() {
     reader.onload = (ev) => {
       const content = ev.target?.result as string;
       const ids = extractModIdsFromIni(content);
-      const knownIds = new Set(mods.map((m) => m.mod_id));
-      const valid = ids.filter((id) => knownIds.has(id));
-      const invalid = ids.filter((id) => !knownIds.has(id));
+      const modMap = new Map(mods.map((m) => [m.mod_id, m]));
+      const valid: string[] = [];
+      const invalid: string[] = [];
+      for (const id of ids) {
+        const mod = modMap.get(id);
+        if (!mod || mod.is_host_restricted) invalid.push(id);
+        else valid.push(id);
+      }
       setSelectedIds(new Set(valid));
       setInvalidModIds(invalid);
     };
@@ -149,9 +159,14 @@ export default function ModManagerPage() {
   const loadProfileData = useCallback((data: Record<string, unknown>) => {
     if (Array.isArray(data.selectedModIds)) {
       const ids = data.selectedModIds as string[];
-      const knownIds = new Set(mods.map((m) => m.mod_id));
-      const valid = ids.filter((id) => knownIds.has(id));
-      const invalid = ids.filter((id) => !knownIds.has(id));
+      const modMap = new Map(mods.map((m) => [m.mod_id, m]));
+      const valid: string[] = [];
+      const invalid: string[] = [];
+      for (const id of ids) {
+        const mod = modMap.get(id);
+        if (!mod || mod.is_host_restricted) invalid.push(id);
+        else valid.push(id);
+      }
       setSelectedIds(new Set(valid));
       setInvalidModIds(invalid);
     }
@@ -260,14 +275,27 @@ export default function ModManagerPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {filtered.map((mod) => {
                 const isSelected = selectedIds.has(mod.mod_id);
+                const restricted = mod.is_host_restricted === true;
                 return (
                   <button
                     key={mod.mod_id}
                     onClick={() => toggleMod(mod.mod_id)}
-                    className={`card p-3 flex items-start gap-3 text-left transition-colors ${
-                      isSelected ? 'border-primary bg-primary/5' : ''
+                    disabled={restricted}
+                    title={restricted ? 'This mod is restricted and cannot be added to a server' : undefined}
+                    className={`relative card p-3 flex items-start gap-3 text-left transition-colors ${
+                      restricted
+                        ? 'opacity-60 cursor-not-allowed border-yellow-500/40 hover:border-yellow-500/40'
+                        : isSelected
+                          ? 'border-primary bg-primary/5'
+                          : ''
                     }`}
                   >
+                    {restricted && (
+                      <span className="absolute top-1.5 right-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-yellow-500/20 border border-yellow-500/40 text-[10px] font-semibold text-yellow-300 uppercase tracking-wide">
+                        <Lock size={10} />
+                        Restricted
+                      </span>
+                    )}
                     {mod.image_url ? (
                       <Image
                         src={mod.image_url}
@@ -289,9 +317,11 @@ export default function ModManagerPage() {
                       )}
                       <code className="text-[10px] text-text-secondary/70 mt-1 block truncate">{mod.mod_id}</code>
                     </div>
-                    <div className={`shrink-0 mt-1 ${isSelected ? 'text-primary-light' : 'text-text-secondary/30'}`}>
-                      {isSelected ? <CheckSquare size={20} /> : <Square size={20} />}
-                    </div>
+                    {!restricted && (
+                      <div className={`shrink-0 mt-1 ${isSelected ? 'text-primary-light' : 'text-text-secondary/30'}`}>
+                        {isSelected ? <CheckSquare size={20} /> : <Square size={20} />}
+                      </div>
+                    )}
                   </button>
                 );
               })}
