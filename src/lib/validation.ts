@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const serverSubmissionSchema = z.object({
   name: z.string().trim().min(3, 'Server name must be at least 3 characters').max(100),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(1000),
+  imageUrl: z.string().trim().url('Must be a valid image URL').max(2000),
   discordInvite: z.string().url('Invalid Discord invite URL').regex(/discord\.(gg|com\/invite)\//, 'Must be a valid Discord invite'),
   ownerDiscord: z.string().trim().min(2).max(32),
   serverIP: z.string().trim().regex(/^(\d{1,3}\.){3}\d{1,3}$/, 'Must be a valid IPv4 address'),
@@ -20,6 +21,7 @@ export const serverStatusUpdateSchema = z.object({
 export const serverEditSchema = z.object({
   name: z.string().trim().min(3, 'Server name must be at least 3 characters').max(100).optional(),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(1000).optional(),
+  imageUrl: z.string().trim().url('Must be a valid image URL').max(2000).optional(),
   discordInvite: z.string().url('Invalid Discord invite URL').regex(/discord\.(gg|com\/invite)\//, 'Must be a valid Discord invite').optional(),
   ownerDiscord: z.string().trim().min(2).max(32).optional(),
   serverIP: z.string().trim().regex(/^(\d{1,3}\.){3}\d{1,3}$/, 'Must be a valid IPv4 address').optional(),

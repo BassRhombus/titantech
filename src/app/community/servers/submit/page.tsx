@@ -1,22 +1,19 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Upload, ArrowLeft, Server, CheckCircle, AlertCircle, X, ImageIcon, LogIn } from 'lucide-react';
+import { Upload, ArrowLeft, Server, CheckCircle, AlertCircle, ImageIcon, LogIn } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
 
 export default function SubmitServerPage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Array<{ field: string; message: string }>>([]);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageError, setImageError] = useState(false);
 
   if (status === 'loading') {
     return (
@@ -42,40 +39,37 @@ export default function SubmitServerPage() {
     );
   }
 
-  function handleFileSelect(file: File | undefined) {
-    if (!file) return;
-    if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
-      setError('Please select a valid image file (JPG, PNG, GIF, or WebP)');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setError('File size must be under 10MB');
-      return;
-    }
-    setSelectedFile(file);
-    setError('');
-    const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target?.result as string);
-    reader.readAsDataURL(file);
-  }
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setFieldErrors([]);
 
-    if (!selectedFile) {
-      setError('Please upload a server logo or banner image');
+    const trimmedUrl = imageUrl.trim();
+    if (!trimmedUrl) {
+      setError('Please provide an image URL for your server logo or banner');
       return;
     }
 
     setSubmitting(true);
 
-    const formData = new FormData(e.currentTarget);
-    formData.set('imageFile', selectedFile);
+    const fd = new FormData(e.currentTarget);
+    const body = {
+      name: fd.get('name'),
+      description: fd.get('description'),
+      imageUrl: trimmedUrl,
+      discordInvite: fd.get('discordInvite'),
+      ownerDiscord: fd.get('ownerDiscord'),
+      serverIP: fd.get('serverIP'),
+      queryPort: Number(fd.get('queryPort')),
+      showIP: fd.get('showIP') === 'true',
+    };
 
     try {
-      const res = await fetch('/api/servers', { method: 'POST', body: formData });
+      const res = await fetch('/api/servers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -146,48 +140,42 @@ export default function SubmitServerPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Image Upload */}
+        {/* Image URL */}
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
-            Server Logo / Banner *
+          <label htmlFor="imageUrl" className="block text-sm font-medium text-text-primary mb-2">
+            Server Logo / Banner URL *
           </label>
-          {preview ? (
-            <div className="relative rounded-lg overflow-hidden border border-divider">
-              <img src={preview} alt="Preview" className="w-full h-48 object-cover" />
-              <button
-                type="button"
-                onClick={() => { setPreview(null); setSelectedFile(null); }}
-                className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-black/80 transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          ) : (
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-primary'); }}
-              onDragLeave={(e) => { e.currentTarget.classList.remove('border-primary'); }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.remove('border-primary');
-                handleFileSelect(e.dataTransfer.files[0]);
-              }}
-              className="border-2 border-dashed border-divider rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-            >
-              <ImageIcon size={40} className="text-text-secondary mx-auto mb-3" />
-              <p className="text-sm text-text-secondary mb-1">
-                Drag and drop an image, or <span className="text-primary-light font-medium">click to browse</span>
-              </p>
-              <p className="text-xs text-text-secondary">JPG, PNG, GIF, or WebP. Max 10MB.</p>
+          <input
+            id="imageUrl"
+            name="imageUrl"
+            type="url"
+            value={imageUrl}
+            onChange={(e) => { setImageUrl(e.target.value); setImageError(false); }}
+            placeholder="https://example.com/your-server-banner.png"
+            required
+            className="input-field w-full"
+          />
+          <p className="text-xs text-text-secondary mt-1">
+            Paste a direct link to your image (Imgur, Discord CDN, your own hosting, etc.).
+          </p>
+          {imageUrl.trim() && !imageError && (
+            <div className="mt-3 rounded-lg overflow-hidden border border-divider bg-surface">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl.trim()}
+                alt="Preview"
+                onError={() => setImageError(true)}
+                onLoad={() => setImageError(false)}
+                className="w-full h-48 object-cover"
+              />
             </div>
           )}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/gif,image/webp"
-            onChange={(e) => handleFileSelect(e.target.files?.[0])}
-            className="hidden"
-          />
+          {imageError && (
+            <div className="mt-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 flex items-center gap-2 text-xs text-yellow-300">
+              <ImageIcon size={14} />
+              Could not load preview. Make sure the URL is a direct link to an image.
+            </div>
+          )}
         </div>
 
         {/* Server Name */}

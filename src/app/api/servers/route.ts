@@ -3,7 +3,6 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-helpers';
 import { validate, serverSubmissionSchema } from '@/lib/validation';
 import { uploadLimit } from '@/lib/rate-limit';
-import { parseFormData, validateImageFile, moveUpload, generateSecureFilename } from '@/lib/upload';
 import { resolveQueryPort } from '@/lib/server-query';
 
 // GET /api/servers - List approved servers
@@ -24,29 +23,12 @@ export async function POST(request: Request) {
   if (error) return error;
 
   try {
-    const { fields, file } = await parseFormData(request);
+    const body = await request.json();
 
-    if (!file) {
-      return NextResponse.json(
-        { success: false, message: 'No image file provided. Please upload a server logo or banner.' },
-        { status: 400 }
-      );
-    }
-
-    // Validate the image
-    const fileValidation = validateImageFile(file);
-    if (!fileValidation.valid) {
-      return NextResponse.json(
-        { success: false, message: 'Invalid file', errors: fileValidation.errors },
-        { status: 400 }
-      );
-    }
-
-    // Validate fields
     const result = validate(serverSubmissionSchema, {
-      ...fields,
-      queryPort: fields.queryPort ? Number(fields.queryPort) : undefined,
-      showIP: fields.showIP === 'true',
+      ...body,
+      queryPort: body.queryPort !== undefined ? Number(body.queryPort) : undefined,
+      showIP: body.showIP === true || body.showIP === 'true',
     });
     if (!result.success) {
       return NextResponse.json(
@@ -55,19 +37,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Smart port detection: resolve the correct query port
     const resolvedPort = await resolveQueryPort(result.data.serverIP, result.data.queryPort);
 
-    // Move file to permanent location
-    const filename = generateSecureFilename(file.originalFilename);
-    const imagePath = await moveUpload(file.filepath, 'servers', filename);
-
-    // Create server submission
     const server = await prisma.serverSubmission.create({
       data: {
         name: result.data.name,
         description: result.data.description,
-        imagePath,
+        imagePath: result.data.imageUrl,
         discordInvite: result.data.discordInvite,
         ownerDiscord: result.data.ownerDiscord,
         serverIP: result.data.serverIP,

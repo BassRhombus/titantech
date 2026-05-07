@@ -3,7 +3,6 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-helpers';
 import { validate, serverEditSchema } from '@/lib/validation';
 import { resolveQueryPort } from '@/lib/server-query';
-import { parseFormData, validateImageFile, moveUpload, generateSecureFilename, deleteUpload } from '@/lib/upload';
 
 // PUT /api/servers/[id] - Edit a server (owner or admin only)
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -12,13 +11,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   const { id } = await params;
 
-  // Find the server
   const server = await prisma.serverSubmission.findUnique({ where: { id } });
   if (!server) {
     return NextResponse.json({ success: false, message: 'Server not found' }, { status: 404 });
   }
 
-  // Check ownership (owner by userId, username match, or admin)
   const isOwner =
     server.userId === session.user.id ||
     server.submittedBy === session.user.username ||
@@ -30,33 +27,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 
   try {
-    const { fields, file } = await parseFormData(request);
+    const body = await request.json();
 
-    // Validate new image if provided
-    let newImagePath: string | undefined;
-    if (file) {
-      const fileValidation = validateImageFile(file);
-      if (!fileValidation.valid) {
-        return NextResponse.json(
-          { success: false, message: 'Invalid file', errors: fileValidation.errors },
-          { status: 400 }
-        );
-      }
-      const filename = generateSecureFilename(file.originalFilename);
-      newImagePath = await moveUpload(file.filepath, 'servers', filename);
-    }
-
-    // Build update data from fields
     const updateFields: Record<string, unknown> = {};
-    if (fields.name) updateFields.name = fields.name;
-    if (fields.description) updateFields.description = fields.description;
-    if (fields.discordInvite) updateFields.discordInvite = fields.discordInvite;
-    if (fields.ownerDiscord) updateFields.ownerDiscord = fields.ownerDiscord;
-    if (fields.serverIP) updateFields.serverIP = fields.serverIP;
-    if (fields.queryPort) updateFields.queryPort = Number(fields.queryPort);
-    if (fields.showIP !== undefined) updateFields.showIP = fields.showIP === 'true';
+    if (body.name) updateFields.name = body.name;
+    if (body.description) updateFields.description = body.description;
+    if (body.imageUrl) updateFields.imageUrl = body.imageUrl;
+    if (body.discordInvite) updateFields.discordInvite = body.discordInvite;
+    if (body.ownerDiscord) updateFields.ownerDiscord = body.ownerDiscord;
+    if (body.serverIP) updateFields.serverIP = body.serverIP;
+    if (body.queryPort !== undefined) updateFields.queryPort = Number(body.queryPort);
+    if (body.showIP !== undefined) updateFields.showIP = body.showIP === true || body.showIP === 'true';
 
-    // Validate the fields that were provided
     const result = validate(serverEditSchema, updateFields);
     if (!result.success) {
       return NextResponse.json(
@@ -65,22 +47,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       );
     }
 
-    // If IP or port changed, re-resolve query port
     if (result.data.serverIP || result.data.queryPort) {
       const ip = result.data.serverIP || server.serverIP;
       const port = result.data.queryPort || server.queryPort;
       result.data.queryPort = await resolveQueryPort(ip, port);
     }
 
-    // Build the Prisma update payload
     const updateData: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(result.data)) {
-      if (value !== undefined) updateData[key] = value;
-    }
-    if (newImagePath) {
-      // Delete old image
-      if (server.imagePath) await deleteUpload(server.imagePath);
-      updateData.imagePath = newImagePath;
+      if (value === undefined) continue;
+      // imageUrl from input maps to imagePath column
+      if (key === 'imageUrl') updateData.imagePath = value;
+      else updateData[key] = value;
     }
 
     if (Object.keys(updateData).length === 0) {
