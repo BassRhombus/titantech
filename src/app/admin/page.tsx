@@ -43,8 +43,8 @@ export default function AdminPage() {
   const [savingServer, setSavingServer] = useState(false);
   const [serverEditError, setServerEditError] = useState('');
   const [serverEditSuccess, setServerEditSuccess] = useState('');
-  const [editPreview, setEditPreview] = useState<string | null>(null);
-  const [editFile, setEditFile] = useState<File | null>(null);
+  const [editImageUrl, setEditImageUrl] = useState('');
+  const [editImageError, setEditImageError] = useState(false);
 
   // Event state
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -153,8 +153,8 @@ export default function AdminPage() {
 
   function startEditServer(server: ServerSubmission) {
     setEditingServer(server);
-    setEditPreview(null);
-    setEditFile(null);
+    setEditImageUrl(server.imagePath || '');
+    setEditImageError(false);
     setServerEditError('');
     setSelectedServer(null);
   }
@@ -165,15 +165,24 @@ export default function AdminPage() {
     setServerEditError('');
     setSavingServer(true);
 
-    const formData = new FormData(e.currentTarget);
-    if (editFile) {
-      formData.set('imageFile', editFile);
-    }
+    const fd = new FormData(e.currentTarget);
+    const body: Record<string, unknown> = {
+      name: fd.get('name'),
+      description: fd.get('description'),
+      ownerDiscord: fd.get('ownerDiscord'),
+      serverIP: fd.get('serverIP'),
+      queryPort: Number(fd.get('queryPort')),
+      discordInvite: fd.get('discordInvite'),
+      showIP: fd.get('showIP') === 'true',
+    };
+    const trimmedUrl = editImageUrl.trim();
+    if (trimmedUrl) body.imageUrl = trimmedUrl;
 
     try {
       const res = await fetch(`/api/servers/${editingServer.id}`, {
         method: 'PUT',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
       });
       const data = await res.json();
 
@@ -336,35 +345,33 @@ export default function AdminPage() {
 
           <form onSubmit={handleSaveServer} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">Server Image</label>
-              <div className="flex items-center gap-4">
-                {(editPreview || editingServer.imagePath) && (
+              <label htmlFor="admin-edit-imageUrl" className="block text-sm font-medium text-text-primary mb-1">Server Image URL</label>
+              <div className="flex items-start gap-4">
+                {editImageUrl.trim() && !editImageError && (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={editPreview || editingServer.imagePath}
+                    src={editImageUrl.trim()}
                     alt="Server"
-                    className="w-24 h-16 object-cover rounded border border-divider"
+                    onError={() => setEditImageError(true)}
+                    onLoad={() => setEditImageError(false)}
+                    className="w-24 h-16 object-cover rounded border border-divider shrink-0"
                   />
                 )}
-                <label className="btn-outline flex items-center gap-1.5 text-xs cursor-pointer">
-                  <ImageIcon size={14} />
-                  Change Image
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) {
-                        setEditFile(f);
-                        const reader = new FileReader();
-                        reader.onload = (ev) => setEditPreview(ev.target?.result as string);
-                        reader.readAsDataURL(f);
-                      }
-                    }}
-                  />
-                </label>
+                <input
+                  id="admin-edit-imageUrl"
+                  type="url"
+                  value={editImageUrl}
+                  onChange={(e) => { setEditImageUrl(e.target.value); setEditImageError(false); }}
+                  placeholder="https://example.com/image.png"
+                  className="input-field w-full text-sm"
+                />
               </div>
+              {editImageError && (
+                <p className="text-xs text-yellow-300 mt-1 flex items-center gap-1.5">
+                  <ImageIcon size={12} />
+                  Could not load preview from this URL.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
