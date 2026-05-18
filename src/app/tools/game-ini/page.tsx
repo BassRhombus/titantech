@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useCallback } from 'react';
 import {
   FileCode, Download, Upload, Copy, RotateCcw, ChevronDown, ChevronUp,
-  Check,
+  Check, Search, X,
 } from 'lucide-react';
 import { ProfileManager } from '@/components/generators/ProfileManager';
 import {
@@ -15,6 +15,7 @@ export default function GameIniPage() {
   const [values, setValues] = useState<Record<string, string>>(() => getDefaultValues());
   const [activeTab, setActiveTab] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
+  const [search, setSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const defaults = useMemo(() => getDefaultValues(), []);
@@ -40,6 +41,23 @@ export default function GameIniPage() {
   }, []);
 
   const currentTab = tabs[activeTab] || tabs[0];
+
+  const searchResults = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return null;
+    const matches: Array<{ setting: ConfigSetting; tabLabel: string; sectionKey: string }> = [];
+    for (const tab of tabs) {
+      for (const setting of tab.settings) {
+        if (
+          setting.name.toLowerCase().includes(q) ||
+          setting.description?.toLowerCase().includes(q)
+        ) {
+          matches.push({ setting, tabLabel: tab.label, sectionKey: tab.sectionKey });
+        }
+      }
+    }
+    return matches;
+  }, [search, tabs]);
 
   function setValue(name: string, value: string) {
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -306,30 +324,88 @@ export default function GameIniPage() {
 
         {/* Settings Panel */}
         <div className="lg:col-span-3">
-          {currentTab && (
+          {/* Search Bar */}
+          <div className="relative mb-4">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
+            <input
+              type="text"
+              placeholder="Search settings by name or description..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="input-field w-full pl-10 pr-10"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                title="Clear search"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+
+          {searchResults ? (
             <div className="card p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="font-heading font-semibold text-lg">{currentTab.label}</h2>
+                  <h2 className="font-heading font-semibold text-lg">Search Results</h2>
                   <p className="text-xs text-text-secondary mt-0.5">
-                    Section: [{currentTab.sectionKey}]
+                    {searchResults.length} setting{searchResults.length !== 1 ? 's' : ''} match &quot;{search}&quot;
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                {currentTab.settings.map((setting) => (
-                  <SettingField
-                    key={setting.name}
-                    setting={setting}
-                    value={values[setting.name] ?? setting.default}
-                    isChanged={(values[setting.name] ?? setting.default) !== setting.default}
-                    onChange={(val) => setValue(setting.name, val)}
-                    onReset={() => setValue(setting.name, setting.default)}
-                  />
-                ))}
-              </div>
+              {searchResults.length > 0 ? (
+                <div className="space-y-4">
+                  {searchResults.map(({ setting, tabLabel, sectionKey }) => (
+                    <div key={setting.name}>
+                      <p className="text-[10px] text-text-secondary/60 uppercase tracking-wide mb-1 font-medium">
+                        {tabLabel} &middot; [{sectionKey}]
+                      </p>
+                      <SettingField
+                        setting={setting}
+                        value={values[setting.name] ?? setting.default}
+                        isChanged={(values[setting.name] ?? setting.default) !== setting.default}
+                        onChange={(val) => setValue(setting.name, val)}
+                        onReset={() => setValue(setting.name, setting.default)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Search size={36} className="text-text-secondary/40 mx-auto mb-2" />
+                  <p className="text-sm text-text-secondary">No settings match your search.</p>
+                </div>
+              )}
             </div>
+          ) : (
+            currentTab && (
+              <div className="card p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="font-heading font-semibold text-lg">{currentTab.label}</h2>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      Section: [{currentTab.sectionKey}]
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {currentTab.settings.map((setting) => (
+                    <SettingField
+                      key={setting.name}
+                      setting={setting}
+                      value={values[setting.name] ?? setting.default}
+                      isChanged={(values[setting.name] ?? setting.default) !== setting.default}
+                      onChange={(val) => setValue(setting.name, val)}
+                      onReset={() => setValue(setting.name, setting.default)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )
           )}
 
           {/* Preview Toggle */}
