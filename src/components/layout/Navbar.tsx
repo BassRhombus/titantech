@@ -26,6 +26,7 @@ import {
   TrendingUp,
   Bot,
   ImageIcon,
+  Swords,
 } from 'lucide-react';
 
 const toolsDropdown = [
@@ -34,6 +35,7 @@ const toolsDropdown = [
   { label: 'Commands.ini Generator', href: '/tools/commands-ini', icon: Terminal, desc: 'Roles & permissions' },
   { label: 'Rules/MOTD Generator', href: '/tools/rules-motd', icon: FileText, desc: 'Formatted server rules' },
   { label: 'Curve Overrides', href: '/tools/curve-overrides', icon: TrendingUp, desc: 'Customize creature stats' },
+  { label: 'Critter Damage Calculator', href: '/tools/critter-damage', icon: Swords, desc: 'Hits-to-kill between two creatures' },
 ];
 
 export function Navbar() {

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import {
   Server, FileCode, Calendar, Puzzle, Terminal, FileText, TrendingUp,
   Plus, ExternalLink, AlertCircle, CheckCircle, Pencil, X, Save, ImageIcon,
+  Swords,
 } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Spinner } from '@/components/ui/Spinner';
@@ -512,12 +513,13 @@ export default function DashboardPage() {
             <FileCode size={20} className="text-accent-light" />
             Configuration Tools
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <ToolLink icon={<Puzzle size={18} />} label="Mod Manager" href="/tools/mod-manager" />
             <ToolLink icon={<FileCode size={18} />} label="Game.ini Generator" href="/tools/game-ini" />
             <ToolLink icon={<Terminal size={18} />} label="Commands.ini Generator" href="/tools/commands-ini" />
             <ToolLink icon={<FileText size={18} />} label="Rules/MOTD Generator" href="/tools/rules-motd" />
             <ToolLink icon={<TrendingUp size={18} />} label="Curve Overrides" href="/tools/curve-overrides" />
+            <ToolLink icon={<Swords size={18} />} label="Critter Damage Calculator" href="/tools/critter-damage" />
           </div>
           <p className="text-text-secondary text-xs mt-4">
             Sign in to save and load your configurations across sessions.
