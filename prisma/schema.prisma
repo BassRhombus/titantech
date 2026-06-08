@@ -87,7 +87,7 @@ model ServerSubmission {
   id              String    @id @default(cuid())
   name            String    @db.VarChar(100)
   description     String    @db.Text
-  imagePath       String
+  imagePath       String    @db.Text
   discordInvite   String
   ownerDiscord    String    @db.VarChar(32)
   serverIP        String    @db.VarChar(45)
@@ -162,7 +162,7 @@ model Screenshot {
   id          String   @id @default(cuid())
   title       String   @db.VarChar(100)
   description String?  @db.VarChar(500)
-  imagePath   String
+  imagePath   String   @db.Text
   userId      String
   username    String   @db.VarChar(100)
   status      String   @default("pending") @db.VarChar(20)
