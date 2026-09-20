@@ -33,7 +33,8 @@ const toolsDropdown = [
   { label: 'Mod Manager', href: '/tools/mod-manager', icon: Puzzle, desc: 'Browse & select server mods' },
   { label: 'Game.ini Generator', href: '/tools/game-ini', icon: FileCode, desc: '200+ server settings' },
   { label: 'Commands.ini Generator', href: '/tools/commands-ini', icon: Terminal, desc: 'Roles & permissions' },
-  { label: 'Rules/MOTD Generator', href: '/tools/rules-motd', icon: FileText, desc: 'Formatted server rules' },
+  // Rules/MOTD tool now lives on NexLink Core — link out instead of the local page
+  { label: 'Rules/MOTD Generator', href: 'https://nexlinkcore.com/guides/path-of-titans/tools/path-of-titans-rules-motd-generator', icon: FileText, desc: 'Formatted server rules' },
   { label: 'Curve Overrides', href: '/tools/curve-overrides', icon: TrendingUp, desc: 'Customize creature stats' },
   { label: 'Critter Damage Calculator', href: '/tools/critter-damage', icon: Swords, desc: 'Hits-to-kill between two creatures' },
 ];

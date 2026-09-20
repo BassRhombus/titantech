@@ -517,7 +517,7 @@ export default function DashboardPage() {
             <ToolLink icon={<Puzzle size={18} />} label="Mod Manager" href="/tools/mod-manager" />
             <ToolLink icon={<FileCode size={18} />} label="Game.ini Generator" href="/tools/game-ini" />
             <ToolLink icon={<Terminal size={18} />} label="Commands.ini Generator" href="/tools/commands-ini" />
-            <ToolLink icon={<FileText size={18} />} label="Rules/MOTD Generator" href="/tools/rules-motd" />
+            <ToolLink icon={<FileText size={18} />} label="Rules/MOTD Generator" href="https://nexlinkcore.com/guides/path-of-titans/tools/path-of-titans-rules-motd-generator" />
             <ToolLink icon={<TrendingUp size={18} />} label="Curve Overrides" href="/tools/curve-overrides" />
             <ToolLink icon={<Swords size={18} />} label="Critter Damage Calculator" href="/tools/critter-damage" />
           </div>

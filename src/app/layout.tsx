@@ -13,9 +13,6 @@ export const metadata: Metadata = {
   },
   description:
     'The community hub for Path of Titans server owners. Browse servers, share events, and use powerful configuration tools.',
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: 'TitanTech - Path of Titans Community Hub',
     description:

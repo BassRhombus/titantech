@@ -1,4 +1,7 @@
-import { ExternalLink, Copy, Server, Users, Wifi, WifiOff } from 'lucide-react';
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { ExternalLink, Copy, Server, Users, Wifi, WifiOff, ChevronDown, ChevronUp } from 'lucide-react';
 import type { ServerSubmission } from '@/types';
 
 interface ServerStatus {
@@ -15,6 +18,19 @@ interface ServerCardProps {
 export function ServerCard({ server, status }: ServerCardProps) {
   const gamePort = server.queryPort - 4;
   const isOnline = status?.online ?? null;
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el || expanded) return;
+    const check = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [server.description, expanded]);
 
   return (
     <div className="card overflow-hidden group">
@@ -48,7 +64,25 @@ export function ServerCard({ server, status }: ServerCardProps) {
       {/* Server Info */}
       <div className="p-4">
         <h3 className="font-heading font-semibold text-text-primary mb-1 truncate">{server.name}</h3>
-        <p className="text-text-secondary text-sm line-clamp-2 mb-3">{server.description}</p>
+        <div className="mb-3">
+          <p
+            ref={descRef}
+            className={`text-text-secondary text-sm whitespace-pre-line break-words ${expanded ? '' : 'line-clamp-2'}`}
+          >
+            {server.description}
+          </p>
+          {overflows && (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="text-xs text-primary-light hover:text-primary inline-flex items-center gap-1 mt-1"
+              aria-expanded={expanded}
+            >
+              {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              {expanded ? 'Show less' : 'Show more'}
+            </button>
+          )}
+        </div>
 
         {/* Server Details */}
         <div className="flex items-center gap-2 text-xs text-text-secondary mb-3 flex-wrap">

@@ -14,6 +14,15 @@ import {
   Bot,
   Globe,
 } from 'lucide-react';
+import { pageMetadata } from '@/lib/seo';
+
+export const metadata = pageMetadata({
+  title: 'TitanTech - Path of Titans Community Hub',
+  description:
+    'The community hub for Path of Titans server owners. Browse servers, share events, and use powerful configuration tools.',
+  path: '/',
+  absoluteTitle: true,
+});
 
 export default function HomePage() {
   return (
@@ -218,7 +227,7 @@ export default function HomePage() {
               icon={<FileText size={22} />}
               title="Rules/MOTD Generator"
               description="Build formatted server rules and message of the day with rich text styling."
-              href="/tools/rules-motd"
+              href="https://nexlinkcore.com/guides/path-of-titans/tools/path-of-titans-rules-motd-generator"
               accentColor="from-primary-light to-secondary-light"
             />
           </div>

@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+everything-claude-code/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
@@ -56,3 +57,4 @@ ModINI/public/mods_details.json
 # User-specific files
 .npmrc
 .yarnrc
+.gitnexus

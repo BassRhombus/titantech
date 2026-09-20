@@ -27,6 +27,13 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Canonical host: send www traffic to the apex domain so Google sees one copy of each page
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.titantech.party' }],
+        destination: 'https://titantech.party/:path*',
+        permanent: true,
+      },
       { source: '/index.html', destination: '/', permanent: true },
       { source: '/about.html', destination: '/', permanent: true },
       { source: '/community.html', destination: '/community', permanent: true },
@@ -38,12 +45,15 @@ const nextConfig: NextConfig = {
       { source: '/showcase.html', destination: '/gallery', permanent: true },
       { source: '/showcase-submit.html', destination: '/gallery', permanent: true },
       { source: '/servers.html', destination: '/community', permanent: true },
+      { source: '/server-submit.html', destination: '/community/servers/submit', permanent: true },
       { source: '/commission.html', destination: '/', permanent: true },
       { source: '/tos-commission.html', destination: '/', permanent: true },
       { source: '/mod-manager.html', destination: '/tools/mod-manager', permanent: true },
       { source: '/game-ini-generator.html', destination: '/tools/game-ini', permanent: true },
       { source: '/commands-ini-generator.html', destination: '/tools/commands-ini', permanent: true },
-      { source: '/rules-motd-generator.html', destination: '/tools/rules-motd', permanent: true },
+      // Rules/MOTD tool moved to NexLink Core — send both the legacy page and the old tool route there
+      { source: '/rules-motd-generator.html', destination: 'https://nexlinkcore.com/guides/path-of-titans/tools/path-of-titans-rules-motd-generator', permanent: true },
+      { source: '/tools/rules-motd', destination: 'https://nexlinkcore.com/guides/path-of-titans/tools/path-of-titans-rules-motd-generator', permanent: true },
       { source: '/admin-commissions.html', destination: '/admin', permanent: true },
       { source: '/admin-showcase.html', destination: '/admin', permanent: true },
       { source: '/api/community-mods', destination: '/api/gsh/mods', permanent: true },

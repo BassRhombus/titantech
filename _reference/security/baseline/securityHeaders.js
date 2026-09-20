@@ -49,7 +49,7 @@ function getHelmetConfig(isProduction = false) {
         ],
         connectSrc: [
           "'self'",
-          "https://pot-api.gsh-servers.com",
+          "https://api.nexlinkservers.com",
           "https://discord.com",
           "https://pagead2.googlesyndication.com",
           "https://*.adtrafficquality.google",

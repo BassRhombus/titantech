@@ -1,11 +1,12 @@
 'use client';
 
 import { signIn, useSession } from 'next-auth/react';
+import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Spinner } from '@/components/ui/Spinner';
 
-export default function LoginPage() {
+function LoginContent() {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -56,5 +57,20 @@ export default function LoginPage() {
         <p className="text-text-secondary text-sm mt-4">Redirecting to Discord...</p>
       </div>
     </div>
+  );
+}
+
+// useSearchParams() must sit under a Suspense boundary so the page can still be prerendered.
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary/20 border-t-primary-light" />
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

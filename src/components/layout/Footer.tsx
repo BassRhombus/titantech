@@ -78,7 +78,7 @@ export function Footer() {
                 <FooterLink href="/tools/mod-manager" icon={<Puzzle size={14} />}>Mod Manager</FooterLink>
                 <FooterLink href="/tools/game-ini" icon={<FileCode size={14} />}>Game.ini Generator</FooterLink>
                 <FooterLink href="/tools/commands-ini" icon={<Terminal size={14} />}>Commands.ini Generator</FooterLink>
-                <FooterLink href="/tools/rules-motd" icon={<FileText size={14} />}>Rules/MOTD Generator</FooterLink>
+                <FooterLink href="https://nexlinkcore.com/guides/path-of-titans/tools/path-of-titans-rules-motd-generator" icon={<FileText size={14} />}>Rules/MOTD Generator</FooterLink>
               </ul>
             </div>
 
