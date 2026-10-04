@@ -5,6 +5,7 @@ import {
   FileCode,
   Terminal,
   FileText,
+  Map,
 } from 'lucide-react';
 
 export function Footer() {
@@ -62,6 +63,7 @@ export function Footer() {
                 Community
               </h3>
               <ul className="space-y-2.5">
+                <FooterLink href="/maps/isla-solara" icon={<Map size={14} />}>Isla Solara Map</FooterLink>
                 <FooterLink href="/community">Browse Servers</FooterLink>
                 <FooterLink href="/community/servers/submit">Submit Server</FooterLink>
                 <FooterLink href="/events">Events</FooterLink>

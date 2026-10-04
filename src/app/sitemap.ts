@@ -13,6 +13,7 @@ const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: Ch
   { path: '/gallery', priority: 0.6, changeFrequency: 'weekly' },
   { path: '/suggestions', priority: 0.5, changeFrequency: 'weekly' },
   { path: '/bots', priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/maps/isla-solara', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/tools/game-ini', priority: 0.9, changeFrequency: 'monthly' },
   { path: '/tools/commands-ini', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/tools/mod-manager', priority: 0.8, changeFrequency: 'weekly' },

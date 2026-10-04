@@ -27,6 +27,7 @@ import {
   Bot,
   ImageIcon,
   Swords,
+  Map,
 } from 'lucide-react';
 
 const toolsDropdown = [
@@ -148,6 +149,9 @@ export function Navbar() {
                 )}
               </div>
 
+              <NavLink href="/maps/isla-solara" icon={<Map size={16} />} active={isActive('/maps/isla-solara')}>
+                Isla Solara
+              </NavLink>
               <NavLink href="/gallery" icon={<ImageIcon size={16} />} active={isActive('/gallery')}>
                 Gallery
               </NavLink>
@@ -293,6 +297,9 @@ export function Navbar() {
                   )}
                 </div>
 
+                <MobileNavLink href="/maps/isla-solara" onClick={closeMobile} active={isActive('/maps/isla-solara')}>
+                  <Map size={18} /> Isla Solara
+                </MobileNavLink>
                 <MobileNavLink href="/gallery" onClick={closeMobile} active={isActive('/gallery')}>
                   <ImageIcon size={18} /> Gallery
                 </MobileNavLink>

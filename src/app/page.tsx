@@ -13,6 +13,7 @@ import {
   Users,
   Bot,
   Globe,
+  Waves,
 } from 'lucide-react';
 import { pageMetadata } from '@/lib/seo';
 
@@ -153,7 +154,14 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <FeatureCard
+            icon={<Waves size={24} />}
+            title="Isla Solara Map"
+            description="Our mod map with living tides, storm floods, and admin-controlled weather. Config reference and media inside."
+            href="/maps/isla-solara"
+            color="accent"
+          />
           <FeatureCard
             icon={<Server size={24} />}
             title="Community Servers"

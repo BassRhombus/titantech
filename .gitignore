@@ -58,3 +58,6 @@ ModINI/public/mods_details.json
 .npmrc
 .yarnrc
 .gitnexus
+
+# Large self-hosted videos: copy to the server by hand (GitHub rejects files over 100 MB)
+public/videos/
