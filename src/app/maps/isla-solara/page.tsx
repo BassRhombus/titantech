@@ -1,5 +1,6 @@
+import { Fragment } from 'react';
 import Image from 'next/image';
-import { Waves, CloudLightning, CloudSun, Settings2, Terminal, Video, ImageIcon, Info, FlaskConical, ArrowDown } from 'lucide-react';
+import { Waves, CloudLightning, CloudSun, Zap, Activity, Settings2, Terminal, Video, ImageIcon, Info, FlaskConical, ArrowDown } from 'lucide-react';
 import { islaSolara } from '@/data/isla-solara';
 import { pageMetadata } from '@/lib/seo';
 import { ImageGallery, VideoGallery } from '@/components/maps/MediaGallery';
@@ -11,7 +12,7 @@ export const metadata = pageMetadata({
   path: '/maps/isla-solara',
 });
 
-const highlightIcons = [Waves, CloudLightning, CloudSun];
+const highlightIcons = [Waves, CloudLightning, Zap, Activity, CloudSun];
 
 export default function IslaSolaraPage() {
   const map = islaSolara;
@@ -63,15 +64,15 @@ export default function IslaSolaraPage() {
         <p className="text-text-secondary text-lg leading-relaxed max-w-3xl mx-auto text-center mb-12">
           {map.description}
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
           {map.highlights.map((h, i) => {
             const Icon = highlightIcons[i % highlightIcons.length];
             return (
-              <div key={h.title} className="card p-6">
+              <div key={h.title} className="card p-5">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary-light flex items-center justify-center mb-4">
                   <Icon size={24} />
                 </div>
-                <h3 className="font-heading font-semibold text-lg text-text-primary mb-2">{h.title}</h3>
+                <h3 className="font-heading font-semibold text-base text-text-primary mb-2">{h.title}</h3>
                 <p className="text-text-secondary text-sm leading-relaxed">{h.description}</p>
               </div>
             );
@@ -101,12 +102,12 @@ export default function IslaSolaraPage() {
         <SectionHeading icon={<Settings2 size={20} />} title="Game.ini Settings" subtitle={map.configIntro} />
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-          <div className="card-static overflow-hidden lg:col-span-2 lg:sticky lg:top-24">
+          <div className="card-static overflow-hidden lg:col-span-2">
             <div className="flex items-center justify-between px-4 py-3 border-b border-divider bg-background-secondary/60">
               <span className="font-mono text-xs text-text-secondary">Game.ini</span>
               <CopyButton text={map.gameIni} />
             </div>
-            <pre className="p-4 overflow-x-auto text-sm leading-relaxed font-mono">
+            <pre className="p-4 overflow-auto max-h-[70vh] text-xs sm:text-sm leading-relaxed font-mono">
               <code>{renderIni(map.gameIni)}</code>
             </pre>
           </div>
@@ -120,12 +121,24 @@ export default function IslaSolaraPage() {
                 </tr>
               </thead>
               <tbody>
-                {map.configKeys.map((k) => (
-                  <tr key={k.key} className="border-b border-divider/50 last:border-0 hover:bg-primary/5 transition-colors">
-                    <td className="px-4 py-3 font-mono text-primary-light whitespace-nowrap align-top">{k.key}</td>
-                    <td className="px-4 py-3 text-text-secondary leading-relaxed">{k.meaning}</td>
-                  </tr>
-                ))}
+                {map.configKeys.map((k, i) => {
+                  const newSection = i === 0 || map.configKeys[i - 1].section !== k.section;
+                  return (
+                    <Fragment key={k.key}>
+                      {newSection && (
+                        <tr className="bg-background-secondary/40">
+                          <td colSpan={2} className="px-4 py-2 font-mono text-xs text-secondary-light font-semibold">
+                            {k.section}
+                          </td>
+                        </tr>
+                      )}
+                      <tr className="border-b border-divider/50 last:border-0 hover:bg-primary/5 transition-colors">
+                        <td className="px-4 py-3 font-mono text-primary-light whitespace-nowrap align-top">{k.key}</td>
+                        <td className="px-4 py-3 text-text-secondary leading-relaxed">{k.meaning}</td>
+                      </tr>
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -221,11 +234,15 @@ function renderIni(ini: string) {
       node = <span className="text-text-secondary/60 italic">{line}</span>;
     } else if (line.includes('=')) {
       const eq = line.indexOf('=');
+      const semi = line.indexOf(';', eq);
+      const value = semi === -1 ? line.slice(eq + 1) : line.slice(eq + 1, semi);
+      const comment = semi === -1 ? '' : line.slice(semi);
       node = (
         <>
           <span className="text-primary-light">{line.slice(0, eq)}</span>
           <span className="text-text-secondary">=</span>
-          <span className="text-accent-light">{line.slice(eq + 1)}</span>
+          <span className="text-accent-light">{value}</span>
+          {comment && <span className="text-text-secondary/60 italic">{comment}</span>}
         </>
       );
     }

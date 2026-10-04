@@ -25,6 +25,8 @@ export interface MapVideo {
 export interface ConfigKey {
   key: string;
   meaning: string;
+  /** Game.ini section the key belongs to. Rendered as a divider row in the table. */
+  section: string;
 }
 
 export interface MapCommand {
@@ -39,9 +41,10 @@ export interface CommandGroup {
 
 export const islaSolara = {
   name: 'Isla Solara',
-  tagline: 'A Path of Titans mod map with living tides, storm floods, and server-controlled weather.',
+  tagline:
+    'A Path of Titans mod map with living tides, storm floods, lightning strikes, earthquakes, and server-controlled weather.',
   description:
-    'Isla Solara is a TitanTech mod map built around water. The sea rises and falls with the in-game day, storms can push a flood across the lowlands, and admins can steer the weather mix from inside the game. Everything is tunable from Game.ini.',
+    'Isla Solara is a TitanTech mod map built around water and weather. The sea rises and falls with the in-game day, storms can push a flood across the lowlands and hurl lightning at the ground, tremors shake the whole island, and admins can steer the weather mix from inside the game. Everything is tunable from Game.ini.',
 
   /** Optional hero image shown behind the title. Leave undefined for the gradient backdrop. */
   hero: '/images/isla-solara/beach-clear.jpg' as string | undefined,
@@ -54,6 +57,14 @@ export const islaSolara = {
     {
       title: 'Storm floods',
       description: 'Storms roll a chance to flood. The water rises, holds at its peak, then drains back to the tide.',
+    },
+    {
+      title: 'Lightning strikes',
+      description: "During storms, bolts hit the ground near you: a flash, a crack of thunder, a shove, some damage and a daze. Don't stand in the open.",
+    },
+    {
+      title: 'Earthquakes',
+      description: 'Random tremors with a 10 second warning. The ground shakes and everyone is staggered and dazed until it passes.',
     },
     {
       title: 'Weather control',
@@ -84,43 +95,83 @@ export const islaSolara = {
   ] as MapVideo[],
 
   configIntro:
-    "Everything the mod reads from the server's Game.ini, all in one section. Missing keys keep the map defaults, and the file is read once at server start.",
+    "Everything the mod reads from the server's Game.ini. Tides and floods live under one section, lightning and earthquakes under another. Missing keys keep the map defaults, and the file is read once at server start.",
 
   gameIni: `[IslaSolara.Tides]
 ; --- tides ---
-DefaultTide=auto
-TideRangeCm=250
-TidesPerDay=2
-TidePhaseDeg=0
+DefaultTide=auto          ; auto | high | low | <cm offset>  (0 = tides off)
+TideRangeCm=250           ; swing each way from normal sea level
+TidesPerDay=2             ; high tides per in-game day
+TidePhaseDeg=0            ; shifts the schedule (90 moves highs to 0:00 and 12:00)
 
 ; --- flood event ---
 FloodEnabled=true
-FloodHeightCm=1000
-FloodChancePercent=25
+FloodHeightCm=2000        ; peak above the tide; 2000 = 20 m (about half the island). 5000 / 8000 / 13638 for extreme
+FloodChancePercent=25     ; rolled each time a storm begins
 FloodRiseSeconds=180
 FloodHoldSeconds=480
 FloodDrainSeconds=300
-FloodWarnSeconds=60
-FloodMinGapMinutes=120`,
+FloodWarnSeconds=60       ; warning announcement before the rise
+FloodMinGapMinutes=120    ; minimum time between floods
+
+[IslaSolara.Disasters]
+; --- lightning strikes (storms only) ---
+StrikesEnabled=true
+StrikeIntervalSeconds=12  ; how often the server rolls during a storm
+StrikeChancePercent=40    ; chance per roll
+StrikeRadiusCm=2500       ; bolt lands within this distance of a random player
+StrikeHitRadiusCm=600     ; dinos within this distance of the bolt are hit
+StrikeDamage=150          ; health taken, applied in hits of about 33
+StrikeKnockback=1200
+StrikeDaze=true
+
+; --- earthquakes ---
+QuakeEnabled=true
+QuakeMinMinutes=90        ; random gap between quakes
+QuakeMaxMinutes=240
+QuakeDurationSeconds=25
+QuakeWarnSeconds=10
+QuakeKnockback=600        ; stagger strength
+QuakeShakeScale=1         ; camera shake strength
+QuakeDaze=true`,
 
   configKeys: [
-    { key: 'DefaultTide', meaning: 'auto follows the game day; high or low holds at the range limit; a number holds at that offset in cm. 0 switches tides off.' },
-    { key: 'TideRangeCm', meaning: 'Swing each way from normal sea level, cm.' },
-    { key: 'TidesPerDay', meaning: 'High tides per in-game day.' },
-    { key: 'TidePhaseDeg', meaning: 'Shifts the schedule. 90 moves the highs from 3:00 and 15:00 to 0:00 and 12:00.' },
-    { key: 'FloodEnabled', meaning: 'false disables storm floods. Admins can still start one with /flood start.' },
-    { key: 'FloodHeightCm', meaning: 'Flood peak above the current tide, cm.' },
-    { key: 'FloodChancePercent', meaning: 'Chance rolled each time a storm begins.' },
-    { key: 'FloodRiseSeconds', meaning: 'Time from normal to peak.' },
-    { key: 'FloodHoldSeconds', meaning: 'Time held at peak.' },
-    { key: 'FloodDrainSeconds', meaning: 'Time back to normal.' },
-    { key: 'FloodWarnSeconds', meaning: 'Delay between the warning announcement and the rise.' },
-    { key: 'FloodMinGapMinutes', meaning: 'Minimum time between floods.' },
+    // Tides
+    { section: '[IslaSolara.Tides]', key: 'DefaultTide', meaning: 'auto follows the game day; high or low holds at the range limit; a number holds at that offset in cm. 0 switches tides off.' },
+    { section: '[IslaSolara.Tides]', key: 'TideRangeCm', meaning: 'Swing each way from normal sea level, cm.' },
+    { section: '[IslaSolara.Tides]', key: 'TidesPerDay', meaning: 'High tides per in-game day.' },
+    { section: '[IslaSolara.Tides]', key: 'TidePhaseDeg', meaning: 'Shifts the schedule. 90 moves the highs from 3:00 and 15:00 to 0:00 and 12:00.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodEnabled', meaning: 'false disables storm floods. Admins can still start one with /flood start.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodHeightCm', meaning: 'Flood peak above the current tide, cm. 2000 is 20 m and covers about half the island. Try 5000, 8000 or 13638 for an extreme flood.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodChancePercent', meaning: 'Chance rolled each time a storm begins.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodRiseSeconds', meaning: 'Time from normal to peak.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodHoldSeconds', meaning: 'Time held at peak.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodDrainSeconds', meaning: 'Time back to normal.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodWarnSeconds', meaning: 'Delay between the warning announcement and the rise.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodMinGapMinutes', meaning: 'Minimum time between floods.' },
+    // Lightning strikes
+    { section: '[IslaSolara.Disasters]', key: 'StrikesEnabled', meaning: 'false disables lightning strikes during storms. Admins can still fire one with /strike now.' },
+    { section: '[IslaSolara.Disasters]', key: 'StrikeIntervalSeconds', meaning: 'How often the server rolls for a strike while a storm is running.' },
+    { section: '[IslaSolara.Disasters]', key: 'StrikeChancePercent', meaning: 'Chance per roll.' },
+    { section: '[IslaSolara.Disasters]', key: 'StrikeRadiusCm', meaning: 'The bolt lands within this distance of a random player.' },
+    { section: '[IslaSolara.Disasters]', key: 'StrikeHitRadiusCm', meaning: 'Dinos within this distance of the bolt are hit.' },
+    { section: '[IslaSolara.Disasters]', key: 'StrikeDamage', meaning: 'Health taken from each dino hit, applied in hits of about 33.' },
+    { section: '[IslaSolara.Disasters]', key: 'StrikeKnockback', meaning: 'Strength of the shove when a bolt hits.' },
+    { section: '[IslaSolara.Disasters]', key: 'StrikeDaze', meaning: 'false turns off the daze after a hit.' },
+    // Earthquakes
+    { section: '[IslaSolara.Disasters]', key: 'QuakeEnabled', meaning: 'false disables random earthquakes. Admins can still start one with /quake now.' },
+    { section: '[IslaSolara.Disasters]', key: 'QuakeMinMinutes', meaning: 'Shortest gap between quakes. The next one is rolled between the min and max.' },
+    { section: '[IslaSolara.Disasters]', key: 'QuakeMaxMinutes', meaning: 'Longest gap between quakes.' },
+    { section: '[IslaSolara.Disasters]', key: 'QuakeDurationSeconds', meaning: 'How long the shaking lasts.' },
+    { section: '[IslaSolara.Disasters]', key: 'QuakeWarnSeconds', meaning: 'Warning before the ground starts to shake.' },
+    { section: '[IslaSolara.Disasters]', key: 'QuakeKnockback', meaning: 'Stagger strength while the quake runs.' },
+    { section: '[IslaSolara.Disasters]', key: 'QuakeShakeScale', meaning: 'Camera shake strength. 1 is the default; higher is stronger.' },
+    { section: '[IslaSolara.Disasters]', key: 'QuakeDaze', meaning: 'false turns off the daze during a quake.' },
   ] as ConfigKey[],
 
   /** Commands.ini snippet that grants access to the admin commands. */
   permissionIntro:
-    'The admin commands need a permission in Commands.ini. Add the line below to whichever role should be able to use them.',
+    'All of the admin commands below need one permission in Commands.ini. Add the line to whichever role should be able to use them.',
   permissionIni: `[Role:Moderator]
 +Permission=calluds`,
 
@@ -156,10 +207,36 @@ FloodMinGapMinutes=120`,
         { command: '/flood height <cm>', description: 'Default flood height.' },
       ],
     },
+    {
+      title: 'Lightning strikes',
+      commands: [
+        { command: '/strike now', description: 'Fire a bolt right now, storm or not.' },
+        { command: '/strike on', description: 'Enable storm lightning strikes.' },
+        { command: '/strike off', description: 'Disable them. /strike now still works.' },
+        { command: '/strike chance <percent>', description: 'Chance per roll during a storm.' },
+        { command: '/strike damage <hp>', description: 'Health taken from each dino hit.' },
+        { command: '/strike interval <seconds>', description: 'How often the server rolls during a storm.' },
+        { command: '/strike dazeon', description: 'Hits daze the dino.' },
+        { command: '/strike dazeoff', description: 'Hits shove and damage only.' },
+      ],
+    },
+    {
+      title: 'Earthquakes',
+      commands: [
+        { command: '/quake now', description: 'Start a quake right now, after the usual warning.' },
+        { command: '/quake on', description: 'Enable random earthquakes.' },
+        { command: '/quake off', description: 'Disable them. /quake now still works.' },
+        { command: '/quake duration <seconds>', description: 'How long the shaking lasts.' },
+        { command: '/quake min <minutes>', description: 'Shortest gap between random quakes.' },
+        { command: '/quake max <minutes>', description: 'Longest gap between random quakes.' },
+        { command: '/quake dazeon', description: 'Everyone is dazed until the quake passes.' },
+        { command: '/quake dazeoff', description: 'Stagger only, no daze.' },
+      ],
+    },
   ] as CommandGroup[],
 
   commandsNote:
     'Changes made with these commands last until the server restarts. Game.ini sets the defaults that apply on every boot.',
   testingTip:
-    'A useful testing combo: /flood chance 100 then /setweathermix 0 0 0 0 0 100 0 forces a storm, and the next storm start triggers a flood.',
+    'A useful testing combo: /flood chance 100 then /setweathermix 0 0 0 0 0 100 0 forces a storm, and the next storm start triggers a flood. The same storm will start rolling for lightning strikes.',
 };
