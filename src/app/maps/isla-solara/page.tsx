@@ -101,18 +101,18 @@ export default function IslaSolaraPage() {
       <section id="config" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-20">
         <SectionHeading icon={<Settings2 size={20} />} title="Game.ini Settings" subtitle={map.configIntro} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-          <div className="card-static overflow-hidden lg:col-span-2">
+        <div className="flex flex-col gap-6">
+          <div className="card-static overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-divider bg-background-secondary/60">
               <span className="font-mono text-xs text-text-secondary">Game.ini</span>
               <CopyButton text={map.gameIni} />
             </div>
-            <pre className="p-4 overflow-auto max-h-[70vh] text-xs sm:text-sm leading-relaxed font-mono">
+            <pre className="p-4 text-xs sm:text-sm leading-relaxed font-mono whitespace-pre-wrap break-words">
               <code>{renderIni(map.gameIni)}</code>
             </pre>
           </div>
 
-          <div className="card-static overflow-hidden lg:col-span-3">
+          <div className="card-static overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-divider bg-background-secondary/60 text-left">
