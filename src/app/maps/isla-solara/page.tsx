@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import Image from 'next/image';
-import { Waves, CloudLightning, CloudSun, Zap, Activity, Settings2, Terminal, Video, ImageIcon, Info, FlaskConical, ArrowDown } from 'lucide-react';
+import { Waves, CloudLightning, CloudSun, Zap, Activity, Settings2, Terminal, Video, ImageIcon, Layers, Info, FlaskConical, ArrowDown } from 'lucide-react';
 import { islaSolara } from '@/data/isla-solara';
 import { pageMetadata } from '@/lib/seo';
 import { ImageGallery, VideoGallery } from '@/components/maps/MediaGallery';
@@ -94,6 +94,12 @@ export default function IslaSolaraPage() {
             <SectionHeading icon={<ImageIcon size={20} />} title="Screenshots" subtitle="Views from around the island." />
             <ImageGallery images={map.images} />
           </div>
+          {map.comparisons.map((set) => (
+            <div key={set.title}>
+              <SectionHeading icon={<Layers size={20} />} title={set.title} subtitle={set.subtitle} />
+              <ImageGallery images={set.images} />
+            </div>
+          ))}
         </div>
       </section>
 

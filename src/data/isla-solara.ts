@@ -22,6 +22,12 @@ export interface MapVideo {
   caption?: string;
 }
 
+export interface ComparisonSet {
+  title: string;
+  subtitle?: string;
+  images: MapImage[];
+}
+
 export interface ConfigKey {
   key: string;
   meaning: string;
@@ -93,6 +99,30 @@ export const islaSolara = {
       caption: 'The /flood start command: the water rises to the configured height, holds, then drains back to the tide.',
     },
   ] as MapVideo[],
+
+  /** Labeled image sets that show the island under different conditions. */
+  comparisons: [
+    {
+      title: 'Skies and weather',
+      subtitle: 'The same island under different weather mixes and times of day.',
+      images: [
+        { src: '/images/isla-solara/clear-sky.jpg', alt: 'Blue sky with white cumulus clouds over Isla Solara', caption: 'Clear' },
+        { src: '/images/isla-solara/sunset-sky.jpg', alt: 'Pink and purple haze over clouds at dusk', caption: 'Dusk haze' },
+        { src: '/images/isla-solara/thunder-peak-overcast.jpg', alt: 'Heavy grey clouds rolling over Thunder Peak', caption: 'Overcast at Thunder Peak' },
+        { src: '/images/isla-solara/aurora-green.jpg', alt: 'Green aurora curtains beneath the moon', caption: 'Aurora: green under the moon' },
+        { src: '/images/isla-solara/aurora-pink.jpg', alt: 'Pink and blue aurora ribbons in a starry sky', caption: 'Aurora: pink and blue' },
+      ],
+    },
+    {
+      title: 'After dark',
+      subtitle: 'Night on Isla Solara has its own light.',
+      images: [
+        { src: '/images/isla-solara/glowing-pond.jpg', alt: 'A bioluminescent pond with giant lily pads at night', caption: 'Bioluminescent lily pond' },
+        { src: '/images/isla-solara/glowing-plant.jpg', alt: 'A pterosaur beside a glowing plant on the beach', caption: 'Glowing plant on the shore' },
+        { src: '/images/isla-solara/night-feeding.jpg', alt: 'A pterosaur pulling a fish from a hollow log on a dark beach', caption: 'Fishing from a hollow log' },
+      ],
+    },
+  ] as ComparisonSet[],
 
   configIntro:
     "Everything the mod reads from the server's Game.ini. Tides and floods live under one section, lightning and earthquakes under another. Missing keys keep the map defaults, and the file is read once at server start.",
