@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import Image from 'next/image';
-import { Waves, CloudLightning, CloudSun, Zap, Activity, Settings2, Terminal, Video, ImageIcon, Layers, Info, FlaskConical, ArrowDown } from 'lucide-react';
+import { Waves, CloudLightning, CloudSun, Zap, Activity, Settings2, Terminal, Video, ImageIcon, Layers, Keyboard, Info, FlaskConical, ArrowDown } from 'lucide-react';
 import { islaSolara } from '@/data/isla-solara';
 import { pageMetadata } from '@/lib/seo';
 import { ImageGallery, VideoGallery } from '@/components/maps/MediaGallery';
@@ -200,6 +200,31 @@ export default function IslaSolaraPage() {
                 </ul>
               </div>
             ))}
+          </div>
+
+          {/* Player keys */}
+          <div className="card-static overflow-hidden mt-8">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-divider bg-background-secondary/60">
+              <div className="flex items-center gap-2 font-heading font-semibold text-text-primary">
+                <Keyboard size={18} className="text-secondary-light" />
+                Player keys
+              </div>
+              <span className="chip-secondary text-xs">No permission needed</span>
+            </div>
+            <div className="p-4">
+              <p className="text-text-secondary text-sm mb-3">{map.playerKeys.intro}</p>
+              <ul className="divide-y divide-divider/50 rounded-lg border border-divider/60 overflow-hidden">
+                {map.playerKeys.keys.map((k) => (
+                  <li key={k.key} className="flex items-start gap-4 px-4 py-3 hover:bg-primary/5 transition-colors">
+                    <kbd className="shrink-0 min-w-[2.25rem] text-center font-mono text-sm font-semibold px-2 py-1 rounded-md bg-background border border-divider text-primary-light">
+                      {k.key}
+                    </kbd>
+                    <p className="text-text-secondary text-sm leading-relaxed">{k.description}</p>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-text-secondary text-xs leading-relaxed mt-3">{map.playerKeys.note}</p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">

@@ -40,6 +40,11 @@ export interface MapCommand {
   description: string;
 }
 
+export interface PlayerKey {
+  key: string;
+  description: string;
+}
+
 export interface CommandGroup {
   title: string;
   commands: MapCommand[];
@@ -107,7 +112,7 @@ export const islaSolara = {
       subtitle: 'The same island under different weather mixes and times of day.',
       images: [
         { src: '/images/isla-solara/clear-sky.jpg', alt: 'Blue sky with white cumulus clouds over Isla Solara', caption: 'Clear' },
-        { src: '/images/isla-solara/sunset-sky.jpg', alt: 'Pink and purple haze over clouds at dusk', caption: 'Dusk haze' },
+        { src: '/images/isla-solara/sunset-sky.jpg', alt: 'Pink and purple haze over clouds at dusk', caption: 'Old Clouds' },
         { src: '/images/isla-solara/thunder-peak-overcast.jpg', alt: 'Heavy grey clouds rolling over Thunder Peak', caption: 'Overcast at Thunder Peak' },
         { src: '/images/isla-solara/aurora-green.jpg', alt: 'Green aurora curtains beneath the moon', caption: 'Aurora: green under the moon' },
         { src: '/images/isla-solara/aurora-pink.jpg', alt: 'Pink and blue aurora ribbons in a starry sky', caption: 'Aurora: pink and blue' },
@@ -125,7 +130,7 @@ export const islaSolara = {
   ] as ComparisonSet[],
 
   configIntro:
-    "Everything the mod reads from the server's Game.ini. Tides and floods live under one section, lightning and earthquakes under another. Missing keys keep the map defaults, and the file is read once at server start.",
+    "Everything the mod reads from the server's Game.ini. Tides and floods live under one section, lightning and earthquakes under another, and world toggles under a third. Missing keys keep the map defaults, and the file is read once at server start.",
 
   gameIni: `[IslaSolara.Tides]
 ; --- tides ---
@@ -136,7 +141,7 @@ TidePhaseDeg=0            ; shifts the schedule (90 moves highs to 0:00 and 12:0
 
 ; --- flood event ---
 FloodEnabled=true
-FloodHeightCm=2000        ; peak above the tide; 2000 = 20 m (about half the island). 5000 / 8000 / 13638 for extreme
+FloodHeightCm=2000        ; peak above the tide; 2000 = 20 m (about half the island). Max 10000 (100 m)
 FloodChancePercent=25     ; rolled each time a storm begins
 FloodRiseSeconds=180
 FloodHoldSeconds=480
@@ -163,7 +168,10 @@ QuakeDurationSeconds=25
 QuakeWarnSeconds=10
 QuakeKnockback=600        ; stagger strength
 QuakeShakeScale=1         ; camera shake strength
-QuakeDaze=true`,
+QuakeDaze=true
+
+[IslaSolara.World]
+SkyIsland=1               ; 1 = floating island shown (default), 0 = hidden for everyone`,
 
   configKeys: [
     // Tides
@@ -172,7 +180,7 @@ QuakeDaze=true`,
     { section: '[IslaSolara.Tides]', key: 'TidesPerDay', meaning: 'High tides per in-game day.' },
     { section: '[IslaSolara.Tides]', key: 'TidePhaseDeg', meaning: 'Shifts the schedule. 90 moves the highs from 3:00 and 15:00 to 0:00 and 12:00.' },
     { section: '[IslaSolara.Tides]', key: 'FloodEnabled', meaning: 'false disables storm floods. Admins can still start one with /flood start.' },
-    { section: '[IslaSolara.Tides]', key: 'FloodHeightCm', meaning: 'Flood peak above the current tide, cm. 2000 is 20 m and covers about half the island. Try 5000, 8000 or 13638 for an extreme flood.' },
+    { section: '[IslaSolara.Tides]', key: 'FloodHeightCm', meaning: 'Flood peak above the current tide, cm. 2000 is 20 m and covers about half the island. Maximum 10000 (100 m).' },
     { section: '[IslaSolara.Tides]', key: 'FloodChancePercent', meaning: 'Chance rolled each time a storm begins.' },
     { section: '[IslaSolara.Tides]', key: 'FloodRiseSeconds', meaning: 'Time from normal to peak.' },
     { section: '[IslaSolara.Tides]', key: 'FloodHoldSeconds', meaning: 'Time held at peak.' },
@@ -197,6 +205,8 @@ QuakeDaze=true`,
     { section: '[IslaSolara.Disasters]', key: 'QuakeKnockback', meaning: 'Stagger strength while the quake runs.' },
     { section: '[IslaSolara.Disasters]', key: 'QuakeShakeScale', meaning: 'Camera shake strength. 1 is the default; higher is stronger.' },
     { section: '[IslaSolara.Disasters]', key: 'QuakeDaze', meaning: 'false turns off the daze during a quake.' },
+    // World
+    { section: '[IslaSolara.World]', key: 'SkyIsland', meaning: '0 hides the floating island, its rocks, pool, food and plants for every player from server start, with no collision left behind. 1 or missing keeps it. /skyisland changes it live.' },
   ] as ConfigKey[],
 
   /** Commands.ini snippet that grants access to the admin commands. */
@@ -210,7 +220,7 @@ QuakeDaze=true`,
       title: 'Weather',
       commands: [
         { command: '/callUDS', description: 'Opens the weather mix panel: one slider per weather type, Apply and Close. Also shows the current tide line.' },
-        { command: '/setweathermix <Clear> <Fog> <Overcast> <Cloudy> <Rain> <Storm> <Snow>', description: 'Sets the seven weights directly, e.g. /setweathermix 60 5 10 20 20 10 0. Higher weight, more likely. The server re-rolls every 8 to 18 minutes and right after a change.' },
+        { command: '/setweathermix <Clear> <Fog> <Overcast> <Cloudy> <Rain> <Storm> <Snow>', description: "Sets the seven weights directly, e.g. /setweathermix 60 5 10 20 20 10 0. Higher weight, more likely. The server re-rolls every 8 to 18 minutes and right after a change. While a mix is active the game's own weather cycle is paused. Rain and storms from the mix wet you like natural weather." },
         { command: '/setweathermix auto', description: "Hands weather back to the game's own cycle." },
       ],
     },
@@ -221,7 +231,7 @@ QuakeDaze=true`,
         { command: '/tide auto', description: 'Follow the game day.' },
         { command: '/tide high', description: 'Hold the sea at the top of the range.' },
         { command: '/tide low', description: 'Hold it at the bottom.' },
-        { command: '/tide hold <cm>', description: 'Hold at any offset, e.g. /tide hold 120 or /tide hold 0 to switch tides off.' },
+        { command: '/tide hold <cm>', description: 'Hold at any offset, e.g. /tide hold 120, or /tide hold 0 to switch tides off.' },
         { command: '/tide range <cm>', description: 'Change the swing each way.' },
         { command: '/tide perday <n>', description: 'Tides per in-game day.' },
       ],
@@ -229,18 +239,30 @@ QuakeDaze=true`,
     {
       title: 'Flood',
       commands: [
-        { command: '/flood', description: 'Status: whether a flood is running, storm floods on or off, height, chance.' },
+        { command: '/flood', description: 'Status: whether a flood is running, storm floods on or off, height, chance, rise, hold and drain times.' },
         { command: '/flood start', description: 'Start a flood now at the configured height.' },
-        { command: '/flood start <cm>', description: 'Start one at a specific height, e.g. /flood start 400.' },
+        { command: '/flood start <cm>', description: 'Start one at a specific height, e.g. /flood start 400. Capped at 10000.' },
         { command: '/flood stop', description: 'End the current flood. The water glides back to the tide.' },
         { command: '/flood chance <percent>', description: 'Chance rolled each time a storm begins.' },
-        { command: '/flood height <cm>', description: 'Default flood height.' },
+        { command: '/flood height <cm>', description: 'Default flood height. Capped at 10000.' },
+        { command: '/flood rise <seconds>', description: 'How long the next flood takes to rise.' },
+        { command: '/flood hold <seconds>', description: 'How long it stays at the peak.' },
+        { command: '/flood drain <seconds>', description: 'How long it takes to drain. A flood already running keeps its own times.' },
+      ],
+    },
+    {
+      title: 'Sky island',
+      commands: [
+        { command: '/skyisland', description: 'Status: shown or hidden.' },
+        { command: '/skyisland on', description: 'Show the floating island for everyone, within 5 seconds.' },
+        { command: '/skyisland off', description: 'Hide it, and everything on it, for everyone. Players on it will fall.' },
       ],
     },
     {
       title: 'Lightning strikes',
       commands: [
-        { command: '/strike now', description: 'Fire a bolt right now, storm or not.' },
+        { command: '/strike', description: 'Status.' },
+        { command: '/strike now', description: 'Fire a bolt right now, 8 m in front of you, storm or not.' },
         { command: '/strike on', description: 'Enable storm lightning strikes.' },
         { command: '/strike off', description: 'Disable them. /strike now still works.' },
         { command: '/strike chance <percent>', description: 'Chance per roll during a storm.' },
@@ -253,6 +275,7 @@ QuakeDaze=true`,
     {
       title: 'Earthquakes',
       commands: [
+        { command: '/quake', description: 'Status.' },
         { command: '/quake now', description: 'Start a quake right now, after the usual warning.' },
         { command: '/quake on', description: 'Enable random earthquakes.' },
         { command: '/quake off', description: 'Disable them. /quake now still works.' },
@@ -264,6 +287,16 @@ QuakeDaze=true`,
       ],
     },
   ] as CommandGroup[],
+
+  /** Keys every player can use. No Commands.ini permission involved. */
+  playerKeys: {
+    intro: 'Two keys work for every player with no permission needed.',
+    keys: [
+      { key: 'L', description: 'Highlights food and corpses within 100 m in green for 10 seconds, through terrain.' },
+      { key: 'K', description: 'Highlights what your active quests want, and quest pickups, in blue for 10 seconds.' },
+    ] as PlayerKey[],
+    note: 'Each key has its own one-minute cooldown. Players can rebind them in their own GameUserSettings.ini under [IslaSolara.Client]: FoodHighlightKey, FoodHighlightQuestKey, FoodHighlightRadiusCm, FoodHighlightSeconds, FoodHighlightCooldownSeconds.',
+  },
 
   commandsNote:
     'Changes made with these commands last until the server restarts. Game.ini sets the defaults that apply on every boot.',
