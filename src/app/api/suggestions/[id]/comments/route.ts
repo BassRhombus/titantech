@@ -5,7 +5,7 @@ import { checkCommentCooldown } from '@/lib/rate-limit';
 
 // POST /api/suggestions/[id]/comments - Add a comment
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const cooldown = checkCommentCooldown();
+  const cooldown = await checkCommentCooldown();
   if (cooldown) return cooldown;
 
   const { id } = await params;

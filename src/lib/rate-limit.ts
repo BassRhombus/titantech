@@ -15,9 +15,9 @@ function getStore(name: string): Map<string, RateLimitEntry> {
   return stores.get(name)!;
 }
 
-function getClientIp(): string {
-  const hdrs = headers();
-  return (hdrs as any).get?.('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+async function getClientIp(): Promise<string> {
+  const hdrs = await headers();
+  return hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 }
 
 interface RateLimitConfig {
@@ -28,7 +28,7 @@ interface RateLimitConfig {
 
 export function createRateLimiter(config: RateLimitConfig) {
   return async function checkRateLimit(): Promise<NextResponse | null> {
-    const ip = getClientIp();
+    const ip = await getClientIp();
     const store = getStore(config.name);
     const now = Date.now();
     const entry = store.get(ip);
@@ -59,8 +59,8 @@ export const webhookLimit = createRateLimiter({ name: 'webhook', windowMs: 60 * 
 // Comment cooldown (30 seconds per IP)
 const commentCooldown = new Map<string, number>();
 
-export function checkCommentCooldown(): NextResponse | null {
-  const ip = getClientIp();
+export async function checkCommentCooldown(): Promise<NextResponse | null> {
+  const ip = await getClientIp();
   const now = Date.now();
   const lastComment = commentCooldown.get(ip);
 
