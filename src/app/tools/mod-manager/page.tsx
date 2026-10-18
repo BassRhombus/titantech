@@ -27,6 +27,7 @@ export default function ModManagerPage() {
   const [showPreview, setShowPreview] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [invalidModIds, setInvalidModIds] = useState<string[]>([]);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -48,6 +49,15 @@ export default function ModManagerPage() {
     } catch {} finally {
       setLoading(false);
     }
+  }
+
+  function toggleExpanded(modId: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(modId)) next.delete(modId);
+      else next.add(modId);
+      return next;
+    });
   }
 
   async function handleRefresh() {
@@ -276,15 +286,32 @@ export default function ModManagerPage() {
               {filtered.map((mod) => {
                 const isSelected = selectedIds.has(mod.mod_id);
                 const restricted = mod.is_host_restricted === true;
+                const isExpanded = expandedIds.has(mod.mod_id);
+                const hasLongDescription =
+                  !!mod.description && (mod.description.length > 110 || mod.description.includes('\n'));
                 return (
-                  <button
+                  <div
                     key={mod.mod_id}
-                    onClick={() => toggleMod(mod.mod_id)}
-                    disabled={restricted}
+                    role="button"
+                    tabIndex={restricted ? -1 : 0}
+                    aria-pressed={restricted ? undefined : isSelected}
+                    aria-disabled={restricted || undefined}
+                    onClick={() => !restricted && toggleMod(mod.mod_id)}
+                    onKeyDown={(e) => {
+                      if (restricted || e.target !== e.currentTarget) return;
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleMod(mod.mod_id);
+                      }
+                    }}
                     title={restricted ? 'This mod is restricted and cannot be added to a server' : undefined}
-                    className={`relative card p-3 flex items-start gap-3 text-left transition-colors ${
+                    className={`relative card p-3 flex items-start gap-3 text-left transition-colors self-start ${
                       restricted
-                        ? 'opacity-60 cursor-not-allowed border-yellow-500/40 hover:border-yellow-500/40'
+                        ? 'cursor-not-allowed border-yellow-500/40 hover:border-yellow-500/40'
+                        : 'cursor-pointer'
+                    } ${
+                      restricted
+                        ? ''
                         : isSelected
                           ? 'border-primary bg-primary/5'
                           : ''
@@ -302,10 +329,10 @@ export default function ModManagerPage() {
                         alt=""
                         width={64}
                         height={64}
-                        className="rounded-lg object-cover shrink-0 w-16 h-16"
+                        className={`rounded-lg object-cover shrink-0 w-16 h-16 ${restricted ? 'opacity-60' : ''}`}
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-lg bg-surface flex items-center justify-center shrink-0">
+                      <div className={`w-16 h-16 rounded-lg bg-surface flex items-center justify-center shrink-0 ${restricted ? 'opacity-60' : ''}`}>
                         <Puzzle size={24} className="text-text-secondary/30" />
                       </div>
                     )}
@@ -313,7 +340,31 @@ export default function ModManagerPage() {
                       <p className="text-sm font-medium text-text-primary truncate">{mod.name || mod.mod_id}</p>
                       {mod.creator && <p className="text-xs text-text-secondary">by {mod.creator}</p>}
                       {mod.description && (
-                        <p className="text-xs text-text-secondary line-clamp-2 mt-0.5">{mod.description}</p>
+                        <div>
+                          <p
+                            id={`mod-desc-${mod.mod_id}`}
+                            className={`text-xs text-text-secondary mt-0.5 whitespace-pre-line break-words ${
+                              isExpanded ? '' : 'line-clamp-2'
+                            }`}
+                          >
+                            {mod.description}
+                          </p>
+                          {hasLongDescription && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleExpanded(mod.mod_id);
+                              }}
+                              aria-expanded={isExpanded}
+                              aria-controls={`mod-desc-${mod.mod_id}`}
+                              className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary-light hover:text-text-primary transition-colors"
+                            >
+                              {isExpanded ? 'Show less' : 'Show more'}
+                              {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                            </button>
+                          )}
+                        </div>
                       )}
                       <code className="text-[10px] text-text-secondary/70 mt-1 block truncate">{mod.mod_id}</code>
                     </div>
@@ -322,7 +373,7 @@ export default function ModManagerPage() {
                         {isSelected ? <CheckSquare size={20} /> : <Square size={20} />}
                       </div>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
